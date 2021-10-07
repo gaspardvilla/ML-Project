@@ -7,7 +7,7 @@ def least_squares(y, tx):
     w = np.linalg.solve(a, b)
     mse = compute_mse (y, tx, w)
     # returns mse, and optimal weights
-    return mse, weights
+    return mse, w
 
 def ridge_regression(y, tx, lambda_):
     """implement ridge regression."""

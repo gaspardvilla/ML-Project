@@ -118,3 +118,29 @@ def stochastic_gradient_descent(y, tx, initial_w, max_iters, gamma, batch_size =
     return losses, ws
 
 # -------------------------------------------------------------------------- #
+
+def sigmoid(t):
+    return 1 / (1 + np.exp(-t))
+
+# -------------------------------------------------------------------------- #
+
+def compute_loss_lr(y, tx, w):
+    loss = np.transpose(ones(len(y)).dot(np.log(1 + np.exp(tx.dot(w))) - np.transpose(y).dot(tx.dot(x))
+    return loss
+                                         
+# -------------------------------------------------------------------------- #
+
+def compute_gradient(y, tx, w):
+    sigma = sigmoid(tx.dot(w))
+    grad = np.transpose(tx).dot(sigma - y)
+    return grad
+
+# -------------------------------------------------------------------------- #                                         
+                                         
+def logistic_regression_with_gradient_descent(y, tx, w, gamma):
+    loss = compute_loss_lr(y, tx, w)
+    grad = compute_gradient(y, tx, w)
+    w = w - gamma * grad
+    return loss, w
+
+# -------------------------------------------------------------------------- #

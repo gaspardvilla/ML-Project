@@ -37,8 +37,7 @@ def least_squares_GD(y, tx, initial_w, max_iters, gamma):
     # Gradient descent algorithm
     
     # Definition of all the parameters
-    weights = [initial_w]
-    losses = []
+    loss = 0
     weight = initial_w
     
     # Loop for on the number of iterations
@@ -52,15 +51,6 @@ def least_squares_GD(y, tx, initial_w, max_iters, gamma):
         
         # Update the weight parameters
         weight = weight - (gamma * grad)
-        
-        # Store the losses and the weights
-        weights.append(weight)
-        losses.append(loss)
-        
-        # Print the loss at each iteration
-        #print("Gradient Descent({bi}/{ti}): loss={l}".format(bi = nb_iter,
-        #                                        ti = max_iters - 1, l = loss))
-        
     return loss, weight
 
 # -------------------------------------------------------------------------- #
@@ -149,16 +139,25 @@ def sigmoid(t):
     return 1 / (1 + np.exp(-t))
 
 def compute_loss_lr(y, tx, w):
-    loss = np.transpose(np.ones(len(y)).dot(np.log(1 + np.exp(tx.dot(w))) - np.transpose(y).dot(tx.dot(w))))
-    return loss
+    t = tx.dot(w)
+    sigma = sigmoid(t)
+    return - (y.T.dot(np.log(sigma)) + (1 - y).T.dot(np.log(1 - sigma)))
 
 def compute_gradient(y, tx, w):
     sigma = sigmoid(tx.dot(w))
     grad = np.transpose(tx).dot(sigma - y)
     return grad
 
-def logistic_regression_GD(y, tx, w, gamma):
-    loss = compute_loss_lr(y, tx, w)
-    grad = compute_gradient(y, tx, w)
-    w = w - gamma * grad
+def logistic_regression_GD(y, tx, initial_w, gamma, max_iter):
+    # INitialization
+    w = initial_w
+    loss = 0
+
+    # Loop for on the number of iterations
+    for nb_iter in range(max_iter):
+        loss = compute_loss_lr(y, tx, w)
+        grad = compute_gradient(y, tx, w)
+        w = w - gamma * grad
+    
+    # Return the results
     return loss, w

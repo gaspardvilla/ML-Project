@@ -46,3 +46,12 @@ def create_csv_submission(ids, y_pred, name):
         writer.writeheader()
         for r1, r2 in zip(ids, y_pred):
             writer.writerow({'Id':int(r1),'Prediction':int(r2)})
+
+
+def counting_errors(pred_set, true_set):
+    # Count the number of true predictions
+    N = np.shape(pred_set)[0]
+    Nb_errors = np.count_nonzero(pred_set != true_set)
+    
+    print("Numbers of errors : ", Nb_errors, " // Error accuracy [%] : %", (Nb_errors / N) * 100)
+    return 0

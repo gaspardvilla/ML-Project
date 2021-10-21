@@ -45,8 +45,7 @@ def clean_constant_features(tx):
     ind_const = []
     for i in range (tx.shape[1]):
         if (constant_feature(tx[:,i]) == True):
-            ind_const.append(i)
-            print('constant feature : ' + str(i + 1))      
+            ind_const.append(i)     
     tx = np.delete(tx, ind_const, axis = 1)
     return tx
 
@@ -70,7 +69,6 @@ def clean_correlated_features(data_set):
     # if there is no correlated features, return the data set
     if (not corr_features):
         return data_set
-    print('correlation')
     corr_feat_to_delete = [corr_features[0][0]]
     for i in range (1, len(corr_features) - 1):
         if (corr_features[i][0] != corr_features[i-1][0]):
@@ -119,6 +117,56 @@ def y_classification(y, data_set):
 
 # -------------------------------------------------------------------------- #
 
+def clear_features_class_0(class_0):
+    '''
+    delete features that shouldn't be taken into account for the model for class 0:
+    DER_deltaeta_jet_jet = feature 4
+    DER_mass_jet_jet = feature 5
+    DER_prodeta_jet_jet = feature 6
+    DER_pt_tot = feature 8
+    DER_sum_pt = feature 9
+    DER_lep_eta_centrality = feature 12
+    PRI_jet_leading_pt = feature 23
+    PRI_jet_leading_eta = feature 24
+    PRI_jet_leading_phi = feature 25
+    PRI_jet_subleading_pt = feature 26
+    PRI_jet_subleading_eta = feature 27
+    PRI_jet_subleading_phi = feature 28
+    '''
+    ind_features_to_delete = np.array([4, 5, 6, 8, 9, 12, 23, 24 , 25, 26, 27, 28]) 
+    class_0 = np.delete(class_0, ind_features_to_delete, axis = 1)
+    return class_0
+    
+# -------------------------------------------------------------------------- #
+
+def clear_features_class_1(class_1):
+    '''
+    delete features that shouldn't be taken into account for the model for class 0:
+    DER_deltaeta_jet_jet = feature 4
+    DER_mass_jet_jet = feature 5
+    DER_prodeta_jet_jet = feature 6
+    DER_lep_eta_centrality = feature 12
+    PRI_jet_subleading_pt = feature 26
+    PRI_jet_subleading_eta = feature 27
+    PRI_jet_subleading_phi = feature 28
+    ''' 
+    ind_features_to_delete = np.array([4, 5, 6, 12, 26, 27, 28]) 
+    class_1 = np.delete(class_1, ind_features_to_delete, axis = 1) 
+    return class_1
+
+# -------------------------------------------------------------------------- #
+
+def clear_features_class_3(class_3):
+    '''
+    delete features that shouldn't be taken into account for the model for class 0:
+    DER_pt_tot = feature 8
+    ''' 
+    ind_features_to_delete = np.array([8]) 
+    class_3 = np.delete(class_3, ind_features_to_delete, axis = 1)    
+    return class_3
+    
+# -------------------------------------------------------------------------- #
+
 def indices_outliers(feature):
     '''find outliers indices''' 
     Q1 = np.percentile(feature, 25)
@@ -147,27 +195,6 @@ def treating_outliers(feature):
     return feature
 
 # -------------------------------------------------------------------------- #
-
-'''def clean_train_set(train_set):
-    # Loop over all the columns of the train set
-    for i in range (train_set.shape[1]):
-        train_set[:,i] = treating_outliers(train_set[:,i])
-    
-    # Return the cleaned train set
-    return train_set'''
-
-# -------------------------------------------------------------------------- #
-
-'''def clean_test_set(test_set):
-    # Loop over all the columns of the test set
-    for i in range (test_set.shape[1]):
-        test_set[:,i] = treating_outliers(test_set[:,i])
-    
-    # Return the cleaned test set
-    return test_set'''
-
-# -------------------------------------------------------------------------- #
-
 ''' comme clean_test_set et clean_train_test font la même chose mais juste sur des data set differents je me suis dit que c'était sûrement mieux de faire juste une fonction et on lui passe le train ou le test set en argument '''
 def clean_set(data_set):
     # Loop over all the columns of the test set
@@ -177,27 +204,6 @@ def clean_set(data_set):
     # Return the cleaned data set
     return data_set
 
-# -------------------------------------------------------------------------- #
-
-def tx_class_0(class_0):
-    '''delete features that shouldn't be taken into account for the model for class 0:
-    DER_deltaeta_jet_jet = feature 4
-    DER_mass_jet_jet = feature 5
-    DER_prodeta_jet_jet = feature 6
-    DER_pt_tot = feature 8
-    DER_sum_pt = feature 9
-    DER_lep_eta_centrality = feature 12
-    PRI_jet_leading_pt = feature 23
-    PRI_jet_leading_eta = feature 24
-    PRI_jet_leading_phi = feature 25
-    PRI_jet_subleading_pt = feature 26
-    PRI_jet_subleading_eta = feature 27
-    PRI_jet_subleading_phi = feature 28'''
-    
-    ind_features_to_delete = np.array([4, 5, 6, 8, 9, 12, 23, 24 , 25, 26, 27, 28]) 
-    class_0 = np.delete(class_0, ind_features_to_delete, axis = 1)
-    return class_0
-    
 # -------------------------------------------------------------------------- #
 
 def EDA(data_set):
@@ -215,5 +221,24 @@ def EDA(data_set):
     data_set = clean_correlated_features(data_set)
     
     return data_set
+
+# -------------------------------------------------------------------------- #
+
+def EDA_class(data_set):
+    #split the data set into classes in function of the value of feature 23 but they still have all the 30 features
+    class_0, class_1, class_2, class_3 = classification(data_set)
+    
+    #delete features in function of the class
+    class_0 = clear_features_class_0(class_0)
+    class_1 = clear_features_class_1(class_1)
+    class_3 = clear_features_class_3(class_3)
+    
+    #EDA for each class
+    class_0 = EDA(class_0)
+    class_1 = EDA(class_1)
+    class_2 = EDA(class_2)
+    class_3 = EDA(class_3)
+    
+    return class_0, class_1, class_2, class_3
 
 # -------------------------------------------------------------------------- #

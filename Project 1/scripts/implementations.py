@@ -61,8 +61,8 @@ def least_squares_GD(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iter
 
 # -------------------------------------------------------------------------- #
 
-def ridge_regression(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
-    """implement ridge regression."""
+def ridge_regression(y, tx, initial_w, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
+    """implement ridge regression."""    
     a = tx.T.dot(tx) + 2*tx.shape[0]*lambda_*np.identity(tx.shape[1])
     b = tx.T.dot(y)
     w = np.linalg.solve(a, b)
@@ -73,8 +73,7 @@ def ridge_regression(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iter
 
 def compute_stoch_gradient(y, tx, w):
     """Compute a stochastic gradient from just few examples n and their corresponding y_n labels."""
-    e = y - tx.dot(w)
-    
+    e = y - tx.dot(w)  
     gradient = -1/len(tx) * tx.T.dot(e)
     
     return gradient
@@ -87,9 +86,6 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     Takes as input two iterables (here the output desired values 'y' and the input data 'tx')
     Outputs an iterator which gives mini-batches of `batch_size` matching elements from `y` and `tx`.
     Data can be randomly shuffled to avoid ordering in the original data messing with the randomness of the minibatches.
-    Example of use :
-    for minibatch_y, minibatch_tx in batch_iter(y, tx, 32):
-        <DO-SOMETHING>
     """
     data_size = len(y)
 
@@ -160,6 +156,7 @@ def logistic_regression_GD(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, ma
     # Loop for on the number of iterations
     for nb_iter in range(max_iters):
         loss = compute_loss_lr(y, tx, w)
+        #print(loss)
         grad = compute_gradient(y, tx, w)
         w = w - gamma * grad
     
@@ -193,8 +190,6 @@ def cross_validation(y, x, k_indices, k, method, initial_w, lambda_ = 0.7, gamma
                                                               # containing the indices of the data 
                                                               # that are for the train
     tr_idx = tr_idx.reshape(-1) # put everything in a list
-    print('tr_idx ' + str(tr_idx.shape))
-    print('te_idx ' + str(te_idx.shape))
 
     x_tr = x[tr_idx]
     x_te = x[te_idx]

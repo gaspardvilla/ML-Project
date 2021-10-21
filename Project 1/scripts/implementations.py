@@ -28,6 +28,17 @@ def compute_gradient_mse(y, tx, w):
 
 # -------------------------------------------------------------------------- #
 
+def least_squares(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
+    """calculate the least squares solution."""
+    a = tx.T.dot(tx)
+    b = tx.T.dot(y)
+    w = np.linalg.solve(a, b)
+    mse = compute_mse (y, tx, w)
+    # returns mse, and optimal weights
+    return mse, w
+
+# -------------------------------------------------------------------------- #
+
 def least_squares_GD(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
     # Gradient descent algorithm
     
@@ -47,17 +58,6 @@ def least_squares_GD(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iter
         # Update the weight parameters
         w = w - (gamma * grad)
     return loss, w
-
-# -------------------------------------------------------------------------- #
-
-def least_squares(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
-    """calculate the least squares solution."""
-    a = tx.T.dot(tx)
-    b = tx.T.dot(y)
-    w = np.linalg.solve(a, b)
-    mse = compute_mse (y, tx, w)
-    # returns mse, and optimal weights
-    return mse, w
 
 # -------------------------------------------------------------------------- #
 
@@ -138,6 +138,7 @@ def sigmoid(t):
 # -------------------------------------------------------------------------- #
 
 def compute_loss_lr(y, tx, w):
+    #return loss for logistic regression
     t = tx.dot(w)
     sigma = sigmoid(t)
     return - (y.T.dot(np.log(sigma)) + (1 - y).T.dot(np.log(1 - sigma)))
@@ -192,6 +193,9 @@ def cross_validation(y, x, k_indices, k, method, initial_w, lambda_ = 0.7, gamma
                                                               # containing the indices of the data 
                                                               # that are for the train
     tr_idx = tr_idx.reshape(-1) # put everything in a list
+    print('tr_idx ' + str(tr_idx.shape))
+    print('te_idx ' + str(te_idx.shape))
+
     x_tr = x[tr_idx]
     x_te = x[te_idx]
     y_tr = y[tr_idx]

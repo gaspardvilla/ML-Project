@@ -42,7 +42,6 @@ def cross_validation_visualization(lambds, mse_tr, mse_te):
     plt.title("cross validation")
     plt.legend(loc=2)
     plt.grid(True)
-    plt.savefig("cross_validation")
     
 # -------------------------------------------------------------------------- #
 

@@ -55,15 +55,6 @@ def ridge_regression(y, tx, loss_fct, initial_w = 0, lambda_ = 0.7, gamma = 0.01
 
 # -------------------------------------------------------------------------- #
 
-def compute_stoch_gradient(y, tx, w):
-    """Compute a stochastic gradient from just few examples n and their corresponding y_n labels."""
-    e = y - tx.dot(w)  
-    gradient = -1/len(tx) * tx.T.dot(e)
-    
-    return gradient
-
-# -------------------------------------------------------------------------- #
-
 def least_squares_SGD(y, data_set, loss_fct, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50, mini_batch_size = 1):
     """Stochastic gradient descent algorithm."""
 

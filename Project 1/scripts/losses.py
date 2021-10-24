@@ -5,9 +5,6 @@ import numpy as np
 
 # MSE loss
 class MSE():
-    def __init__(self):
-        super.__init__()
-    
     def cost(self, y, data_set, w):
         # Definition of the parameters
         loss = 0
@@ -35,9 +32,6 @@ class MSE():
 
 # MAE loss
 class MAE():
-    def __init__(self):
-        super.__init__()
-    
     def cost(self, y, data_set, w):
         # Definition of the parameters
         loss = 0
@@ -65,12 +59,9 @@ class MAE():
 
 # Negative log-likelihood loss
 class Neg_log():
-    def __init__(self):
-        super.__init__()
-
     # Sigmoid functions
-    def sigmoid(t):
-        return np.exp(t) / (1 + np.exp(t))
+    def sigmoid(self, t):
+        return 1.0 / (1 + np.exp(t))
     
     def cost(self, y, data_set, w):
         # Initialization of sigma

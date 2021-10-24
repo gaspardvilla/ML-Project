@@ -233,3 +233,30 @@ def cross_validation(y, x, k_indices, k, method, initial_w, lambda_ = 0.7, gamma
     return loss_tr, loss_te
 
 # -------------------------------------------------------------------------- #
+
+def reg_logistic_regression(y, data_set, initial_w = 0, lambda_ = 0.1, gamma = 0.01, max_iters = 1000, threshold = 1e-8):
+    
+    # build tx
+    tx = np.c_[np.ones((y.shape[0], 1)), data_set]
+    losses = []
+    w = initial_w
+
+    # start the logistic regression
+    for iter in range(max_iters):
+
+        # get loss and update w.
+        loss = compute_loss_lr(y, tx, initial_w) + (lambda_ * initial_w.T.dot(initial_w))
+        grad = compute_gradient_lr(y, tx, initial_w) + (2 * lambda_ * initial_w)
+        w = w - (gamma * grad)
+
+        # log info
+        if iter % 100 == 0:
+            print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
+        
+        # converge criterion
+        losses.append(loss)
+        if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
+            break
+    
+    #return 
+    return loss, w

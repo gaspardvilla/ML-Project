@@ -54,4 +54,3 @@ def counting_errors(pred_set, true_set):
     Nb_errors = np.count_nonzero(pred_set != true_set)
     
     print("Numbers of errors : ", Nb_errors, " // Error accuracy [%] : %", (Nb_errors / N) * 100)
-    return 0

@@ -26,15 +26,17 @@ def train_test_separator(truth, large_set, spliter, seed):
 # -------------------------------------------------------------------------- #
 
 def standardize(data_set):
+
     data_set = data_set - np.mean(data_set, axis=0)
     data_set = data_set / np.std(data_set, axis=0)
+    
     return data_set
 
 # -------------------------------------------------------------------------- #
 
 def constant_feature (feature):
     constant = feature[0]
-    for i in range (len(feature) - 1):
+    for i in range(len(feature)):
         if (feature[i] != constant):
             return False
     return True
@@ -81,6 +83,7 @@ def clean_correlated_features(data_set):
 
 def indices_classification(data_set):
     # Put the data in one of the four classes in function of the value of feature 23
+    
     # Direct computation
     ind_class_0 = np.array(np.where(data_set[:,22] == 0)[0])
     ind_class_1 = np.array(np.where(data_set[:,22] == 1)[0])
@@ -94,6 +97,8 @@ def indices_classification(data_set):
 
 def classification(data_set):
     # Put the data in one of the four classes in function of the indices
+    
+    # Direct computation
     ind_class_0, ind_class_1, ind_class_2, ind_class_3 = indices_classification(data_set)
     class_0 = data_set[ind_class_0]
     class_1 = data_set[ind_class_1]
@@ -107,6 +112,8 @@ def classification(data_set):
 
 def y_classification(y, data_set):
     #return the y associated to each class
+
+    # Direct computation
     ind_class_0, ind_class_1, ind_class_2, ind_class_3 = indices_classification(data_set)
     y_0 = y[ind_class_0]
     y_1 = y[ind_class_1]
@@ -119,7 +126,9 @@ def y_classification(y, data_set):
 
 def clear_features_class_0(class_0):
     '''
-    delete features that shouldn't be taken into account for the model for class 0:
+    delete 12 features that shouldn't be taken into account for the model for 
+    class 0:
+    
     DER_deltaeta_jet_jet = feature 4
     DER_mass_jet_jet = feature 5
     DER_prodeta_jet_jet = feature 6
@@ -141,7 +150,9 @@ def clear_features_class_0(class_0):
 
 def clear_features_class_1(class_1):
     '''
-    delete features that shouldn't be taken into account for the model for class 0:
+    delete 7 features that shouldn't be taken into account for the model for 
+    class 0:
+    
     DER_deltaeta_jet_jet = feature 4
     DER_mass_jet_jet = feature 5
     DER_prodeta_jet_jet = feature 6
@@ -158,7 +169,9 @@ def clear_features_class_1(class_1):
 
 def clear_features_class_3(class_3):
     '''
-    delete features that shouldn't be taken into account for the model for class 0:
+    delete 1 feature that shouldn't be taken into account for the model for 
+    class 0:
+    
     DER_pt_tot = feature 8
     ''' 
     ind_features_to_delete = np.array([8]) 
@@ -195,7 +208,9 @@ def treating_outliers(feature):
     return feature
 
 # -------------------------------------------------------------------------- #
-''' comme clean_test_set et clean_train_test font la même chose mais juste sur des data set differents je me suis dit que c'était sûrement mieux de faire juste une fonction et on lui passe le train ou le test set en argument '''
+''' comme clean_test_set et clean_train_test font la même chose mais juste sur
+ des data set differents je me suis dit que c'était sûrement mieux de faire 
+ juste une fonction et on lui passe le train ou le test set en argument '''
 def clean_set(data_set):
     # Loop over all the columns of the test set
     for i in range (data_set.shape[1]):
@@ -225,15 +240,18 @@ def EDA(data_set):
 # -------------------------------------------------------------------------- #
 
 def EDA_class(data_set):
-    #split the data set into classes in function of the value of feature 23 but they still have all the 30 features
+    # Split the data set into classes in function of the value of feature 23 but they still have all the 30 features
     class_0, class_1, class_2, class_3 = classification(data_set)
     
-    #delete features in function of the class
+    # Delete features in function of the class
     class_0 = clear_features_class_0(class_0)
     class_1 = clear_features_class_1(class_1)
+
+    # ? No clean for class 2 ?
+
     class_3 = clear_features_class_3(class_3)
     
-    #EDA for each class
+    # EDA for each class
     class_0 = EDA(class_0)
     class_1 = EDA(class_1)
     class_2 = EDA(class_2)

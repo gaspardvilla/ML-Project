@@ -5,13 +5,13 @@ import numpy as np
 
 # -------------------------------------------------------------------------- #
 
-def compute_mse(y, tx, w):
+def compute_mse(y, data_set, w):
     # Calculate the loss using the MSE formula
     
     # Definition of the parameters
     mse = 0
     N = len(y)
-    e = y - tx.dot(w)
+    e = y - data_set.dot(w)
     
     # Compute the loss MSE
     mse = (1 / (2 * N)) * e.T.dot(e)
@@ -19,28 +19,38 @@ def compute_mse(y, tx, w):
 
 # -------------------------------------------------------------------------- #
 
-def compute_gradient_mse(y, tx, w):
+def compute_gradient_mse(y, data_set, w):
+    # Initilization
+    N = len(y)
+
     # Compute the gradient of the Mean Square Error
-    e = y - tx.dot(w)
-    gradient = -tx.T.dot(e)/len(e)
-    
-    return gradient
+    e = y - data_set.dot(w)
+    grad = -(1 / N) * data_set.T.dot(e)
+     
+    # Return the results grad
+    return grad
 
 # -------------------------------------------------------------------------- #
 
-def least_squares(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
+def least_squares(y, data_set, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
     """calculate the least squares solution."""
-    a = tx.T.dot(tx)
-    b = tx.T.dot(y)
+    # Define a and b for solving linear system 'ax = b'
+    a = data_set.T.dot(data_set)
+    b = data_set.T.dot(y)
+
+    # Computation of the solution
     w = np.linalg.solve(a, b)
-    mse = compute_mse (y, tx, w)
-    # returns mse, and optimal weights
+
+    # Computation of the MSE
+    mse = compute_mse(y, data_set, w)
+
+    # returns MSE and optimal weights
     return mse, w
 
 # -------------------------------------------------------------------------- #
 
-def least_squares_GD(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
-    # Gradient descent algorithm
+def least_squares_GD(y, data_set, initial_w, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
+    # Gradient descent algorithm (with MSE loss => maybe change loss)
     
     # Definition of all the parameters
     loss = 0
@@ -50,23 +60,25 @@ def least_squares_GD(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iter
     for nb_iter in range(max_iters):
         
         # Compute the gradient
-        grad = compute_gradient_mse(y, tx, w)
+        grad = compute_gradient_mse(y, data_set, w)
         
         # Compute the loss (MSE)
-        loss = compute_mse(y, tx, w)
+        loss = compute_mse(y, data_set, w)
         
         # Update the weight parameters
         w = w - (gamma * grad)
+    
+    # Return the final loss and weight
     return loss, w
 
 # -------------------------------------------------------------------------- #
 
-def ridge_regression(y, tx, initial_w, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
+def ridge_regression(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
     """implement ridge regression."""    
-    a = tx.T.dot(tx) + 2*tx.shape[0]*lambda_*np.identity(tx.shape[1])
+    a = tx.T.dot(tx) + (2 * tx.shape[0] * lambda_ * np.identity(tx.shape[1]))
     b = tx.T.dot(y)
     w = np.linalg.solve(a, b)
-    mse = compute_mse (y, tx, w)
+    mse = compute_mse(y, tx, w)
     return mse, w
 
 # -------------------------------------------------------------------------- #
@@ -104,19 +116,24 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
 
 # -------------------------------------------------------------------------- #
 
-def stochastic_gradient_descent(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50, batch_size = 10):
+def least_squares_SGD(y, data_set, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50, mini_batch_size = 1):
     """Stochastic gradient descent algorithm."""
+
+    # Initialization of some parameters
     ws = [initial_w]
     losses = []
     w = initial_w
+
+    # Big loop
     for n_iter in range(max_iters):
-        for minibatch_y, minibatch_tx in batch_iter(y, tx, batch_size):
+        for mini_batch_y, mini_batch_tx in batch_iter(y, data_set, mini_batch_size):
         
-            stoch_gradient = compute_stoch_gradient(minibatch_y, minibatch_tx,w)
+            stoch_gradient = compute_gradient_mse(mini_batch_y, mini_batch_tx,w)
         
-            loss = compute_mse(minibatch_y, minibatch_tx,w)
+            loss = compute_mse(mini_batch_y, mini_batch_tx, w)
         
             w = w - gamma * stoch_gradient
+
             # store w and loss
             ws.append(w)
             losses.append(loss)
@@ -133,22 +150,32 @@ def sigmoid(t):
 
 # -------------------------------------------------------------------------- #
 
-def compute_loss_lr(y, tx, w):
-    #return loss for logistic regression
-    t = tx.dot(w)
+def compute_loss_lr(y, data_set, w):
+    # Initialization of sigma
+    t = data_set.dot(w)
     sigma = sigmoid(t)
-    return - (y.T.dot(np.log(sigma)) + (1 - y).T.dot(np.log(1 - sigma)))
+
+    # Direct computation of the loss
+    loss = -(y.T.dot(np.log(sigma)) + (1 - y).T.dot(np.log(1 - sigma)))
+
+    # Return the loss
+    return loss
 
 # -------------------------------------------------------------------------- #
 
-def compute_gradient(y, tx, w):
+def compute_gradient_lr(y, tx, w):
+    # Initialization of sigma
     sigma = sigmoid(tx.dot(w))
+
+    # Direct computation of the gradient
     grad = np.transpose(tx).dot(sigma - y)
+
+    # Return the gradient
     return grad
 
 # -------------------------------------------------------------------------- #
 
-def logistic_regression_GD(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
+def logistic_regression(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
     # Initialization
     w = initial_w
     loss = 0
@@ -157,7 +184,7 @@ def logistic_regression_GD(y, tx, initial_w = 0, lambda_ = 0.7, gamma = 0.01, ma
     for nb_iter in range(max_iters):
         loss = compute_loss_lr(y, tx, w)
         #print(loss)
-        grad = compute_gradient(y, tx, w)
+        grad = compute_gradient_lr(y, tx, w)
         w = w - gamma * grad
     
     # Return the results

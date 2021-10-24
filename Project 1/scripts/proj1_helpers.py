@@ -103,31 +103,3 @@ def build_k_indices(y, k_fold, seed):
     return np.array(k_indices)
 
 # -------------------------------------------------------------------------- #
-
-def cross_validation(y, x, k_indices, k, method, initial_w, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
-    """return the loss of the method"""
-    loss_tr = [] #to save the training loss for each training set
-    loss_te = [] #to save the testint loss for each test set
-
-    # get k'th subgroup in test, others in train: 
-    te_idx = k_indices[k] # takes the indices of the data that corresponds to the k'th subgroup
-    tr_idx = k_indices[~(np.arange(k_indices.shape[0]) == k)] # select the subgroups that are not 
-                                                              # the test one and put them in train
-                                                              # np.arange is for creating an array 
-                                                              # containing the indices of the data 
-                                                              # that are for the train
-    tr_idx = tr_idx.reshape(-1) # put everything in a list
-
-    x_tr = x[tr_idx]
-    x_te = x[te_idx]
-    y_tr = y[tr_idx]
-    y_te = y[te_idx]
-        
-    # ridge regression:
-    loss_tr_i, w = method(y_tr, x_tr, initial_w, lambda_, gamma, max_iters)
-    
-    # calculate the loss for train and test data:       
-    loss_tr.append(loss_tr_i)
-    loss_te.append(compute_mse(y_te, x_te, w))
-
-    return loss_tr, loss_te

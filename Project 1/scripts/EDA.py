@@ -3,25 +3,25 @@ import numpy as np
 
 # The idea is to split a large set into a test set and a train set to see the
 # correctness of our model, and optimize it.
-def train_test_separator(truth, large_set, spliter, seed):
+def train_test_separator(y, data_set, spliter, seed):
     # Random indices
-    rand_indices = np.arange(np.shape(large_set)[0])
+    rand_indices = np.arange(np.shape(data_set)[0])
     np.random.shuffle(rand_indices)
     
     # Get spliter % of our data for the train set and 100 - spliter for the test
-    Split = int(spliter * np.shape(large_set)[0])
+    Split = int(spliter * np.shape(data_set)[0])
     
     # Time to split
     ind_train = rand_indices[:Split]
-    train_set = large_set[ind_train]
-    train_truth = truth[ind_train]
+    train_set = data_set[ind_train]
+    y_train = y[ind_train]
     
     ind_test = rand_indices[Split:]
-    test_set = large_set[ind_test]
-    test_truth = truth[ind_test]
+    test_set = data_set[ind_test]
+    y_test = y[ind_test]
     
     # Return the results
-    return train_set, train_truth, test_set, test_truth
+    return train_set, y_train, test_set, y_test
 
 # -------------------------------------------------------------------------- #
 

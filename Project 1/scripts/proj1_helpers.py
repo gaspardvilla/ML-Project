@@ -2,6 +2,7 @@
 """some helper functions for project 1."""
 import csv
 import numpy as np
+from EDA import *
 
 
 def load_csv_data(data_path, sub_sample=False):
@@ -54,3 +55,16 @@ def counting_errors(pred_set, true_set):
     Nb_errors = np.count_nonzero(pred_set != true_set)
     
     print("Numbers of errors : ", Nb_errors, " // Error accuracy [%] : %", (Nb_errors / N) * 100)
+    
+    
+def rebuild_y(y_0,y_1,y_2,y_3,y,data_set):
+    rb_y = np.zeros(y.shape)
+    
+    ind_class_0, ind_class_1, ind_class_2, ind_class_3 = indices_classification(data_set)
+    
+    rb_y[ind_class_0] = y_0
+    rb_y[ind_class_1] = y_1
+    rb_y[ind_class_2] = y_2
+    rb_y[ind_class_3] = y_3
+    
+    return rb_y

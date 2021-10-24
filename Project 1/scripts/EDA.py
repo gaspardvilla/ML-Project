@@ -124,7 +124,7 @@ def y_classification(y, data_set):
 
 # -------------------------------------------------------------------------- #
 
-def clear_features_class_0(class_0):
+def ind_features_to_delete_class_0(class_0):
     '''
     delete 12 features that shouldn't be taken into account for the model for 
     class 0:
@@ -143,12 +143,11 @@ def clear_features_class_0(class_0):
     PRI_jet_subleading_phi = feature 28
     '''
     ind_features_to_delete = np.array([4, 5, 6, 8, 9, 12, 23, 24 , 25, 26, 27, 28]) 
-    class_0 = np.delete(class_0, ind_features_to_delete, axis = 1)
-    return class_0
+    return ind_features_to_delete
     
 # -------------------------------------------------------------------------- #
 
-def clear_features_class_1(class_1):
+def ind_features_to_delete_class_1(class_1):
     '''
     delete 7 features that shouldn't be taken into account for the model for 
     class 0:
@@ -162,22 +161,32 @@ def clear_features_class_1(class_1):
     PRI_jet_subleading_phi = feature 28
     ''' 
     ind_features_to_delete = np.array([4, 5, 6, 12, 26, 27, 28]) 
-    class_1 = np.delete(class_1, ind_features_to_delete, axis = 1) 
-    return class_1
+    return ind_features_to_delete
 
 # -------------------------------------------------------------------------- #
 
-def clear_features_class_3(class_3):
+def ind_features_to_delete_class_3(class_3):
     '''
     delete 1 feature that shouldn't be taken into account for the model for 
     class 0:
     
     DER_pt_tot = feature 8
     ''' 
-    ind_features_to_delete = np.array([8]) 
-    class_3 = np.delete(class_3, ind_features_to_delete, axis = 1)    
-    return class_3
+    ind_features_to_delete = np.array([8])     
+    return ind_features_to_delete
     
+# -------------------------------------------------------------------------- #
+
+def clear_features(class_, k=2):
+    if k == 0 :
+        class_ = np.delete(class_, ind_features_to_delete_class_0(class_), axis = 1)
+    if k == 1 :
+        class_ = np.delete(class_, ind_features_to_delete_class_1(class_), axis = 1) 
+    if k == 3 :
+        class_ = np.delete(class_, ind_features_to_delete_class_3(class_), axis = 1)
+        
+    return class_
+
 # -------------------------------------------------------------------------- #
 
 def indices_outliers(feature):
@@ -244,12 +253,12 @@ def EDA_class(data_set):
     class_0, class_1, class_2, class_3 = classification(data_set)
     
     # Delete features in function of the class
-    class_0 = clear_features_class_0(class_0)
-    class_1 = clear_features_class_1(class_1)
+    class_0 = clear_features(class_0, k = 0)
+    class_1 = clear_features(class_1, k = 1)
 
     # ? No clean for class 2 ?
 
-    class_3 = clear_features_class_3(class_3)
+    class_3 = clear_features(class_3, k = 3)
     
     # EDA for each class
     class_0 = EDA(class_0)

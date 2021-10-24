@@ -57,8 +57,8 @@ def counting_errors(pred_set, true_set):
     print("Numbers of errors : ", Nb_errors, " // Error accuracy [%] : %", (Nb_errors / N) * 100)
     
     
-def rebuild_y(y_0,y_1,y_2,y_3,y,data_set):
-    rb_y = np.zeros(y.shape)
+def rebuild_y(y_0,y_1,y_2,y_3,data_set):
+    rb_y = np.zeros(data_set.shape[0])
     
     ind_class_0, ind_class_1, ind_class_2, ind_class_3 = indices_classification(data_set)
     

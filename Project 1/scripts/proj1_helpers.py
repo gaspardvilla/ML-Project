@@ -14,7 +14,8 @@ def load_csv_data(data_path, sub_sample=False):
 
     # convert class labels from strings to binary (-1,1)
     yb = np.ones(len(y))
-    yb[np.where(y=='b')] = -1
+    yb[np.where(y=='b')] = 0
+    yb[np.where(y=='s')] = 1
     
     # sub-sample
     if sub_sample:
@@ -28,8 +29,8 @@ def load_csv_data(data_path, sub_sample=False):
 def predict_labels(weights, data):
     """Generates class predictions given weights, and a test data matrix"""
     y_pred = np.dot(data, weights)
-    y_pred[np.where(y_pred <= 0)] = -1
-    y_pred[np.where(y_pred > 0)] = 1
+    y_pred[np.where(y_pred <= 0.5)] = 0
+    y_pred[np.where(y_pred > 0.5)] = 1
     
     return y_pred
 
@@ -41,6 +42,7 @@ def create_csv_submission(ids, y_pred, name):
                y_pred (predicted class labels)
                name (string name of .csv output file to be created)
     """
+    y_pred[np.where(y_pred==0)] = -1
     with open(name, 'w') as csvfile:
         fieldnames = ['Id', 'Prediction']
         writer = csv.DictWriter(csvfile, delimiter=",", fieldnames=fieldnames)
@@ -51,10 +53,13 @@ def create_csv_submission(ids, y_pred, name):
 
 def counting_errors(pred_set, true_set):
     # Count the number of true predictions
-    N = np.shape(pred_set)[0]
+    N = pred_set.shape[0]
     Nb_errors = np.count_nonzero(pred_set != true_set)
+    percentage_error = (Nb_errors / N) * 100
     
-    print("Numbers of errors : ", Nb_errors, " // Error accuracy [%] : %", (Nb_errors / N) * 100)
+    print("Numbers of errors : ", Nb_errors, " // Error accuracy [%] : %", percentage_error)
+
+    return Nb_errors, percentage_error
     
 
 def rebuild_y(y_0,y_1,y_2,y_3,data_set):

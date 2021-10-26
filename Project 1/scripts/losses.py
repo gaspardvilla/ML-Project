@@ -1,6 +1,8 @@
 import math
 import numpy as np
 
+from implementations import least_squares_GD, ridge_regression
+
 # File that contains all the cost functions with these attributes.
 
 # MSE loss
@@ -61,7 +63,7 @@ class MAE():
 class Neg_log():
     # Sigmoid functions
     def sigmoid(self, t):
-        return 1.0 / (1 + np.exp(t))
+        return np.exp(t) / (1 + np.exp(t))
     
     def cost(self, y, data_set, w):
         # Initialization of sigma
@@ -79,9 +81,103 @@ class Neg_log():
         sigma = self.sigmoid(data_set.dot(w))
 
         # Direct computation of the gradient
-        grad = np.transpose(data_set).dot(sigma - y)
+        grad = data_set.T.dot(sigma - y)
 
         # Return the gradient
         return grad
+
+# -------------------------------------------------------------------------- #
+
+# Set a class parameters for the implementations functions and other stuff
+class Parameters(object):
+    def __init__(self):
+        # Initialization of the principal paramaters
+        self.initial_w = 0
+        self.gamma = 1e-1
+        self.lambda_ = 0.1
+        self.max_iter = 100
+        self.threshold = 1e-6
+        self.k_fold = 5
+        self.mini_batch_size = 1
+        # Set the range of lambda and gamma for the cross validation
+        self.lambda_range = np.logspace(-4, 0, 30)
+        self.gamma_range = np.logspace(-4, 0, 30)
+        # Set the seeds use in cross validation
+        self.seeds = np.arange(1)
+        # Indicates the number of parameters to test and which of them for the cross validation
+        self.nb_to_test = 0
+        self.names = []
+        self.best_lambda = self.lambda_
+        self.best_gamma = self.gamma
+        # Visualization
+        self.viz = False
+        # Method and loss function
+        self.method = least_squares_GD
+        self.loss_fct = MSE()
+        # Indicator if the loss is logitic regression
+        self.logistic = False
+
+    # Setting all the parameters of this class
+    def set_init_w(self, initial_w):
+        self.initial_w = initial_w
+    
+    def set_gamma(self, gamma):
+        self.gamma = gamma
+    
+    def set_lambda(self, lambda_):
+        self.lambda_ = lambda_
+    
+    def set_max_iter(self, max_iter):
+        self.max_iter = max_iter
+    
+    def set_threshold(self, threshold):
+        self.threshold = threshold
+    
+    def set_lambda_range(self, range):
+        self.lambda_range = range
+
+    def set_gamma_range(self, range):
+        self.gamma_range = range
+    
+    def set_nb_seeds(self, nb_seeds):
+        self.seeds = np.arange(nb_seeds)
+
+    def set_k_fold(self, k_fold):
+        self.k_fold = k_fold
+
+    def set_mini_batch_size(self, mini_batch_size):
+        self.mini_batch_size = mini_batch_size
+
+    def set_viz(self, viz):
+        self.viz = viz
+
+    def set_method(self, method):
+        self.method = method
+    
+    def set_loss_fct(self, loss_fct):
+        self.loss_fct = loss_fct
+
+    def set_to_test(self, names):
+        self.nb_to_test = len(names)
+        self.names = names
+    
+    def set_param(self, idx, param):
+        if self.names[idx-1] == 'gamma':
+            self.gamma = param
+        elif self.names[idx-1] == 'lambda':
+            self.lambda_ = param
+        else:
+            print('Wrong name for the parameters to test, need to set lambda or gamma')
+    
+    def range(self, idx):
+        if self.names[idx-1] == 'gamma':
+            return self.gamma_range
+        elif self.names[idx-1] == 'lambda':
+            return self.lambda_range
+        else:
+            print('Wrong name for the parameters to test, need to set lambda or gamma')
+
+
+
 
 # -------------------------------------------------------------------------- #

@@ -3,7 +3,10 @@ import numpy as np
 
 # The idea is to split a large set into a test set and a train set to see the
 # correctness of our model, and optimize it.
-def train_test_separator(y, data_set, spliter, seed):
+def train_test_separator(y, data_set, spliter=0.8):
+    # Set the seed
+    # np.random.seed(seed)
+    
     # Random indices
     rand_indices = np.arange(np.shape(data_set)[0])
     np.random.shuffle(rand_indices)

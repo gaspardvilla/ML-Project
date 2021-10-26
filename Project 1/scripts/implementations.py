@@ -4,7 +4,7 @@ from proj1_helpers import *
 
 # -------------------------------------------------------------------------- #
 
-def least_squares(y, data_set, loss_fct, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
+def least_squares(y, data_set, parameters):
     """calculate the least squares solution."""
     # Define a and b for solving linear system 'ax = b'
     a = data_set.T.dot(data_set)
@@ -14,64 +14,64 @@ def least_squares(y, data_set, loss_fct, initial_w = 0, lambda_ = 0.7, gamma = 0
     w = np.linalg.solve(a, b)
 
     # Computation of the MSE
-    loss = loss_fct.cost(y, data_set, w)
+    loss = parameters.loss_fct.cost(y, data_set, w)
 
     # returns MSE and optimal weights
     return loss, w
 
 # -------------------------------------------------------------------------- #
 
-def least_squares_GD(y, data_set, loss_fct, initial_w, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
+def least_squares_GD(y, data_set, parameters):
     # Gradient descent algorithm (with MSE loss => maybe change loss)
     
     # Definition of all the parameters
     loss = 0
-    w = initial_w
+    w = parameters.initial_w
     
     # Loop for on the number of iterations
-    for nb_iter in range(max_iters):
+    for nb_iter in range(parameters.max_iter):
         
         # Compute the gradient
-        grad = loss_fct.grad(y, data_set, w)
+        grad = parameters.loss_fct.grad(y, data_set, w)
         
         # Compute the loss (MSE)
-        loss = loss_fct.cost(y, data_set, w)
+        loss = parameters.loss_fct.cost(y, data_set, w)
         
         # Update the weight parameters
-        w = w - (gamma * grad)
+        w = w - (parameters.gamma * grad)
     
     # Return the final loss and weight
     return loss, w
 
 # -------------------------------------------------------------------------- #
 
-def ridge_regression(y, tx, loss_fct, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
+def ridge_regression(y, data_set, parameters):
     """implement ridge regression."""    
-    a = tx.T.dot(tx) + (2 * tx.shape[0] * lambda_ * np.identity(tx.shape[1]))
-    b = tx.T.dot(y)
+    a = data_set.T.dot(data_set) + (2 * data_set.shape[0] * parameters.lambda_ * np.identity(data_set.shape[1]))
+    b = data_set.T.dot(y)
     w = np.linalg.solve(a, b)
-    mse = loss_fct.cost(y, tx, w)
-    return mse, w
+    loss = parameters.loss_fct.cost(y, data_set, w)
+    return loss, w
 
 # -------------------------------------------------------------------------- #
 
-def least_squares_SGD(y, data_set, loss_fct, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50, mini_batch_size = 1):
+def least_squares_SGD(y, data_set, parameters):
     """Stochastic gradient descent algorithm."""
 
     # Initialization of some parameters
-    ws = [initial_w]
+    ws = [parameters.initial_w]
     losses = []
-    w = initial_w
+    w = parameters.initial_w
 
     # Big loop
-    for n_iter in range(max_iters):
-        for mini_batch_y, mini_batch_tx in batch_iter(y, data_set, mini_batch_size):
+    for n_iter in range(parameters.max_iter):
+        for mini_batch_y, mini_batch_tx in batch_iter(y, data_set, parameters.mini_batch_size):
         
-            grad = loss_fct.grad(mini_batch_y, mini_batch_tx,w)
+            grad = parameters.loss_fct.grad(mini_batch_y, mini_batch_tx,w)
         
-            loss = loss_fct.cost(mini_batch_y, mini_batch_tx, w)
+            loss = parameters.loss_fct.cost(mini_batch_y, mini_batch_tx, w)
         
-            w = w - (gamma * grad)
+            w = w - (parameters.gamma * grad)
 
             # store w and loss
             ws.append(w)
@@ -86,47 +86,47 @@ def least_squares_SGD(y, data_set, loss_fct, initial_w = 0, lambda_ = 0.7, gamma
 
 # -------------------------------------------------------------------------- #
 
-def logistic_regression(y, tx, loss_fct, initial_w = 0, lambda_ = 0.7, gamma = 0.01, max_iters = 50):
+def logistic_regression(y, data_set, parameters):
     # Initialization
-    w = initial_w
+    # w = parameters.initial_w
+    data_set = np.c_[np.ones((y.shape[0], 1)), data_set]
+    w = np.zeros((data_set.shape[1],))
     loss = 0
 
     # Loop for on the number of iterations
-    for nb_iter in range(max_iters):
-        #loss = loss_fct.cost(y, tx, w)
-        loss = loss_fct.cost(y, tx, w)
+    for nb_iter in range(parameters.max_iter):
+        #loss = loss_fct.cost(y, data_set, w)
+        loss = parameters.loss_fct.cost(y, data_set, w)
         #print(loss)
-        #grad = loss_fct.grad(y, tx, w)
-        grad = loss_fct.grad(y, tx, w)
-        w = w - (gamma * grad)
+        #grad = loss_fct.grad(y, data_set, w)
+        grad = parameters.loss_fct.grad(y, data_set, w)
+        w = w - (parameters.gamma * grad)
     
     # Return the results
     return loss, w
 
 # -------------------------------------------------------------------------- #
 
-def reg_logistic_regression(y, data_set, loss_fct, initial_w = 0, lambda_ = 0.1, gamma = 0.01, max_iters = 1000, threshold = 1e-8):
+def reg_logistic_regression(y, data_set, parameters):
     
-    # build tx
-    tx = np.c_[np.ones((y.shape[0], 1)), data_set]
+    # build data_set
     losses = []
-    w = initial_w
+    w = parameters.initial_w
 
     # start the logistic regression
-    for iter in range(max_iters):
+    for iter in range(parameters.max_iter):
 
         # get loss and update w.
-        loss = loss_fct.cost(y, tx, initial_w) + (lambda_ * initial_w.T.dot(initial_w))
-        grad = loss_fct.grad(y, tx, initial_w) + (2 * lambda_ * initial_w)
-        w = w - (gamma * grad)
+        loss = parameters.loss_fct.cost(y, data_set, w) + (parameters.lambda_ * w.T.dot(w))
+        grad = parameters.loss_fct.grad(y, data_set, w) + (2 * parameters.lambda_ * w)
+        w = w - (parameters.gamma * grad)
 
         # log info
-        if iter % 100 == 0:
-            print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
+        # print("Current iteration={}, loss={}".format(iter, loss))
         
         # converge criterion
         losses.append(loss)
-        if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
+        if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < parameters.threshold:
             break
     
     #return 

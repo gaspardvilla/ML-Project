@@ -5,7 +5,7 @@ import numpy as np
 # correctness of our model, and optimize it.
 def train_test_separator(y, data_set, spliter=0.8):
     # Set the seed
-    # np.random.seed(seed)
+    # np.random.seed(seed) 
     
     # Random indices
     rand_indices = np.arange(np.shape(data_set)[0])
@@ -37,22 +37,36 @@ def standardize(data_set):
 
 # -------------------------------------------------------------------------- #
 
-def constant_feature (feature):
+def constant_feature(feature):
     constant = feature[0]
     for i in range(len(feature)):
         if (feature[i] != constant):
             return False
     return True
 
+def remove_feature(data_set, indices):
+    # Remove the features in indices from the data set
+    data_set = np.delete(data_set, indices, axis = 1)
+
+    # Return teh updated data set
+    return data_set
+
 # -------------------------------------------------------------------------- #
 
-def clean_constant_features(tx):
+def clean_constant_features(data_set):
+    # Initialization of the constant features indices
     ind_const = []
-    for i in range (tx.shape[1]):
-        if (constant_feature(tx[:,i]) == True):
-            ind_const.append(i)     
-    tx = np.delete(tx, ind_const, axis = 1)
-    return tx
+
+    # Check which feature should be removed
+    for i in range (data_set.shape[1]):
+        if (constant_feature(data_set[:,i]) == True):
+            ind_const.append(i)
+
+    # Remove the constant features from the data set
+    data_set = remove_feature(data_set, ind_const)
+
+    # Return the updated data set 
+    return data_set
 
 # -------------------------------------------------------------------------- #
 
@@ -79,7 +93,7 @@ def clean_correlated_features(data_set):
         if (corr_features[i][0] != corr_features[i-1][0]):
             corr_feat_to_delete.append(corr_features[i][0])
 
-    data_set= np.delete(data_set, corr_feat_to_delete, axis = 1) 
+    data_set = remove_feature(data_set, corr_feat_to_delete) 
     return data_set
 
 # -------------------------------------------------------------------------- #

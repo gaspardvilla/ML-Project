@@ -119,7 +119,7 @@ class Parameters(object):
         # Indicator if the loss is logitic regression
         self.logistic = False
         # Optimal test error
-        self.best_error = 0
+        self.best_error = 100
 
     # Setting all the parameters of this class
     def set_init_w(self, initial_w):
@@ -165,7 +165,7 @@ class Parameters(object):
         self.loss_fct = loss_fct
 
     def set_best_error(self, test_error):
-        self.best_accuracy = test_error
+        self.best_error = test_error
 
     def set_to_test(self, names):
         self.nb_to_test = len(names)

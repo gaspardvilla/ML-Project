@@ -8,8 +8,8 @@ from losses import *
 
 def method_evaluation(y, data_set, parameters, k_indices, k):
     """return the loss of the method"""
-    loss_tr = [] #to save the training loss for each training set
-    loss_te = [] #to save the testint loss for each test set
+    error_tr = [] #to save the training loss for each training set
+    error_te = [] #to save the testint loss for each test set
 
     # get k'th subgroup in test, others in train: 
     te_idx = k_indices[k] # takes the indices of the data that corresponds to the k'th subgroup
@@ -34,14 +34,14 @@ def method_evaluation(y, data_set, parameters, k_indices, k):
     y_pred_te = predict_labels(w, x_te)
     nb_errors_te, percentage_error_te = counting_errors(y_pred_te, y_te)
 
-    loss_tr.append(percentage_error_tr)
-    loss_te.append(percentage_error_te)
+    error_tr.append(percentage_error_tr)
+    error_te.append(percentage_error_te)
     
     # calculate the loss for train and test data:       
     # loss_tr.append(loss_tr_i)
     # loss_te.append(parameters.loss_fct.cost(y_te, x_te, w))
 
-    return loss_tr, loss_te
+    return error_tr, error_te
     
 # -------------------------------------------------------------------------- #
 
@@ -51,8 +51,8 @@ def classic_cv(y_, class_, parameters, idx):
     # split data in k fold
     k_indices = build_k_indices(y_, parameters.k_fold, seed)
     # define lists to store the loss of training data and test data
-    loss_te = []
-    loss_tr = []
+    error_te = []
+    error_tr = []
 
     for param in parameters.range(idx):
         parameters.set_param(idx, param)
@@ -61,21 +61,22 @@ def classic_cv(y_, class_, parameters, idx):
             # cross validation:
             loss_tr_i, loss_te_i = method_evaluation(y_, class_, parameters, k_indices, k)
 
-        loss_tr.append(np.mean(loss_tr_i))
-        loss_te.append(np.mean(loss_te_i))
+        error_tr.append(np.mean(loss_tr_i))
+        error_te.append(np.mean(loss_te_i))
     
-    best_param = parameters.range(idx)[np.argmin(loss_te)]
+    best_param = parameters.range(idx)[np.argmin(error_te)]
     parameters.set_best_param(idx, best_param)
     parameters.set_param(idx, best_param)
+    parameters.set_best_error(np.min(error_te))
 
     # Display the results
-    min_test_error = np.min(loss_te)
+    min_test_error = np.min(error_te)
     print('Test error: ' +str(min_test_error)+ '\nBest ' \
         +str(parameters.names[idx-1])+ ': ' +str(parameters.best_param(idx)))
 
     # Visualization
     if parameters.viz:
-        cross_validation_visualization(parameters.range(idx), loss_tr, loss_te)
+        cross_validation_visualization(parameters.range(idx), error_tr, error_te)
     
     return parameters
 
@@ -135,12 +136,16 @@ def build_poly(data_set, degree):
 # -------------------------------------------------------------------------- #
 
 def cross_validation_poly(y_class, data_class, parameters):
+    error = parameters.best_error
     for d in range(parameters.degree):
         data_set = build_poly(data_class, d)
         param = cross_validation(y_class, data_set, parameters)
-        if (param.best_error < parameters.best_error):
-            parameters.set_best_error(parameters, param.best_error)
-            parameters.set_best_degree(parameters, d)
+        if (param.best_error < error):
+            print('yolo')
+            error = param.best_error
+            parameters.set_best_degree(d)
+    
+    parameters.set_best_error(error)
     return parameters
 
 # -------------------------------------------------------------------------- #

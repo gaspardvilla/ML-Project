@@ -159,7 +159,7 @@ def ind_features_to_delete_class_0(class_0):
     PRI_jet_subleading_eta = feature 27
     PRI_jet_subleading_phi = feature 28
     '''
-    ind_features_to_delete = np.array([4, 5, 6, 8, 9, 12, 23, 24 , 25, 26, 27, 28]) 
+    ind_features_to_delete = np.array([4, 5, 6, 8, 9, 12, 23, 24 , 25, 26, 27, 28])
     return ind_features_to_delete
     
 # -------------------------------------------------------------------------- #
@@ -202,6 +202,8 @@ def clear_features(class_, k=2):
     if k == 3 :
         class_ = np.delete(class_, ind_features_to_delete_class_3(class_), axis = 1)
         
+    # Remove feature 0: too many undefined values in all classes
+    class_ = remove_feature(class_, [0])
     return class_
 
 # -------------------------------------------------------------------------- #
@@ -235,13 +237,6 @@ def treating_outliers(feature):
 
 # -------------------------------------------------------------------------- #
 
-def treating_features_with_999(data_set, feature):
-    ind = np.array(np.where(data_set[:,feature] == -999)[0])
-    ind_without_999 = np.delete(np.arange(data_set[:,feature].shape[0]), ind)
-    return ind_without_999
-
-# -------------------------------------------------------------------------- #
-
 ''' comme clean_test_set et clean_train_test font la même chose mais juste sur
  des data set differents je me suis dit que c'était sûrement mieux de faire 
  juste une fonction et on lui passe le train ou le test set en argument '''
@@ -261,9 +256,6 @@ def EDA(data_set):
     
     # clean outliers
     data_set = clean_set(data_set)
-    
-    #clean for class_0 of feature 0
-    data_set = dat
     
     # standardization
     data_set = standardize(data_set)

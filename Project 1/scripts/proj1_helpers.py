@@ -50,13 +50,14 @@ def create_csv_submission(ids, y_pred, name):
             writer.writerow({'Id':int(r1),'Prediction':int(r2)})
 
 
-def counting_errors(pred_set, true_set):
+def counting_errors(pred_set, true_set, viz=False):
     # Count the number of true predictions
     N = pred_set.shape[0]
     Nb_errors = np.count_nonzero(pred_set != true_set)
     percentage_error = (Nb_errors / N) * 100
     
-    print("Numbers of errors : ", Nb_errors, " // Error accuracy [%] : %", percentage_error)
+    if viz:
+        print("Numbers of errors : ", Nb_errors, " // Error accuracy [%] : %", percentage_error)
 
     return Nb_errors, percentage_error
     

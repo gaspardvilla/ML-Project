@@ -6,7 +6,7 @@ from implementations import *
 from EDA import *
 from losses import *
 
-def method_evaluation(y, x, parameters, k_indices, k):
+def method_evaluation(y, data_set, parameters, k_indices, k):
     """return the loss of the method"""
     loss_tr = [] #to save the training loss for each training set
     loss_te = [] #to save the testint loss for each test set
@@ -20,17 +20,26 @@ def method_evaluation(y, x, parameters, k_indices, k):
                                                               # that are for the train
     tr_idx = tr_idx.reshape(-1) # put everything in a list
 
-    x_tr = x[tr_idx]
-    x_te = x[te_idx]
+    x_tr = data_set[tr_idx]
+    x_te = data_set[te_idx]
     y_tr = y[tr_idx]
     y_te = y[te_idx]
     
     # ridge regression:
     loss_tr_i, w = parameters.method(y_tr, x_tr, parameters)
+
+    # Calculate the accuracy for the train and test set
+    y_pred_tr = predict_labels(w, x_tr)
+    nb_errors_tr, percentage_error_tr = counting_errors(y_pred_tr, y_tr)
+    y_pred_te = predict_labels(w, x_te)
+    nb_errors_te, percentage_error_te = counting_errors(y_pred_te, y_te)
+
+    loss_tr.append(percentage_error_tr)
+    loss_te.append(percentage_error_te)
     
     # calculate the loss for train and test data:       
-    loss_tr.append(loss_tr_i)
-    loss_te.append(parameters.loss_fct.cost(y_te, x_te, w))
+    # loss_tr.append(loss_tr_i)
+    # loss_te.append(parameters.loss_fct.cost(y_te, x_te, w))
 
     return loss_tr, loss_te
     
@@ -42,21 +51,27 @@ def classic_cv(y_, class_, parameters, idx):
     # split data in k fold
     k_indices = build_k_indices(y_, parameters.k_fold, seed)
     # define lists to store the loss of training data and test data
-    loss_tr = []
     loss_te = []
+    loss_tr = []
 
     for param in parameters.range(idx):
         parameters.set_param(idx, param)
 
         for k in range(parameters.k_fold):
             # cross validation:
-            loss_tr_i, loss_te_i = method_evaluation(y_, class_, parameters, k_indices, k) 
+            loss_tr_i, loss_te_i = method_evaluation(y_, class_, parameters, k_indices, k)
 
         loss_tr.append(np.mean(loss_tr_i))
         loss_te.append(np.mean(loss_te_i))
     
     best_param = parameters.range(idx)[np.argmin(loss_te)]
+    parameters.set_best_param(idx, best_param)
     parameters.set_param(idx, best_param)
+
+    # Display the results
+    min_test_error = np.min(loss_te)
+    print('Test error: ' +str(min_test_error)+ '\nBest ' \
+        +str(parameters.names[idx-1])+ ': ' +str(parameters.best_param(idx)))
 
     # Visualization
     if parameters.viz:

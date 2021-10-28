@@ -93,8 +93,8 @@ class Parameters(object):
     def __init__(self):
         # Initialization of the principal paramaters
         self.initial_w = 0
-        self.gamma = 1e-1
-        self.lambda_ = 0.1
+        self.gamma = 1e-3
+        self.lambda_ = 1e-3
         self.max_iter = 100
         self.threshold = 1e-6
         self.k_fold = 5
@@ -116,6 +116,8 @@ class Parameters(object):
         self.loss_fct = MSE()
         # Indicator if the loss is logitic regression
         self.logistic = False
+        # Optimal test error
+        self.opt_test_error = 0
 
     # Setting all the parameters of this class
     def set_init_w(self, initial_w):
@@ -157,6 +159,9 @@ class Parameters(object):
     def set_loss_fct(self, loss_fct):
         self.loss_fct = loss_fct
 
+    def set_opt_test_error(self, test_error):
+        self.opt_test_error = test_error
+
     def set_to_test(self, names):
         self.nb_to_test = len(names)
         self.names = names
@@ -166,6 +171,22 @@ class Parameters(object):
             self.gamma = param
         elif self.names[idx-1] == 'lambda':
             self.lambda_ = param
+        else:
+            print('Wrong name for the parameters to test, need to set lambda or gamma')
+    
+    def set_best_param(self, idx, param):
+        if self.names[idx-1] == 'gamma':
+            self.best_gamma = param
+        elif self.names[idx-1] == 'lambda':
+            self.best_lambda = param
+        else:
+            print('Wrong name for the parameters to test, need to set lambda or gamma')
+    
+    def best_param(self, idx):
+        if self.names[idx-1] == 'gamma':
+            return self.best_gamma
+        elif self.names[idx-1] == 'lambda':
+            return self.best_lambda
         else:
             print('Wrong name for the parameters to test, need to set lambda or gamma')
     

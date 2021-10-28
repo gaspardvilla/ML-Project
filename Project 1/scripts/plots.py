@@ -14,10 +14,10 @@ def correlation_plot(data_set):
     plt.matshow(Corr, 0)
     plt.colorbar()
 
-def density_plot(data_set):
+def density_plot(data_set, feature_x, feature_y):
     # Initialize x and y
-    x = data_set[:,1]
-    y = data_set[:,3]
+    x = data_set[:,feature_x]
+    y = data_set[:,feature_y]
 
     # Set the number of bins
     b = 20

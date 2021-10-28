@@ -24,6 +24,7 @@ def load_csv_data(data_path, sub_sample=False):
 
     return yb, input_data, ids
 
+# -------------------------------------------------------------------------- #
 
 def predict_labels(weights, data):
     """Generates class predictions given weights, and a test data matrix"""
@@ -33,6 +34,7 @@ def predict_labels(weights, data):
     
     return y_pred
 
+# -------------------------------------------------------------------------- #
 
 def create_csv_submission(ids, y_pred, name):
     """
@@ -61,6 +63,7 @@ def counting_errors(pred_set, true_set, viz=False):
 
     return Nb_errors, percentage_error
     
+# -------------------------------------------------------------------------- #
 
 def rebuild_y(y_0,y_1,y_2,y_3,data_set):
     rb_y = np.zeros(data_set.shape[0])
@@ -73,6 +76,8 @@ def rebuild_y(y_0,y_1,y_2,y_3,data_set):
     rb_y[ind_class_3] = y_3
     
     return rb_y
+
+# -------------------------------------------------------------------------- #
 
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """
@@ -96,6 +101,7 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         if start_index != end_index:
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
 
+# -------------------------------------------------------------------------- #
 
 def build_k_indices(y, k_fold, seed):
     """build k indices for k-fold."""

@@ -137,8 +137,8 @@ def build_poly(data_set, degree):
 def cross_validation_poly(y_class, data_class, parameters):
     for d in parameters.degree:
         param = cross_validation(y_class, data_class, parameters)
-        if (param.best_accuracy < parameters.best_accuracy):
-            parameters.set_best_accuracy(parameters, param.best_accuracy)
+        if (param.best_error < parameters.best_error):
+            parameters.set_best_error(parameters, param.best_error)
             parameters.set_best_degree(parameters, d)
     return parameters
 

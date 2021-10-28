@@ -95,6 +95,7 @@ class Parameters(object):
         self.initial_w = 0
         self.gamma = 1e-3
         self.lambda_ = 1e-3
+        self.degree = 1
         self.max_iter = 100
         self.threshold = 1e-6
         self.k_fold = 5
@@ -109,6 +110,7 @@ class Parameters(object):
         self.names = []
         self.best_lambda = self.lambda_
         self.best_gamma = self.gamma
+        self.best_degree =self.degree
         # Visualization
         self.viz = False
         # Method and loss function
@@ -117,7 +119,7 @@ class Parameters(object):
         # Indicator if the loss is logitic regression
         self.logistic = False
         # Optimal test error
-        self.opt_test_error = 0
+        self.best_error = 0
 
     # Setting all the parameters of this class
     def set_init_w(self, initial_w):
@@ -128,6 +130,9 @@ class Parameters(object):
     
     def set_lambda(self, lambda_):
         self.lambda_ = lambda_
+        
+    def set_degree(self, degree):
+        self.degree = degree
     
     def set_max_iter(self, max_iter):
         self.max_iter = max_iter
@@ -159,8 +164,8 @@ class Parameters(object):
     def set_loss_fct(self, loss_fct):
         self.loss_fct = loss_fct
 
-    def set_opt_test_error(self, test_error):
-        self.opt_test_error = test_error
+    def set_best_error(self, test_error):
+        self.best_accuracy = test_error
 
     def set_to_test(self, names):
         self.nb_to_test = len(names)
@@ -181,6 +186,9 @@ class Parameters(object):
             self.best_lambda = param
         else:
             print('Wrong name for the parameters to test, need to set lambda or gamma')
+            
+    def set_best_degree(self,degree):
+        self.best_degree = degree
     
     def best_param(self, idx):
         if self.names[idx-1] == 'gamma':

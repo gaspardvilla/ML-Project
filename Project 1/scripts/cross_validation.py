@@ -121,6 +121,29 @@ def cross_validation(y_class, data_class, parameters):
 
 # -------------------------------------------------------------------------- #
 
+def build_poly(data_set, degree):
+    """polynomial basis functions for input data x, for j=0 up to j=degree."""
+    # polynomial basis function: 
+    poly_basis = np.ones((data_set.shape[0], 1)) # first column full of ones for degree 0
+    for i in range (data_set.shape[1]):
+        for d in range (1, degree+1):
+            poly_basis = np.c_[poly_basis, pow(data_set[:,i], d)] # add a new column with the x to the power i
+    # this function should return the matrix formed
+    # by applying the polynomial basis to the input data
+    return poly_basis
+
+# -------------------------------------------------------------------------- #
+
+def cross_validation_poly(y_class, data_class, parameters):
+    for d in parameters.degree:
+        param = cross_validation(y_class, data_class, parameters)
+        if (param.best_accuracy < parameters.best_accuracy):
+            parameters.set_best_accuracy(parameters, param.best_accuracy)
+            parameters.set_best_degree(parameters, d)
+    return parameters
+
+# -------------------------------------------------------------------------- #
+
 def test_function(data_y, data_set, parameters, class_ind):
     # Classification of the data set depending on the feature 23 (or 22?)
     # Classification of y

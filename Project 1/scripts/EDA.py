@@ -234,6 +234,14 @@ def treating_outliers(feature):
     return feature
 
 # -------------------------------------------------------------------------- #
+
+def treating_features_with_999(data_set, feature):
+    ind = np.array(np.where(data_set[:,feature] == -999)[0])
+    ind_without_999 = np.delete(np.arange(data_set[:,feature].shape[0]), ind)
+    return ind_without_999
+
+# -------------------------------------------------------------------------- #
+
 ''' comme clean_test_set et clean_train_test font la même chose mais juste sur
  des data set differents je me suis dit que c'était sûrement mieux de faire 
  juste une fonction et on lui passe le train ou le test set en argument '''
@@ -241,7 +249,6 @@ def clean_set(data_set):
     # Loop over all the columns of the test set
     for i in range (data_set.shape[1]):
         data_set[:,i] = treating_outliers(data_set[:,i])
-    
     # Return the cleaned data set
     return data_set
 
@@ -254,6 +261,9 @@ def EDA(data_set):
     
     # clean outliers
     data_set = clean_set(data_set)
+    
+    #clean for class_0 of feature 0
+    data_set = dat
     
     # standardization
     data_set = standardize(data_set)

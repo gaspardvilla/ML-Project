@@ -68,13 +68,13 @@ class Neg_log():
     def cost(self, y, data_set, w):
         # Initialization of sigma
         t = data_set.dot(w)
-        sigma = self.sigmoid(t)
+        #sigma = self.sigmoid(t)
 
         # Direct computation of the loss
-        loss = -(y.T.dot(np.log(sigma)) + (1 - y).T.dot(np.log(1 - sigma)))
+        #loss = -(y.T.dot(np.log(sigma)) + (1 - y).T.dot(np.log(1 - sigma)))
 
         # Return the loss
-        return loss
+        return np.sum(np.log(1+np.exp(data_set@w))-y*(data_set@w))
     
     def grad(self, y, data_set, w):
         # Initialization of sigma
@@ -101,8 +101,8 @@ class Parameters(object):
         self.k_fold = 5
         self.mini_batch_size = 1
         # Set the range of lambda and gamma for the cross validation
-        self.lambda_range = np.logspace(-4, 0, 30)
-        self.gamma_range = np.logspace(-4, 0, 30)
+        self.lambda_range = np.logspace(-8, 0, 30)
+        self.gamma_range = np.logspace(-8, 0, 30)
         # Set the seeds use in cross validation
         self.seeds = np.arange(1)
         # Indicates the number of parameters to test and which of them for the cross validation
@@ -110,7 +110,11 @@ class Parameters(object):
         self.names = []
         self.best_lambda = self.lambda_
         self.best_gamma = self.gamma
+
+        # To supress after that
         self.best_degree =self.degree
+        self.feature_list = np.zeros(2)
+
         # Visualization
         self.viz = False
         # Method and loss function
@@ -120,6 +124,8 @@ class Parameters(object):
         self.logistic = False
         # Optimal test error
         self.best_error = 100
+
+        self.polynomial_selection = 'Forward'
 
     # Setting all the parameters of this class
     def set_init_w(self, initial_w):
@@ -170,6 +176,15 @@ class Parameters(object):
     def set_to_test(self, names):
         self.nb_to_test = len(names)
         self.names = names
+
+    def add_feature(self, feature, degree):
+        self.feature_list = np.c_[self.feature_list, [feature, degree]]
+
+    def set_polynomial_selection(self, polynomial_selection):
+        self.polynomial_selection = polynomial_selection
+    
+    def set_selected_feature(self, feature_list):
+        self.feature_list = feature_list
     
     def set_param(self, idx, param):
         if self.names[idx-1] == 'gamma':
@@ -179,6 +194,12 @@ class Parameters(object):
         else:
             print('Wrong name for the parameters to test, need to set lambda or gamma')
     
+    def set_best_gamma(self, gamma):
+        self.best_gamma = gamma
+
+    def set_best_lambda(self, lambda_):
+        self.best_lambda = lambda_
+
     def set_best_param(self, idx, param):
         if self.names[idx-1] == 'gamma':
             self.best_gamma = param

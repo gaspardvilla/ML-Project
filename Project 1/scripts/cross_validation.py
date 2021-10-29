@@ -34,14 +34,7 @@ def method_evaluation(y, data_set, parameters, k_indices, k):
     y_pred_te = predict_labels(w, x_te)
     nb_errors_te, percentage_error_te = counting_errors(y_pred_te, y_te)
 
-    error_tr.append(percentage_error_tr)
-    error_te.append(percentage_error_te)
-    
-    # calculate the loss for train and test data:       
-    # loss_tr.append(loss_tr_i)
-    # loss_te.append(parameters.loss_fct.cost(y_te, x_te, w))
-
-    return error_tr, error_te
+    return percentage_error_tr, percentage_error_te
     
 # -------------------------------------------------------------------------- #
 
@@ -56,13 +49,18 @@ def classic_cv(y_, class_, parameters, idx):
 
     for param in parameters.range(idx):
         parameters.set_param(idx, param)
+        error_tr_i = [-1]
+        error_te_i = [-1]
 
         for k in range(parameters.k_fold):
             # cross validation:
-            error_tr_i, error_te_i = method_evaluation(y_, class_, parameters, k_indices, k)
+            percentage_error_tr, percentage_error_te = \
+                method_evaluation(y_, class_, parameters, k_indices, k)
+            error_tr_i = np.c_[error_tr_i, [percentage_error_tr]]
+            error_te_i = np.c_[error_te_i, [percentage_error_te]]
 
-        error_tr.append(np.mean(error_tr_i))
-        error_te.append(np.mean(error_te_i))
+        error_tr.append(np.mean(error_tr_i[0, 1:]))
+        error_te.append(np.mean(error_te_i[0, 1:]))
     
     best_param = parameters.range(idx)[np.argmin(error_te)]
     parameters.set_best_param(idx, best_param)
@@ -71,8 +69,9 @@ def classic_cv(y_, class_, parameters, idx):
 
     # Display the results
     min_test_error = np.min(error_te)
-    print('Test error: ' +str(min_test_error)+ '\nBest ' \
-        +str(parameters.names[idx-1])+ ': ' +str(parameters.best_param(idx)))
+    if parameters.viz:
+        print('Test error: ' +str(min_test_error)+ '\nBest ' \
+            +str(parameters.names[idx-1])+ ': ' +str(parameters.best_param(idx)))
 
     # Visualization
     if parameters.viz:
@@ -115,19 +114,36 @@ def cross_validation(y_class, data_class, parameters):
         parameters = cross_validation_1_param(y_class, data_class, parameters)
 
     elif parameters.nb_to_test == 0:
-        print('No parameter to optimize for this method and this loss function')
+        # split data in k fold
+        seed = parameters.seeds[0]
+        k_indices = build_k_indices(y_class, parameters.k_fold, seed)
+
+        error_tr_i = [-1]
+        error_te_i = [-1]
+
+        for k in range(parameters.k_fold):
+            # cross validation:
+            percentage_error_tr, percentage_error_te = \
+                method_evaluation(y_class, data_class, parameters, k_indices, k)
+            error_tr_i = np.c_[error_tr_i, [percentage_error_tr]]
+            error_te_i = np.c_[error_te_i, [percentage_error_te]]
+        
+        parameters.set_best_error(np.mean(error_te_i[0, 1:]))
+        if parameters.viz:
+            print('Test error: ' +str(parameters.best_error)+ '\n')
+            print('No parameter to optimize for this method and this loss function')
 
     # Return the optimal parameters for the considered method and loss function
     return parameters
 
 # -------------------------------------------------------------------------- #
 
-def build_poly(data_set, degree):
+def build_poly(data_set, degrees):
     """polynomial basis functions for input data x, for j=0 up to j=degree."""
     # polynomial basis function: 
     poly_basis = np.ones((data_set.shape[0], 1)) # first column full of ones for degree 0
-    for i in range (data_set.shape[1]):
-        for d in range (1, degree+1):
+    for d in degrees:
+        for i in range (data_set.shape[1]):
             poly_basis = np.c_[poly_basis, pow(data_set[:,i], d)] # add a new column with the x to the power i
     # this function should return the matrix formed
     # by applying the polynomial basis to the input data
@@ -138,13 +154,74 @@ def build_poly(data_set, degree):
 def cross_validation_poly(y_class, data_class, parameters):
     error = parameters.best_error
     for d in range(parameters.degree):
-        data_set = build_poly(data_class, d)
+        data_set = build_poly(data_class, [d+1])
         param = cross_validation(y_class, data_set, parameters)
         if (param.best_error < error):
             error = param.best_error
             parameters.set_best_degree(d)
     
     parameters.set_best_error(error)
+    return parameters
+
+# -------------------------------------------------------------------------- #
+
+def add_feature(data_class, opt_class, feat_idx, degree):
+    opt_class = np.c_[opt_class, pow(data_class[:, feat_idx], degree)]
+    return opt_class
+
+# -------------------------------------------------------------------------- #
+
+def cross_validation_poly_gas(y_class, data_class, parameters):
+    forward_error = 100
+    lambda_ = parameters.best_lambda
+    gamma = parameters.best_gamma
+    nb_features = data_class.shape[1]
+    forward_class = np.ones([data_class.shape[0], 1])
+
+    # Forward pass
+    for degree in range(1, parameters.degree + 1):
+        for feat_idx in range(nb_features):
+            forward_class = add_feature(data_class, forward_class, feat_idx, degree)
+            parameters = cross_validation(y_class, forward_class, parameters)
+            if (parameters.best_error <= forward_error):
+                forward_error = parameters.best_error
+                lambda_ = parameters.best_lambda
+                gamma = parameters.best_gamma
+                parameters.add_feature(feat_idx, degree)
+    
+    # Backward pass
+    backward_class = build_poly(data_class, range(1, parameters.degree + 1))
+    backward_class_current = backward_class.copy()
+    backward_error = 100
+    feat_list_back = [-1]
+    idx = backward_class.shape[1]-1
+    while idx >= 0:
+        backward_class_current = remove_feature(backward_class, [idx])
+        parameters = cross_validation(y_class, backward_class_current, parameters)
+        if (parameters.best_error <= backward_error):
+            # Class and index update
+            backward_class = backward_class_current.copy()
+            feat_list_back = np.c_[feat_list_back, idx]
+
+            # Parameter update
+            backward_error = parameters.best_error
+            lambda_ = parameters.best_lambda
+            gamma = parameters.best_gamma
+        idx = idx - 1
+    
+    if backward_error < forward_error:
+        error = backward_error
+        parameters.set_polynomial_selection('Backward')
+        parameters.set_selected_feature(feat_list_back)
+    else:
+        error = forward_error
+        parameters.set_polynomial_selection('Forward')        
+
+    
+    # Update the very best parameters
+    parameters.set_best_error(error)
+    parameters.set_best_gamma(gamma)
+    parameters.set_best_lambda(lambda_)
     return parameters
 
 # -------------------------------------------------------------------------- #
@@ -180,3 +257,22 @@ def cross_validation_visualization(lambds, error_tr, error_te, parameters):
     plt.legend(loc=2)
     plt.grid(True)
     plt.show()
+
+# -------------------------------------------------------------------------- #
+
+def build_polynomial_features(data_set, parameters):
+    # In the case of forward solution
+    if parameters.polynomial_selection == 'Forward':
+        returned_set = np.ones([data_set.shape[0],1])
+        for idx in range(1, parameters.feature_list.shape[1]):
+            returned_set = add_feature(data_set, returned_set, parameters.feature_list[0, idx], parameters.feature_list[1, idx])
+    else:
+        returned_set = build_poly(data_set, range(1, parameters.degree + 1))
+        returned_set = remove_feature(returned_set, parameters.feature_list[1:])
+
+    return returned_set
+
+# -------------------------------------------------------------------------- #
+
+
+# -------------------------------------------------------------------------- #

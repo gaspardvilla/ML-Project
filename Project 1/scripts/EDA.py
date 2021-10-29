@@ -46,10 +46,10 @@ def constant_feature(feature):
 
 def remove_feature(data_set, indices):
     # Remove the features in indices from the data set
-    data_set = np.delete(data_set, indices, axis = 1)
+    data_set_ = np.delete(data_set, indices, axis = 1)
 
-    # Return teh updated data set
-    return data_set
+    # Return the updated data set
+    return data_set_
 
 # -------------------------------------------------------------------------- #
 
@@ -58,7 +58,7 @@ def clean_constant_features(data_set):
     ind_const = []
 
     # Check which feature should be removed
-    for i in range (data_set.shape[1]):
+    for i in range(data_set.shape[1]):
         if (constant_feature(data_set[:,i]) == True):
             ind_const.append(i)
 
@@ -264,6 +264,33 @@ def EDA(data_set):
     data_set = clean_correlated_features(data_set)
     
     return data_set
+# -------------------------------------------------------------------------- #
+
+def graph_analysis_removal(class_0, class_1, class_2, class_3):
+    class_0 = remove_feature(class_0, [2, 5, 8, 11, 13])
+    class_1 = remove_feature(class_1, [4, 10, 11, 13, 14, 15, 18])
+    class_2 = remove_feature(class_2, [2, 5, 8, 11, 13])
+    class_3 = remove_feature(class_3, [5, 7, 10, 13, 14, 16, 17, 18, 19, 20, \
+        22, 23, 25, 26])
+    
+    # Return the classes 
+    return class_0, class_1, class_2, class_3
+
+# -------------------------------------------------------------------------- #
+
+def log_filter(class_0, class_1, class_2, class_3):
+    # Set a list of classes
+    classes = [class_0, class_1, class_2, class_3]
+
+    # Iterate over all the classes
+    for class_ in classes:
+        for idx in range(class_.shape[1]):
+            if np.min(class_[:, idx]) >= 0:
+                class_[:, idx] = np.log(1 + class_[:, idx])
+    
+    # Return the classes
+    return classes[0], classes[1], classes[2], classes[3]
+
 
 # -------------------------------------------------------------------------- #
 
@@ -274,11 +301,14 @@ def EDA_class(data_set):
     # Delete features in function of the class
     class_0 = clear_features(class_0, k = 0)
     class_1 = clear_features(class_1, k = 1)
-
-    # ? No clean for class 2 ?
-
     class_3 = clear_features(class_3, k = 3)
-    
+
+    # Remove features from graph analysis
+    class_0, class_1, class_2, class_3 = graph_analysis_removal(class_0, class_1, class_2, class_3)
+
+    # Apply log(1+x) filter for gaussian distribution
+    class_0, class_1, class_2, class_3 = log_filter(class_0, class_1, class_2, class_3)
+
     # EDA for each class
     class_0 = EDA(class_0)
     class_1 = EDA(class_1)

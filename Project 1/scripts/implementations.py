@@ -26,6 +26,7 @@ def least_squares_GD(y, data_set, parameters):
     
     # Definition of all the parameters
     loss = 0
+    parameters.set_init_w(np.zeros((data_set.shape[1],)))
     w = parameters.initial_w
     
     # Loop for on the number of iterations
@@ -57,6 +58,7 @@ def ridge_regression(y, data_set, parameters):
 
 def least_squares_SGD(y, data_set, parameters):
     """Stochastic gradient descent algorithm."""
+    parameters.set_init_w(np.zeros((data_set.shape[1],)))
 
     # Initialization of some parameters
     ws = [parameters.initial_w]
@@ -89,8 +91,8 @@ def least_squares_SGD(y, data_set, parameters):
 def logistic_regression(y, data_set, parameters):
     # Initialization
     # w = parameters.initial_w
-    data_set = np.c_[np.ones((y.shape[0], 1)), data_set]
-    w = np.zeros((data_set.shape[1],))
+    parameters.set_init_w(np.zeros((data_set.shape[1],)))
+    w = parameters.initial_w
     loss = 0
 
     # Loop for on the number of iterations
@@ -111,6 +113,7 @@ def reg_logistic_regression(y, data_set, parameters):
     
     # build data_set
     losses = []
+    parameters.set_init_w(np.zeros((data_set.shape[1],)))
     w = parameters.initial_w
 
     # start the logistic regression

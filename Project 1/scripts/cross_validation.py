@@ -25,7 +25,7 @@ def method_evaluation(y, data_set, parameters, k_indices, k):
     y_tr = y[tr_idx]
     y_te = y[te_idx]
     
-    # ridge regression:
+    # method to compute w and the loss:
     loss_tr_i, w = parameters.method(y_tr, x_tr, parameters)
 
     # Calculate the accuracy for the train and test set
@@ -59,10 +59,10 @@ def classic_cv(y_, class_, parameters, idx):
 
         for k in range(parameters.k_fold):
             # cross validation:
-            loss_tr_i, loss_te_i = method_evaluation(y_, class_, parameters, k_indices, k)
+            error_tr_i, error_te_i = method_evaluation(y_, class_, parameters, k_indices, k)
 
-        error_tr.append(np.mean(loss_tr_i))
-        error_te.append(np.mean(loss_te_i))
+        error_tr.append(np.mean(error_tr_i))
+        error_te.append(np.mean(error_te_i))
     
     best_param = parameters.range(idx)[np.argmin(error_te)]
     parameters.set_best_param(idx, best_param)
@@ -76,7 +76,7 @@ def classic_cv(y_, class_, parameters, idx):
 
     # Visualization
     if parameters.viz:
-        cross_validation_visualization(parameters.range(idx), error_tr, error_te)
+        cross_validation_visualization(parameters.range(idx), error_tr, error_te, parameters)
     
     return parameters
 
@@ -141,7 +141,6 @@ def cross_validation_poly(y_class, data_class, parameters):
         data_set = build_poly(data_class, d)
         param = cross_validation(y_class, data_set, parameters)
         if (param.best_error < error):
-            print('yolo')
             error = param.best_error
             parameters.set_best_degree(d)
     
@@ -171,12 +170,13 @@ def test_function(data_y, data_set, parameters, class_ind):
 
 # -------------------------------------------------------------------------- #
 
-def cross_validation_visualization(lambds, mse_tr, mse_te):
-    """visualization the curves of mse_tr and mse_te."""
-    plt.semilogx(lambds, mse_tr, marker=".", color='b', label='train error')
-    plt.semilogx(lambds, mse_te, marker=".", color='r', label='test error')
-    plt.xlabel("lambda")
-    plt.ylabel("rmse")
+def cross_validation_visualization(lambds, error_tr, error_te, parameters):
+    """visualization the curves of error_tr and error_te."""
+    plt.semilogx(lambds, error_tr, marker=".", color='b', label='train error')
+    plt.semilogx(lambds, error_te, marker=".", color='r', label='test error')
+    plt.xlabel('%s' %parameters.names[0])
+    plt.ylabel("error")
     plt.title("cross validation")
     plt.legend(loc=2)
     plt.grid(True)
+    plt.show()

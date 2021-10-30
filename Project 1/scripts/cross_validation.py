@@ -1,4 +1,3 @@
-import math
 import numpy as np
 import matplotlib.pyplot as plt
 from proj1_helpers import *
@@ -6,10 +5,10 @@ from implementations import *
 from EDA import *
 from losses import *
 
+# -------------------------------------------------------------------------- #
+
 def method_evaluation(y, data_set, parameters, k_indices, k):
     """return the loss of the method"""
-    error_tr = [] #to save the training loss for each training set
-    error_te = [] #to save the testint loss for each test set
 
     # get k'th subgroup in test, others in train: 
     te_idx = k_indices[k] # takes the indices of the data that corresponds to the k'th subgroup
@@ -171,57 +170,94 @@ def add_feature(data_class, opt_class, feat_idx, degree):
 
 # -------------------------------------------------------------------------- #
 
+def add_interaction(data_class, opt_class, feat_idx_1, feat_idx_2):
+    opt_class = np.c_[opt_class, \
+        np.multiply(data_class[:, feat_idx_1], data_class[:, feat_idx_2])]
+    return opt_class
+
+# -------------------------------------------------------------------------- #
+
 def cross_validation_poly_gas(y_class, data_class, parameters):
-    forward_error = 100
-    lambda_ = parameters.best_lambda
-    gamma = parameters.best_gamma
-    nb_features = data_class.shape[1]
-    forward_class = np.ones([data_class.shape[0], 1])
+    print('Forward step')
 
     # Forward pass
+    forward_error = 100
+    forward_lambda = parameters.best_lambda
+    forward_gamma = parameters.best_gamma
+    nb_features = data_class.shape[1]
+    forward_class = np.ones([data_class.shape[0], 1])
     for degree in range(1, parameters.degree + 1):
         for feat_idx in range(nb_features):
             forward_class = add_feature(data_class, forward_class, feat_idx, degree)
             parameters = cross_validation(y_class, forward_class, parameters)
             if (parameters.best_error <= forward_error):
                 forward_error = parameters.best_error
-                lambda_ = parameters.best_lambda
-                gamma = parameters.best_gamma
+                forward_lambda = parameters.best_lambda
+                forward_gamma = parameters.best_gamma
                 parameters.add_feature(feat_idx, degree)
     
-    # Backward pass
-    backward_class = build_poly(data_class, range(1, parameters.degree + 1))
-    backward_class_current = backward_class.copy()
-    backward_error = 100
-    feat_list_back = [-1]
-    idx = backward_class.shape[1]-1
-    while idx >= 0:
-        backward_class_current = remove_feature(backward_class, [idx])
-        parameters = cross_validation(y_class, backward_class_current, parameters)
-        if (parameters.best_error <= backward_error):
-            # Class and index update
-            backward_class = backward_class_current.copy()
-            feat_list_back = np.c_[feat_list_back, idx]
+    print('Backward step')
 
-            # Parameter update
-            backward_error = parameters.best_error
-            lambda_ = parameters.best_lambda
-            gamma = parameters.best_gamma
-        idx = idx - 1
+    # Backward pass
+    backward_error = 100
+    backward_lambda = parameters.best_lambda
+    backward_gamma = parameters.best_gamma
+    if parameters.use_backward_selection:
+        backward_class = build_poly(data_class, range(1, parameters.degree + 1))
+        backward_class_current = backward_class.copy()
+        backward_error = 100
+        feat_list_back = [-1]
+        idx = backward_class.shape[1]-1
+        while idx >= 0:
+            backward_class_current = remove_feature(backward_class, [idx])
+            parameters = cross_validation(y_class, backward_class_current, parameters)
+            if (parameters.best_error <= backward_error):
+                # Class and index update
+                backward_class = backward_class_current.copy()
+                feat_list_back = np.c_[feat_list_back, idx]
+
+                # Parameter update
+                backward_error = parameters.best_error
+                backward_lambda = parameters.best_lambda
+                backward_gamma = parameters.best_gamma
+            idx = idx - 1
     
+    print('Interactions step')
+
+    # Forward for interactions
+    if parameters.use_interactions:
+        for idx_1 in range(data_class.shape[1]):
+            for idx_2 in range(idx_1 + 1, data_class.shape[1]):
+                forward_class = add_interaction(data_class, forward_class, idx_1, idx_2)
+                parameters = cross_validation(y_class, forward_class, parameters)
+                if (parameters.best_error <= forward_error):
+                    forward_error = parameters.best_error
+                    forward_lambda = parameters.best_lambda
+                    forward_gamma = parameters.best_gamma
+                    parameters.add_interactions(idx_1, idx_2)
+
+    # Small print
+    print('forward: ', forward_error)
+    print('backward: ', backward_error)
+    
+    # Comparison between backward and forward
     if backward_error < forward_error:
         error = backward_error
         parameters.set_polynomial_selection('Backward')
         parameters.set_selected_feature(feat_list_back)
+        parameters.set_best_gamma(backward_gamma)
+        parameters.set_best_lambda(backward_lambda)
     else:
         error = forward_error
-        parameters.set_polynomial_selection('Forward')        
+        parameters.set_polynomial_selection('Forward')  
+        parameters.set_best_gamma(forward_gamma)
+        parameters.set_best_lambda(forward_lambda)      
 
     
     # Update the very best parameters
     parameters.set_best_error(error)
-    parameters.set_best_gamma(gamma)
-    parameters.set_best_lambda(lambda_)
+    parameters.set_lambda(parameters.best_lambda)
+    parameters.set_gamma(parameters.best_gamma)
     return parameters
 
 # -------------------------------------------------------------------------- #
@@ -265,14 +301,17 @@ def build_polynomial_features(data_set, parameters):
     if parameters.polynomial_selection == 'Forward':
         returned_set = np.ones([data_set.shape[0],1])
         for idx in range(1, parameters.feature_list.shape[1]):
-            returned_set = add_feature(data_set, returned_set, parameters.feature_list[0, idx], parameters.feature_list[1, idx])
+            returned_set = add_feature(data_set, returned_set, \
+                parameters.feature_list[0, idx], parameters.feature_list[1, idx])
+
+        if parameters.use_interactions:
+            for idx in parameters.kept_interactions[0, 1:]:
+                returned_set = add_interaction(data_set, returned_set, \
+                    parameters.kept_interactions[0, idx], parameters.kept_interactions[1, idx])
     else:
         returned_set = build_poly(data_set, range(1, parameters.degree + 1))
         returned_set = remove_feature(returned_set, parameters.feature_list[1:])
 
     return returned_set
-
-# -------------------------------------------------------------------------- #
-
 
 # -------------------------------------------------------------------------- #

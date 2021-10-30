@@ -1,4 +1,3 @@
-import math
 import numpy as np
 
 from implementations import least_squares_GD, ridge_regression
@@ -126,6 +125,9 @@ class Parameters(object):
         self.best_error = 100
 
         self.polynomial_selection = 'Forward'
+        self.use_backward_selection = True
+        self.use_interactions = True
+        self.kept_interactions = np.zeros(2)
 
     # Setting all the parameters of this class
     def set_init_w(self, initial_w):
@@ -185,6 +187,15 @@ class Parameters(object):
     
     def set_selected_feature(self, feature_list):
         self.feature_list = feature_list
+
+    def set_use_backward_selection(self, backward_selection):
+        self.use_backward_selection = backward_selection
+
+    def set_use_interactions(self, interactions):
+        self.use_interactions = interactions
+
+    def add_interactions(self, idx_1, idx_2):
+        self.kept_interactions = np.c_[self.kept_interactions, [idx_1, idx_2]]
     
     def set_param(self, idx, param):
         if self.names[idx-1] == 'gamma':

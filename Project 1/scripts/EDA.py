@@ -254,6 +254,9 @@ def EDA(data_set):
     # clean constant features
     data_set = clean_constant_features(data_set)
     
+    # log(1+x) filter
+    data_set = log_filter(data_set)
+
     # clean outliers
     data_set = clean_set(data_set)
     
@@ -278,18 +281,14 @@ def graph_analysis_removal(class_0, class_1, class_2, class_3):
 
 # -------------------------------------------------------------------------- #
 
-def log_filter(class_0, class_1, class_2, class_3):
-    # Set a list of classes
-    classes = [class_0, class_1, class_2, class_3]
-
-    # Iterate over all the classes
-    for class_ in classes:
-        for idx in range(class_.shape[1]):
-            if np.min(class_[:, idx]) >= 0:
-                class_[:, idx] = np.log(1 + class_[:, idx])
+def log_filter(class_):
+    # Apply the log(1+x) transformation
+    for idx in range(class_.shape[1]):
+        if np.min(class_[:, idx]) >= 0:
+            class_[:, idx] = np.log(1 + class_[:, idx])
     
     # Return the classes
-    return classes[0], classes[1], classes[2], classes[3]
+    return class_
 
 
 # -------------------------------------------------------------------------- #
@@ -303,17 +302,14 @@ def EDA_class(data_set):
     class_1 = clear_features(class_1, k = 1)
     class_3 = clear_features(class_3, k = 3)
 
-    # Remove features from graph analysis
-    class_0, class_1, class_2, class_3 = graph_analysis_removal(class_0, class_1, class_2, class_3)
-
-    # Apply log(1+x) filter for gaussian distribution
-    class_0, class_1, class_2, class_3 = log_filter(class_0, class_1, class_2, class_3)
-
     # EDA for each class
     class_0 = EDA(class_0)
     class_1 = EDA(class_1)
     class_2 = EDA(class_2)
     class_3 = EDA(class_3)
+
+    # Remove features from graph analysis
+    class_0, class_1, class_2, class_3 = graph_analysis_removal(class_0, class_1, class_2, class_3)
     
     return class_0, class_1, class_2, class_3
 

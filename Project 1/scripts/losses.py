@@ -67,13 +67,13 @@ class Neg_log():
     def cost(self, y, data_set, w):
         # Initialization of sigma
         t = data_set.dot(w)
-        #sigma = self.sigmoid(t)
+        sigma = self.sigmoid(t)
 
         # Direct computation of the loss
-        #loss = -(y.T.dot(np.log(sigma)) + (1 - y).T.dot(np.log(1 - sigma)))
+        loss = -(y.T.dot(np.log(sigma)) + (1 - y).T.dot(np.log(1 - sigma)))
 
         # Return the loss
-        return np.sum(np.log(1+np.exp(data_set@w))-y*(data_set@w))
+        return loss
     
     def grad(self, y, data_set, w):
         # Initialization of sigma
@@ -97,7 +97,7 @@ class Parameters(object):
         self.degree = 1
         self.max_iter = 100
         self.threshold = 1e-6
-        self.k_fold = 5
+        self.k_fold = 4
         self.mini_batch_size = 1
         # Set the range of lambda and gamma for the cross validation
         self.lambda_range = np.logspace(-8, 0, 30)

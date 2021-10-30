@@ -236,10 +236,6 @@ def treating_outliers(feature):
     return feature
 
 # -------------------------------------------------------------------------- #
-
-''' comme clean_test_set et clean_train_test font la même chose mais juste sur
- des data set differents je me suis dit que c'était sûrement mieux de faire 
- juste une fonction et on lui passe le train ou le test set en argument '''
 def clean_set(data_set):
     # Loop over all the columns of the test set
     for i in range (data_set.shape[1]):

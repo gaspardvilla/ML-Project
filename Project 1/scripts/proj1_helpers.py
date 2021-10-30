@@ -24,6 +24,19 @@ def load_csv_data(data_path, sub_sample=False):
 
     return yb, input_data, ids
 
+# AAAAAAAAAAAAAAAA
+
+def to_supress(data_path):
+    """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
+    y = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype=str, usecols=1)
+    x = np.genfromtxt(data_path, delimiter=",", skip_header=1)
+    ids = x[:, 0].astype(np.int)
+    y = x[:, 1]
+
+    return y
+
+# AAAAAAAAAAAAAAAA
+
 # -------------------------------------------------------------------------- #
 
 def predict_labels(weights, data):

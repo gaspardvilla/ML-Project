@@ -1,11 +1,19 @@
 import numpy as np
+from implementations import *
 
-from implementations import least_squares_GD, ridge_regression
 
-# File that contains all the cost functions with these attributes.
+# File that contains multiple classes used for our Machine Learning tools.
+
 
 # MSE loss
 class MSE():
+    """
+        This class contains the cost function and the gradient function for
+        the Mean Square Error (MSE) for response vector y, weights w and a 
+        corresponding data set.
+    """
+
+    # Cost function
     def cost(self, y, data_set, w):
         # Definition of the parameters
         loss = 0
@@ -18,6 +26,7 @@ class MSE():
         # Return the MSE
         return loss
     
+    # Gradient function
     def grad(self, y, data_set, w):
         # Initilization
         N = len(y)
@@ -29,10 +38,20 @@ class MSE():
         # Return the results grad
         return grad
 
+
+
 # -------------------------------------------------------------------------- #
 
-# MAE loss
+
+
 class MAE():
+    """
+        This class contains the cost function and the gradient function for
+        the Mean Abslute Error (MAE) for response vector y, weights w and a 
+        corresponding data set.
+    """
+
+    # Cost function
     def cost(self, y, data_set, w):
         # Definition of the parameters
         loss = 0
@@ -45,21 +64,30 @@ class MAE():
         # Return the MSE
         return loss
     
+    # Gradient function
     def grad(self, y, data_set, w):
         # Initilization
         N = len(y)
 
         # Compute the gradient of the Mean Square Error
-        e = y - data_set.dot(w)
+        e = np.reshape(y - data_set.dot(w), [y.shape[0], 1])
         grad = -(1 / N) * np.multiply(np.sign(e), data_set).T.dot(np.ones(len(y)))
         
         # Return the results grad
         return grad
 
+
+
 # -------------------------------------------------------------------------- #
 
-# Negative log-likelihood loss
+
+
 class Neg_log():
+    """
+        This class contains the cost function and the gradient function for
+        the Negative loglikelihood value for response vector y, weights w and
+        the corresponding data set.
+    """
     # Sigmoid functions
     def sigmoid(self, t):
         return np.exp(t) / (1 + np.exp(t))
@@ -67,13 +95,13 @@ class Neg_log():
     def cost(self, y, data_set, w):
         # Initialization of sigma
         t = data_set.dot(w)
-        sigma = self.sigmoid(t)
+        # sigma = self.sigmoid(t)
 
         # Direct computation of the loss
-        loss = -(y.T.dot(np.log(sigma)) + (1 - y).T.dot(np.log(1 - sigma)))
+        # loss = -(y.T.dot(np.log(sigma)) + (1 - y).T.dot(np.log(1 - sigma)))
 
         # Return the loss
-        return loss
+        return np.sum(np.log(1+np.exp(data_set@w))-y*(data_set@w))
     
     def grad(self, y, data_set, w):
         # Initialization of sigma
@@ -97,7 +125,7 @@ class Parameters(object):
         self.degree = 1
         self.max_iter = 100
         self.threshold = 1e-6
-        self.k_fold = 4
+        self.k_fold = 5
         self.mini_batch_size = 1
         # Set the range of lambda and gamma for the cross validation
         self.lambda_range = np.logspace(-8, 0, 30)
@@ -126,6 +154,7 @@ class Parameters(object):
 
         self.polynomial_selection = 'Forward'
         self.use_backward_selection = True
+        self.use_forward_selection = True
         self.use_interactions = True
         self.kept_interactions = np.zeros(2)
 
@@ -190,6 +219,9 @@ class Parameters(object):
 
     def set_use_backward_selection(self, backward_selection):
         self.use_backward_selection = backward_selection
+
+    def set_use_forward_selection(self, forward_selection):
+        self.use_forward_selection = forward_selection
 
     def set_use_interactions(self, interactions):
         self.use_interactions = interactions

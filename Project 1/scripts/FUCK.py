@@ -23,7 +23,7 @@ class_0, class_1, class_2, class_3 = EDA_class(data_set)
 
 # -------------------------------------------------------------------------- #
 
-max_degree = 4
+max_degree = 10
 
 # -------------------------------------------------------------------------- #
 # -------------------------------------------------------------------------- #
@@ -38,13 +38,15 @@ print('Class 1')
 param_ridge_1 = Parameters()
 param_ridge_1.set_degree(max_degree)
 param_ridge_1.set_loss_fct(neg_log)
-param_ridge_1.set_method(least_squares_GD)
+param_ridge_1.set_method(ridge_regression)
+param_ridge_1.set_lambda_range(np.logspace(-6,-1,30))
 param_ridge_1.set_to_test(['lambda'])
 param_ridge_1.set_viz(False)
-param_ridge_1.set_use_backward_selection(False)
+param_ridge_1.set_use_backward_selection(True)
+param_ridge_1.set_use_forward_selection(True)
 param_ridge_1.set_use_interactions(True)
 # Cross validation
-param_ridge_1 = cross_validation_poly_gas(y_1, class_1, param_ridge_1)
+param_ridge_1 = cross_validation_poly_gas(y_2, class_2, param_ridge_1)
 
 print(param_ridge_1.feature_list)
 print(param_ridge_1.polynomial_selection)
@@ -52,4 +54,8 @@ print(param_ridge_1.best_error)
 print(param_ridge_1.kept_interactions)
 
 # Building models
-class_1_ = build_polynomial_features(class_1, param_ridge_1)
+class_2_ = build_polynomial_features(class_2, param_ridge_1)
+
+# Print the final parameters
+print(param_ridge_1.best_gamma)
+print(param_ridge_1.gamma)

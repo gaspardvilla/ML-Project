@@ -18,9 +18,10 @@ def load_csv_data(data_path, sub_sample=False):
     
     # sub-sample
     if sub_sample:
-        yb = yb[::50]
-        input_data = input_data[::50]
-        ids = ids[::50]
+        zzz = 10
+        yb = yb[::zzz]
+        input_data = input_data[::zzz]
+        ids = ids[::zzz]
 
     return yb, input_data, ids
 

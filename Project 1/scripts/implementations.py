@@ -7,6 +7,7 @@ from proj1_helpers import *
 def least_squares(y, data_set, parameters):
     """calculate the least squares solution."""
     # Define a and b for solving linear system 'ax = b'
+    parameters.set_init_w(np.zeros((data_set.shape[1],)))
     a = data_set.T.dot(data_set)
     b = data_set.T.dot(y)
 
@@ -48,6 +49,7 @@ def least_squares_GD(y, data_set, parameters):
 
 def ridge_regression(y, data_set, parameters):
     """implement ridge regression."""    
+    parameters.set_init_w(np.zeros((data_set.shape[1],)))
     a = data_set.T.dot(data_set) + (2 * data_set.shape[0] * parameters.lambda_ * np.identity(data_set.shape[1]))
     b = data_set.T.dot(y)
     w = np.linalg.solve(a, b)

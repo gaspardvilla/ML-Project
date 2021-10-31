@@ -75,23 +75,24 @@ def clean_correlated_features(data_set):
     C = np.corrcoef(data_set.T) # correlation coefficient between features
                           # C is a 30x30 array
                           # Cij is the correlation coefficient between feature i and feature j 
+    
     # Select upper triangle of correlation matrix
     C = np.triu(C, k=0)
 
     '''get rid of features with correlation coefficient > 0.95'''
     threshold = 0.95
-    corr_features = []
+    correlated_features = []
     for i in range(len(C[0]) - 1):
         for j in range(len(C[0]) - 1):
             if ((i != j) and C[i][j] > threshold):
-                corr_features.append([i, j])
+                correlated_features.append([i, j])
     # if there is no correlated features, return the data set
-    if (not corr_features):
+    if (not correlated_features):
         return data_set
-    corr_feat_to_delete = [corr_features[0][0]]
-    for i in range (1, len(corr_features) - 1):
-        if (corr_features[i][0] != corr_features[i-1][0]):
-            corr_feat_to_delete.append(corr_features[i][0])
+    corr_feat_to_delete = [correlated_features[0][0]]
+    for i in range (1, len(correlated_features) - 1):
+        if (correlated_features[i][0] != correlated_features[i-1][0]):
+            corr_feat_to_delete.append(correlated_features[i][0])
 
     data_set = remove_feature(data_set, corr_feat_to_delete) 
     return data_set
@@ -254,7 +255,7 @@ def EDA(data_set):
     data_set = log_filter(data_set)
 
     # clean outliers
-    data_set = clean_set(data_set)
+    # data_set = clean_set(data_set)
     
     # standardization
     data_set = standardize(data_set)
@@ -279,9 +280,14 @@ def graph_analysis_removal(class_0, class_1, class_2, class_3):
 
 def log_filter(class_):
     # Apply the log(1+x) transformation
-    for idx in range(class_.shape[1]):
-        if np.min(class_[:, idx]) >= 0:
-            class_[:, idx] = np.log(1 + class_[:, idx])
+    if False:
+        N = class_.shape[1]
+        for idx in range(N):
+            if np.min(class_[:, idx]) >= 0:
+                class_ = np.c_[class_, np.log(1 + class_[:, idx])]
+    else:
+        for idx in range(class_.shape[1]):
+            class_[:, idx] = np.multiply(np.sign(class_[:, idx]), np.log1p(np.abs(class_[:, idx])))
     
     # Return the classes
     return class_

@@ -102,7 +102,8 @@ def cross_validation_2_param(y_class, data_class, parameters):
 # -------------------------------------------------------------------------- #
 
 def cross_validation(y_class, data_class, parameters):
-    # Initialization of the optimal paramters
+    # Initialization of the weight parameters
+    parameters.set_init_w(np.zeros(data_class.shape[1]))
 
     if parameters.nb_to_test == 2:
         # Find the two optimal parameters
@@ -173,17 +174,19 @@ def cross_validation_poly_gas(y_class, data_class, parameters):
     nb_features = data_class.shape[1]
     forward_class = np.ones([data_class.shape[0], 1])
     # Loop for the forward selection
-    for degree in range(1, parameters.degree + 1):
-        for feat_idx in range(nb_features):
-            forward_class_current = add_feature(data_class, forward_class, feat_idx, degree)
-            parameters = cross_validation(y_class, forward_class_current, parameters)
-            if (parameters.best_error <= forward_error):
-                forward_class = forward_class_current.copy()
-                forward_error = parameters.best_error
-                forward_lambda = parameters.best_lambda
-                forward_gamma = parameters.best_gamma
-                parameters.add_feature(feat_idx, degree)
+    if parameters.use_forward_selection:
+        for degree in range(1, parameters.degree + 1):
+            for feat_idx in range(nb_features):
+                forward_class_current = add_feature(data_class, forward_class, feat_idx, degree)
+                parameters = cross_validation(y_class, forward_class_current, parameters)
+                if (parameters.best_error <= forward_error):
+                    forward_class = forward_class_current.copy()
+                    forward_error = parameters.best_error
+                    forward_lambda = parameters.best_lambda
+                    forward_gamma = parameters.best_gamma
+                    parameters.add_feature(feat_idx, degree)
     
+    print('forward: ', forward_error)
     print('Backward step')
 
     # Backward pass
@@ -209,6 +212,24 @@ def cross_validation_poly_gas(y_class, data_class, parameters):
                 backward_lambda = parameters.best_lambda
                 backward_gamma = parameters.best_gamma
             idx = idx - 1
+
+    # Small print
+    print('backward: ', backward_error)
+    
+    # Comparison between backward and forward
+    if backward_error < forward_error:
+        parameters.set_polynomial_selection('Backward')
+        parameters.set_selected_feature(feat_list_back)
+        parameters.set_best_gamma(backward_gamma)
+        parameters.set_best_lambda(backward_lambda)
+        interaction_class = backward_class.copy()
+        interaction_error = backward_error
+    else:
+        parameters.set_polynomial_selection('Forward')  
+        parameters.set_best_gamma(forward_gamma)
+        parameters.set_best_lambda(forward_lambda)   
+        interaction_class = forward_class.copy()
+        interaction_error = forward_error
     
     print('Interactions step')
 
@@ -216,35 +237,16 @@ def cross_validation_poly_gas(y_class, data_class, parameters):
     if parameters.use_interactions:
         for idx_1 in range(data_class.shape[1]):
             for idx_2 in range(idx_1 + 1, data_class.shape[1]):
-                forward_class_current = add_interaction(data_class, forward_class, idx_1, idx_2)
-                parameters = cross_validation(y_class, forward_class_current, parameters)
-                if (parameters.best_error <= forward_error):
-                    forward_class = forward_class_current.copy()
-                    forward_error = parameters.best_error
-                    forward_lambda = parameters.best_lambda
-                    forward_gamma = parameters.best_gamma
-                    parameters.add_interactions(idx_1, idx_2)
-
-    # Small print
-    print('forward: ', forward_error)
-    print('backward: ', backward_error)
-    
-    # Comparison between backward and forward
-    if backward_error < forward_error:
-        error = backward_error
-        parameters.set_polynomial_selection('Backward')
-        parameters.set_selected_feature(feat_list_back)
-        parameters.set_best_gamma(backward_gamma)
-        parameters.set_best_lambda(backward_lambda)
-    else:
-        error = forward_error
-        parameters.set_polynomial_selection('Forward')  
-        parameters.set_best_gamma(forward_gamma)
-        parameters.set_best_lambda(forward_lambda)      
+                interaction_class_current = add_interaction(data_class, interaction_class, idx_1, idx_2)
+                parameters = cross_validation(y_class, interaction_class_current, parameters)
+                if (parameters.best_error <= interaction_error):
+                    interaction_class = interaction_class_current.copy()
+                    interaction_error = parameters.best_error
+                    parameters.add_interactions(idx_1, idx_2)  
 
     
     # Update the very best parameters
-    parameters.set_best_error(error)
+    parameters.set_best_error(interaction_error)
     parameters.set_lambda(parameters.best_lambda)
     parameters.set_gamma(parameters.best_gamma)
     return parameters
@@ -300,6 +302,11 @@ def build_polynomial_features(data_set, parameters):
     else:
         returned_set = build_poly(data_set, range(1, parameters.degree + 1))
         returned_set = remove_feature(returned_set, parameters.feature_list[1:])
+
+        if (parameters.use_interactions) and (parameters.kept_interactions.sum() != 0.0):
+            for idx in range(1, parameters.kept_interactions.shape[1]):
+                returned_set = add_interaction(data_set, returned_set, \
+                    parameters.kept_interactions[0, int(idx)], parameters.kept_interactions[1, int(idx)])
 
     return returned_set
 

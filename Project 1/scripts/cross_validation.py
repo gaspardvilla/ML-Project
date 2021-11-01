@@ -4,6 +4,7 @@ from proj1_helpers import *
 from implementations import *
 from EDA import *
 from losses import *
+from plots import *
 
 # -------------------------------------------------------------------------- #
 
@@ -45,6 +46,7 @@ def classic_cv(y_, class_, parameters, idx):
     # define lists to store the loss of training data and test data
     error_te = []
     error_tr = []
+    std_test = []
 
     for param in parameters.range(idx):
         parameters.set_param(idx, param)
@@ -60,11 +62,14 @@ def classic_cv(y_, class_, parameters, idx):
 
         error_tr.append(np.mean(error_tr_i[0, 1:]))
         error_te.append(np.mean(error_te_i[0, 1:]))
+        std_test.append(np.std(error_te_i[0, 1:]))
 
     best_param = parameters.range(idx)[np.argmin(error_te)]
     parameters.set_best_param(idx, best_param)
     parameters.set_param(idx, best_param)
     parameters.set_best_error(np.min(error_te))
+    parameters.set_best_train_error(np.min(error_tr))
+    parameters.set_std(std_test[np.argmin(error_te)])
 
     # Display the results
     min_test_error = np.min(error_te)
@@ -73,8 +78,9 @@ def classic_cv(y_, class_, parameters, idx):
             +str(parameters.names[idx-1])+ ': ' +str(parameters.best_param(idx)))
 
     # Visualization
+    fuck = 0
     if parameters.viz:
-        cross_validation_visualization(parameters.range(idx), error_tr, error_te, parameters)
+        fuck = cross_validation_visualization(error_tr, error_te, parameters, idx)
     
     return parameters
 
@@ -129,8 +135,10 @@ def cross_validation(y_class, data_class, parameters):
             error_te_i = np.c_[error_te_i, [percentage_error_te]]
         
         parameters.set_best_error(np.mean(error_te_i[0, 1:]))
+        parameters.set_best_train_error(np.mean(error_tr_i[0, 1:]))
+        parameters.set_std(np.std(error_te_i[0, 1:]))
         if parameters.viz:
-            print('Test error: ' +str(parameters.best_error)+ '\n')
+            print('Test error: ' +str(parameters.best_error))
             print('No parameter to optimize for this method and this loss function')
 
     # Return the optimal parameters for the considered method and loss function
@@ -169,6 +177,7 @@ def cross_validation_poly_gas(y_class, data_class, parameters):
 
     # Forward pass
     forward_error = 100
+    forward_std = 0
     forward_lambda = parameters.best_lambda
     forward_gamma = parameters.best_gamma
     nb_features = data_class.shape[1]
@@ -177,20 +186,25 @@ def cross_validation_poly_gas(y_class, data_class, parameters):
     if parameters.use_forward_selection:
         for degree in range(1, parameters.degree + 1):
             for feat_idx in range(nb_features):
+                print(degree, feat_idx)
                 forward_class_current = add_feature(data_class, forward_class, feat_idx, degree)
                 parameters = cross_validation(y_class, forward_class_current, parameters)
                 if (parameters.best_error <= forward_error):
                     forward_class = forward_class_current.copy()
                     forward_error = parameters.best_error
+                    forward_std = parameters.std
+                    forward_train_error = parameters.best_train_error
                     forward_lambda = parameters.best_lambda
                     forward_gamma = parameters.best_gamma
                     parameters.add_feature(feat_idx, degree)
     
-    print('forward: ', forward_error)
+    print('forward: ', forward_error, ' Train: ', forward_train_error)
     print('Backward step')
 
     # Backward pass
     backward_error = 100
+    backward_train_error = 0
+    backward_std = 0
     backward_lambda = parameters.best_lambda
     backward_gamma = parameters.best_gamma
     # Loop for the backward selection
@@ -209,12 +223,14 @@ def cross_validation_poly_gas(y_class, data_class, parameters):
 
                 # Parameter update
                 backward_error = parameters.best_error
+                backward_std = parameters.std
+                backward_train_error = parameters.best_train_error
                 backward_lambda = parameters.best_lambda
                 backward_gamma = parameters.best_gamma
             idx = idx - 1
 
     # Small print
-    print('backward: ', backward_error)
+    print('backward: ', backward_error, ' Train: ', backward_train_error)
     
     # Comparison between backward and forward
     if backward_error < forward_error:
@@ -224,12 +240,16 @@ def cross_validation_poly_gas(y_class, data_class, parameters):
         parameters.set_best_lambda(backward_lambda)
         interaction_class = backward_class.copy()
         interaction_error = backward_error
+        interaction_std = backward_std
+        interaction_train_error = backward_train_error
     else:
         parameters.set_polynomial_selection('Forward')  
         parameters.set_best_gamma(forward_gamma)
         parameters.set_best_lambda(forward_lambda)   
         interaction_class = forward_class.copy()
         interaction_error = forward_error
+        interaction_std = forward_std
+        interaction_train_error = forward_train_error
     
     print('Interactions step')
 
@@ -242,11 +262,15 @@ def cross_validation_poly_gas(y_class, data_class, parameters):
                 if (parameters.best_error <= interaction_error):
                     interaction_class = interaction_class_current.copy()
                     interaction_error = parameters.best_error
+                    interaction_std = parameters.std
+                    interaction_train_error = parameters.best_train_error
                     parameters.add_interactions(idx_1, idx_2)  
 
     
     # Update the very best parameters
     parameters.set_best_error(interaction_error)
+    parameters.set_std(interaction_std)
+    parameters.set_best_train_error(interaction_train_error)
     parameters.set_lambda(parameters.best_lambda)
     parameters.set_gamma(parameters.best_gamma)
     return parameters
@@ -271,19 +295,6 @@ def test_function(data_y, data_set, parameters, class_ind):
 
     # Return the optimal parameters for the considered method and loss function
     return opt_paramters
-
-# -------------------------------------------------------------------------- #
-
-def cross_validation_visualization(lambds, error_tr, error_te, parameters):
-    """visualization the curves of error_tr and error_te."""
-    plt.semilogx(lambds, error_tr, marker=".", color='b', label='train error')
-    plt.semilogx(lambds, error_te, marker=".", color='r', label='test error')
-    plt.xlabel('%s' %parameters.names[0])
-    plt.ylabel("error")
-    plt.title("cross validation")
-    plt.legend(loc=2)
-    plt.grid(True)
-    plt.show()
 
 # -------------------------------------------------------------------------- #
 

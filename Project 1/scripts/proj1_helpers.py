@@ -18,7 +18,7 @@ def load_csv_data(data_path, sub_sample=False):
     
     # sub-sample
     if sub_sample:
-        zzz = 10
+        zzz = 25
         yb = yb[::zzz]
         input_data = input_data[::zzz]
         ids = ids[::zzz]

@@ -151,6 +151,8 @@ class Parameters(object):
         self.logistic = False
         # Optimal test error
         self.best_error = 100
+        self.best_train_error = 100
+        self.std = 0
 
         self.polynomial_selection = 'Forward'
         self.use_backward_selection = True
@@ -203,6 +205,12 @@ class Parameters(object):
 
     def set_best_error(self, test_error):
         self.best_error = test_error
+    
+    def set_best_train_error(self, train_error):
+        self.best_train_error = train_error
+
+    def set_std(self, std):
+        self.std = std
 
     def set_to_test(self, names):
         self.nb_to_test = len(names)

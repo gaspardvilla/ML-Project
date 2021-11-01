@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 def correlation_plot(data_set):
     # Compute the correlation matrix
@@ -40,10 +42,30 @@ def histogram_plot(y, data_set, feature_idx=None, ylabel=''):
     # Visualization
     for col in feature_idx:
         plt.figure(figsize=(8,5))
-        plt.hist(data_set[zero_ind, col], bins=100, histtype = 'step', color = 'green', density=True)
-        plt.hist(data_set[unit_ind, col], bins=100, histtype = 'step', color = 'red', density=True)
+        sns.distplot(data_set[zero_ind, col], bins=100,  kde=False, label='y = 0', norm_hist=True)
+        sns.distplot(data_set[unit_ind, col], bins=100,  kde=False, label='y = 1', norm_hist=True)
         plt.title('Title: Density plot of the feature %d' % (col))
         plt.ylabel('Density')
-        plt.xlabel(ylabel)
-        plt.legend(['y = 0', 'y = 1'])
+        plt.xlabel('Value after standardization')
+        plt.legend()
         plt.show()
+
+def cross_validation_visualization(error_tr, error_te, parameters, indice):
+    train_error = np.reshape(error_tr, [len(error_tr),])
+    test_error = np.reshape(error_te, [len(error_te),])
+
+    tab = {'yolo': parameters.range(indice-1), 'Train error': train_error, \
+         'Test error': test_error}
+    error_df = pd.DataFrame({
+        parameters.names[indice-1]: parameters.range(indice-1), 
+        'Train error': train_error, 
+        'Test error': test_error})
+
+    lambds = parameters.range(indice)
+
+    g = sns.relplot(data=pd.melt(error_df, [parameters.names[indice-1]]), x=parameters.names[indice-1],
+     y='value', hue='variable', kind = 'line', err_style="bars", ci=68) 
+    g.set(xscale="log")
+    plt.figure(figsize=(15,8))
+    g.set_ylabels('error [%]')
+    return error_df

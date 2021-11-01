@@ -25,29 +25,6 @@ def load_csv_data(data_path, sub_sample=False):
 
     return yb, input_data, ids
 
-# AAAAAAAAAAAAAAAA
-
-def to_supress(data_path):
-    """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
-    y = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype=str, usecols=1)
-    x = np.genfromtxt(data_path, delimiter=",", skip_header=1)
-    ids = x[:, 0].astype(np.int)
-    y = x[:, 1]
-
-    return y
-
-# AAAAAAAAAAAAAAAA
-
-# -------------------------------------------------------------------------- #
-
-def predict_labels(weights, data):
-    """Generates class predictions given weights, and a test data matrix"""
-    y_pred = np.dot(data, weights)
-    y_pred[np.where(y_pred <= 0.5)] = 0
-    y_pred[np.where(y_pred > 0.5)] = 1
-    
-    return y_pred
-
 # -------------------------------------------------------------------------- #
 
 def create_csv_submission(ids, y_pred, name):
@@ -80,10 +57,13 @@ def counting_errors(pred_set, true_set, viz=False):
 # -------------------------------------------------------------------------- #
 
 def rebuild_y(y_0,y_1,y_2,y_3,data_set):
+    """Rebuild an output y from the output y_0, y_1, y_2, y_3 from each class computed separately before."""
     rb_y = np.zeros(data_set.shape[0])
     
+    #take indices of the classification
     ind_class_0, ind_class_1, ind_class_2, ind_class_3 = indices_classification(data_set)
     
+    #reconstruct y of original size
     rb_y[ind_class_0] = y_0
     rb_y[ind_class_1] = y_1
     rb_y[ind_class_2] = y_2

@@ -4,6 +4,12 @@ import seaborn as sns
 import pandas as pd
 
 def correlation_plot(data_set):
+    """This function plot the correlation matrix.
+    
+    Args:
+        data_set: the considered data set
+        
+    """
     # Compute the correlation matrix
     Corr = np.corrcoef(data_set.T)
 
@@ -17,6 +23,14 @@ def correlation_plot(data_set):
     plt.colorbar()
 
 def density_plot(data_set, feature_x, feature_y):
+    """This function plot the density plot between to features.
+    
+    Args:
+        data_set: the considered data set
+        feature_x: feature to consider and to compare
+        feature_y: feature to consider and to compare
+        
+    """
     # Initialize x and y
     x = data_set[:,feature_x]
     y = data_set[:,feature_y]
@@ -32,6 +46,17 @@ def density_plot(data_set, feature_x, feature_y):
     plt.scatter(x, y)
 
 def histogram_plot(y, data_set, feature_idx=None, ylabel=''):
+    """This function plot the histogram of all features by default. If you want the histogrma of a specific feature, precise
+        it in the argument feature_idx.
+    
+    Args:
+        y: the considered output 
+        data_set: the considered data set
+        feature_idx: chose a feature to consider, otherwise all the features are considered
+        ylabel: by default nothing
+        
+    """
+    
     # Initialization
     zero_ind = np.array(np.where(y == 0)[0])
     unit_ind = np.array(np.where(y == 1)[0])
@@ -51,6 +76,15 @@ def histogram_plot(y, data_set, feature_idx=None, ylabel=''):
         plt.show()
 
 def cross_validation_visualization(error_tr, error_te, parameters, indice):
+    """This function plot the training and testing error evolution through an Cross-Validation application.
+    
+    Args:
+        error_tr:
+        error_te:
+        parameters:
+        indice:
+        
+    """
     train_error = np.reshape(error_tr, [len(error_tr),])
     test_error = np.reshape(error_te, [len(error_te),])
 

@@ -4,7 +4,7 @@ from proj1_helpers import *
 
 # -------------------------------------------------------------------------- #
 
-def least_squares(y, data_set, parameters):
+def least_squares_(y, data_set, parameters):
     """This function calculates the least squares solution.
     
     Args:
@@ -32,7 +32,7 @@ def least_squares(y, data_set, parameters):
 
 # -------------------------------------------------------------------------- #
 
-def least_squares_GD(y, data_set, parameters):
+def least_squares_GD_(y, data_set, parameters):
     """ This function performs gradient descent (GD) algorithm 
     
     Args:
@@ -67,7 +67,7 @@ def least_squares_GD(y, data_set, parameters):
 
 # -------------------------------------------------------------------------- #
 
-def ridge_regression(y, data_set, parameters):
+def ridge_regression_(y, data_set, parameters):
     """This function implements ridge regression.
     
     Args:
@@ -98,7 +98,7 @@ def ridge_regression(y, data_set, parameters):
 
 # -------------------------------------------------------------------------- #
 
-def least_squares_SGD(y, data_set, parameters):
+def least_squares_SGD_(y, data_set, parameters):
     """ This function performs stochastic gradient descent (SGD) algorithm. 
     
     Args:
@@ -148,7 +148,7 @@ def least_squares_SGD(y, data_set, parameters):
 
 # -------------------------------------------------------------------------- #
 
-def logistic_regression(y, data_set, parameters):
+def logistic_regression_(y, data_set, parameters):
     """ This function performs logistic regression algorithm. 
     
     Args:
@@ -182,7 +182,7 @@ def logistic_regression(y, data_set, parameters):
 
 # -------------------------------------------------------------------------- #
 
-def reg_logistic_regression(y, data_set, parameters):
+def reg_logistic_regression_(y, data_set, parameters):
     """ This function performs regularized logistic regression algorithm. 
     
     Args:

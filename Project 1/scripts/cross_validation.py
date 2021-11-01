@@ -172,7 +172,7 @@ def add_interaction(data_class, opt_class, feat_idx_1, feat_idx_2):
 
 # -------------------------------------------------------------------------- #
 
-def cross_validation_poly_gas(y_class, data_class, parameters):
+def cross_validation_poly(y_class, data_class, parameters):
     print('Forward step')
 
     # Forward pass
@@ -186,7 +186,6 @@ def cross_validation_poly_gas(y_class, data_class, parameters):
     if parameters.use_forward_selection:
         for degree in range(1, parameters.degree + 1):
             for feat_idx in range(nb_features):
-                print(degree, feat_idx)
                 forward_class_current = add_feature(data_class, forward_class, feat_idx, degree)
                 parameters = cross_validation(y_class, forward_class_current, parameters)
                 if (parameters.best_error <= forward_error):
@@ -198,7 +197,7 @@ def cross_validation_poly_gas(y_class, data_class, parameters):
                     forward_gamma = parameters.best_gamma
                     parameters.add_feature(feat_idx, degree)
     
-    print('forward: ', forward_error, ' Train: ', forward_train_error)
+    print('Test error: ', forward_error, ' Train error: ', forward_train_error, '\n')
     print('Backward step')
 
     # Backward pass
@@ -230,7 +229,7 @@ def cross_validation_poly_gas(y_class, data_class, parameters):
             idx = idx - 1
 
     # Small print
-    print('backward: ', backward_error, ' Train: ', backward_train_error)
+    print('Test error: ', backward_error, ' Train error: ', backward_train_error, '\n')
     
     # Comparison between backward and forward
     if backward_error < forward_error:
@@ -251,7 +250,7 @@ def cross_validation_poly_gas(y_class, data_class, parameters):
         interaction_std = forward_std
         interaction_train_error = forward_train_error
     
-    print('Interactions step')
+    print('Interactions step \n')
 
     # Forward for interactions
     if parameters.use_interactions:

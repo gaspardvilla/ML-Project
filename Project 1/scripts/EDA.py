@@ -274,32 +274,32 @@ def ind_features_to_delete_class_3(class_3):
     
 # -------------------------------------------------------------------------- #
 
-def clear_features(data_set, k=2):
+def clear_features(class_, k=2):
     """
         This function removes the feature that are not defined for each classes,
         indicated in the paper that produce this data set.
 
     Args:
-        data_set : the considered class 
+        class_ : the considered class 
         k: indicates which class we are working on. Defaults to 2.
 
     Returns:
-        data_set: the updated class.
+        class_: the updated class.
     """
 
     # Check which class we are working on
     if k == 0 :
-        data_set = np.delete(data_set, ind_features_to_delete_class_0(data_set), axis = 1)
+        class_ = np.delete(class_, ind_features_to_delete_class_0(class_), axis = 1)
     if k == 1 :
-        data_set = np.delete(data_set, ind_features_to_delete_class_1(data_set), axis = 1) 
+        class_ = np.delete(class_, ind_features_to_delete_class_1(class_), axis = 1) 
     if k == 3 :
-        data_set = np.delete(data_set, ind_features_to_delete_class_3(data_set), axis = 1)
+        class_ = np.delete(class_, ind_features_to_delete_class_3(class_), axis = 1)
         
     # Remove feature 0: too many undefined values in all classes
-    data_set = remove_feature(data_set, [0])
+    class_ = remove_feature(class_, [0])
 
     # Return the updted class
-    return data_set
+    return class_
 
 # -------------------------------------------------------------------------- #
 
@@ -382,7 +382,7 @@ def clean_set(data_set):
 
 # -------------------------------------------------------------------------- #
 
-def EDA(data_set):
+def EDA(data_set, exploratory=False):
     """ do all the EDA for a specific data set
     
     Args:
@@ -399,13 +399,15 @@ def EDA(data_set):
     data_set = log_filter(data_set)
 
     # clean outliers
-    data_set = clean_set(data_set)
+    if not exploratory:
+        data_set = clean_set(data_set)
     
     # standardization
     data_set = standardize(data_set)
     
     # clean correlated features
-    data_set = clean_correlated_features(data_set)
+    if not exploratory:
+        data_set = clean_correlated_features(data_set)
     
     return data_set
 # -------------------------------------------------------------------------- #
@@ -423,22 +425,17 @@ def graph_analysis_removal(class_0, class_1, class_2, class_3):
     
 
     # Class 0
-    class_0 = remove_feature(class_0, [2, 5, 7, 8, 9, 10, 11, 13, 14])
-    # 7 9 10 14
+    class_0 = remove_feature(class_0, [2, 5, 8, 11, 13, 14])
 
     # Class 1
-    class_1 = remove_feature(class_1, [4, 7, 10, 11, 13, 14, 15, \
-        16, 17, 18, 19])
-    # 2 3 7 9 12 16 17 19
+    class_1 = remove_feature(class_1, [2, 4, 7, 10, 11, 13, 14, 15, 16, 18])
 
     # Class 2
-    class_2 = remove_feature(class_2, [3, 9, 11, 12, 15, 16, 18, \
-        19, 20, 21])
+    class_2 = remove_feature(class_2, [3, 9, 11, 12, 15, 16, 18, 19, 20, 21, 23, 26])
 
     # Class 3
-    class_3 = remove_feature(class_3, [2, 7, 8, 9, 10, 13, 14, \
-        16, 17, 18, 19, 20, 21])
-    # 0, 2, 4, 6, 8, 9, 12, 15, 21, 24
+    class_3 = remove_feature(class_3, [2, 7, 8, 9, 12, 13, 15, 16, 17, 18, 19, 20, \
+         21, 22, 24, 25])
 
     # Return the classes 
     return class_0, class_1, class_2, class_3
@@ -465,7 +462,7 @@ def log_filter(data_set):
 
 # -------------------------------------------------------------------------- #
 
-def EDA_class(data_set):
+def EDA_class(data_set, exploratory=False):
     ''' This function applies everything we need for our Exploratory Data 
     Analysis (EDA) including the classification of our data set.
     Args:
@@ -484,15 +481,16 @@ def EDA_class(data_set):
     class_3 = clear_features(class_3, k = 3)
 
     # EDA for each class
-    class_0 = EDA(class_0)
-    class_1 = EDA(class_1)
-    class_2 = EDA(class_2)
-    class_3 = EDA(class_3)
+    class_0 = EDA(class_0, exploratory)
+    class_1 = EDA(class_1, exploratory)
+    class_2 = EDA(class_2, exploratory)
+    class_3 = EDA(class_3, exploratory)
 
     # Remove features from graph analysis
-    class_0, class_1, class_2, class_3 = graph_analysis_removal(class_0, class_1, class_2, class_3)
+    if not exploratory:
+        class_0, class_1, class_2, class_3 = graph_analysis_removal(class_0, class_1, class_2, class_3)
     
-    # Return the upadted classes
+    # Return the updated classes
     return class_0, class_1, class_2, class_3
 
 # -------------------------------------------------------------------------- #

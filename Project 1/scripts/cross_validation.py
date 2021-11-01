@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from proj1_helpers import *
-from implementations import *
+from methods import *
 from EDA import *
 from losses import *
 from plots import *
@@ -173,6 +173,11 @@ def add_interaction(data_class, opt_class, feat_idx_1, feat_idx_2):
 # -------------------------------------------------------------------------- #
 
 def cross_validation_poly(y_class, data_class, parameters):
+    ''' 
+        This function computes a cross validation on the different features 
+        and the degree they can take.
+    '''
+
     print('Forward step')
 
     # Forward pass

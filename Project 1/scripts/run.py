@@ -2,22 +2,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from proj1_helpers import *
-from implementations import *
+from methods import *
 from losses import *
 from plots import *
 from EDA import *
 from cross_validation import *
 import os
-
-######################
-###### BEST ##########
-
-# K_fold = 4
-# zzz = 30
-# Error = 19.08
-
-
-
 
 # -------------------------------------------------------------------------- #
 
@@ -50,19 +40,10 @@ class_0_test, class_1_test, class_2_test, class_3_test = EDA_class(data_test_set
 
 # -------------------------------------------------------------------------- #
 
-# AAAAAAAAAAAAAA
-
-TEST = "../ZZZZ_DANGER/solution.txt"
-y = to_supress(TEST)
-
-# AAAAAAAAAAAAAA
-
-max_degree = 6
-
-# -------------------------------------------------------------------------- #
-# -------------------------------------------------------------------------- #
-
 # Cross validation and building model
+
+# Initialization of some parameters
+max_degree = 6
 
 # Class 0
 # -------------------------------------------------------------------------- #
@@ -71,7 +52,7 @@ max_degree = 6
 print('Class 0')
 param_ridge_0 = Parameters()
 param_ridge_0.set_degree(max_degree)
-param_ridge_0.set_method(ridge_regression)
+param_ridge_0.set_method(ridge_regression_)
 param_ridge_0.set_to_test(['lambda'])
 param_ridge_0.set_viz(False)
 param_ridge_0.set_use_backward_selection(True)
@@ -107,7 +88,7 @@ print('Class 1')
 param_ridge_1 = Parameters()
 param_ridge_1.set_degree(max_degree)
 param_ridge_1.set_loss_fct(neg_log)
-param_ridge_1.set_method(ridge_regression)
+param_ridge_1.set_method(ridge_regression_)
 param_ridge_1.set_loss_fct(neg_log)
 param_ridge_1.set_to_test(['lambda'])
 param_ridge_1.set_lambda_range(np.logspace(-5,-1,30))
@@ -142,7 +123,7 @@ y_pred_1 = predict_labels(w_1, class_1_test_)
 print('Class 2')
 param_ridge_2 = Parameters()
 param_ridge_2.set_degree(max_degree)
-param_ridge_2.set_method(ridge_regression)
+param_ridge_2.set_method(ridge_regression_)
 param_ridge_2.set_loss_fct(neg_log)
 param_ridge_2.set_to_test(['lambda'])
 param_ridge_2.set_lambda_range(np.logspace(-6,-1,30))
@@ -178,7 +159,7 @@ y_pred_2 = predict_labels(w_2, class_2_test_)
 print('Class 3')
 param_ridge_3 = Parameters()
 param_ridge_3.set_degree(max_degree)
-param_ridge_3.set_method(ridge_regression)
+param_ridge_3.set_method(ridge_regression_)
 param_ridge_3.set_loss_fct(neg_log)
 param_ridge_3.set_to_test(['lambda'])
 param_ridge_3.set_lambda_range(np.logspace(-4, 0, 30)) #-4 0
@@ -214,8 +195,3 @@ y_pred = rebuild_y(y_pred_0, y_pred_1, y_pred_2, y_pred_3, data_test_set)
 OUTPUT_PATH = '../data/test_prediction_submission.csv' # TODO: fill in desired name of output file for submission
 create_csv_submission(ids_test, y_pred, OUTPUT_PATH)
 
-
-
-# AAAAAAAAAAAAAAAAA
-print('FUUUUUUCK')
-counting_errors(y_pred, y, True)

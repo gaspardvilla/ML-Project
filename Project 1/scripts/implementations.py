@@ -1,226 +1,159 @@
-import math
 import numpy as np
-from proj1_helpers import *
+import math
+from methods import *
+from losses import *
 
 # -------------------------------------------------------------------------- #
 
-def least_squares_(y, data_set, parameters):
+def least_squares_GD(y, tx, initial_w, max_iters, gamma):
+    """This function calculates the least squares solution using gradient descent algorithm.
+    
+    Args:
+        y: the considerated output
+        tx: the considered data set
+        initial_w: the intial weights
+        max_iters: numbers of iterations to do for gradient descent
+        gamma: parameter used for updating the weights after each iteration
+
+    Returns:
+        loss: the loss obtained with our method least_squares(y, data_set, parameters) in methods.py
+        w: the optimal weights obtained with our method least_squares(y, data_set, parameters) in methods.py
+    """
+    #Setting parameters with the arguments' values
+    param = Parameters()
+    param.set_init_w(initial_w)
+    param.set_max_iter(max_iters)
+    param.set_gamma(gamma)
+    
+    # Compute loss and weight with our method least_squares_GD(y, data_set, parameters) in methods.py
+    loss, w = least_squares_GD_(y, data_set, param)
+    
+    return loss, w
+
+# -------------------------------------------------------------------------- #
+
+def least_squares_SGD(y, tx, initial_w, max_iters, gamma):
+    """This function calculates the least squares solution using stochastic gradient descent algorithm.
+    
+    Args:
+        y: the considerated output
+        tx: the considered data set
+        initial_w: the intial weights
+        max_iters: numbers of iterations to do for gradient descent
+        gamma: parameter used for updating the weights after each iteration
+
+    Returns:
+        loss: the loss obtained with our method least_squares(y, data_set, parameters) in methods.py
+        w: the optimal weights obtained with our method least_squares(y, data_set, parameters) in methods.py
+    """
+    #Setting parameters with the arguments' values
+    param = Parameters()
+    param.set_init_w(initial_w)
+    param.set_max_iter(max_iters)
+    param.set_gamma(gamma)
+    
+    # Compute loss and weight with our method least_squares_SGD(y, data_set, parameters) in methods.py
+    loss, w = least_squares_SGD_(y, data_set, param)
+    
+    return loss, w
+
+# -------------------------------------------------------------------------- #
+
+def least_squares(y, tx):
     """This function calculates the least squares solution.
     
     Args:
         y: the considerated output
-        data_set: the considered data set
-        parameters: the parameters to consider for the computation of loss and weights
+        tx: the considered data set
 
     Returns:
-        loss: the loss obtained
-        w: the optimal weights obtained
+        loss: the loss obtained with our method least_squares(y, data_set, parameters) in methods.py
+        w: the optimal weights obtained with our method least_squares(y, data_set, parameters) in methods.py
     """
-    # Define a and b for solving linear system 'ax = b'
-    parameters.set_init_w(np.zeros((data_set.shape[1],)))
-    a = data_set.T.dot(data_set)
-    b = data_set.T.dot(y)
-
-    # Solve for the weight
-    w = np.linalg.solve(a, b)
-
-    # Computation of the loss according to the cost function of the considered parameters
-    loss = parameters.loss_fct.cost(y, data_set, w)
-
-    # returns loss and optimal weights
+    param = Parameters()
+    
+    # Compute loss and weight with our method least_squares(y, data_set, parameters) in methods.py
+    loss, w = least_squares_(y, tx, param)
+    
     return loss, w
-
 # -------------------------------------------------------------------------- #
 
-def least_squares_GD_(y, data_set, parameters):
-    """ This function performs gradient descent (GD) algorithm 
+def ridge_regression(y, tx, lambda_ ):
+    """This function implements Ridge regression.
     
     Args:
         y: the considerated output
-        data_set: the considered data set
-        parameters: the parameters to consider
+        tx: the considered data set
+        lambda_: parameter for ridge penalty
 
     Returns:
-        loss: the loss obtained
-        w: the optimal weights obtained
+        loss: the loss obtained with our method least_squares(y, data_set, parameters) in methods.py
+        w: the optimal weights obtained with our method least_squares(y, data_set, parameters) in methods.py
     """
+    #Setting parameters with the argument value
+    param = Parameters()
+    param.set_lambda(lambda_)
     
-    # Initialization of some parameters
-    loss = 0
-    parameters.set_init_w(np.zeros((data_set.shape[1],)))
-    w = parameters.initial_w
+    # Compute loss and weight with our method ridge_regression(y, data_set, parameters) in methods.py
+    loss, w = ridge_regression_(y, tx, param)
     
-    # Loop for the number of iterations defined by parameters
-    for nb_iter in range(parameters.max_iter):
-        
-        # Compute the gradient according to the gradient function of the considered parameters
-        grad = parameters.loss_fct.grad(y, data_set, w)
-        
-        # Compute the loss according to the cost function of the considered parameters
-        loss = parameters.loss_fct.cost(y, data_set, w)
-        
-        # Update the weight accorging to the value gamma of the considered parameters
-        w = w - (parameters.gamma * grad)
-    
-    # Return the final loss and weight
     return loss, w
-
+    
 # -------------------------------------------------------------------------- #
 
-def ridge_regression_(y, data_set, parameters):
-    """This function implements ridge regression.
+def logistic_regression(y, tx, initial_w, max_iters, gamma):
+    """This function compute the logistic regression.
     
     Args:
         y: the considerated output
-        data_set: the considered data set
-        parameters: the parameters to consider
+        tx: the considered data set
+        initial_w: the intial weights
+        max_iters: numbers of iterations to do for gradient descent
+        gamma: parameter used for updating the weights after each iteration
 
     Returns:
-        loss: the loss obtained
-        w: the optimal weights obtained
-    """  
-    
-    # Initialization of some parameters
-    parameters.set_init_w(np.zeros((data_set.shape[1],)))   
-    
-    # Define a and b for solving linear system 'ax = b'
-    a = data_set.T.dot(data_set) + (2 * data_set.shape[0] * parameters.lambda_ * np.identity(data_set.shape[1]))
-    b = data_set.T.dot(y)
-    
-    # Solve for the weight
-    w = np.linalg.solve(a, b)
-    
-    # Compute the loss according to the cost function of the considered parameters
-    loss = parameters.loss_fct.cost(y, data_set, w)
-    
-    # Return the final loss and weight
-    return loss, w
-
-# -------------------------------------------------------------------------- #
-
-def least_squares_SGD_(y, data_set, parameters):
-    """ This function performs stochastic gradient descent (SGD) algorithm. 
-    
-    Args:
-        y: the considerated output
-        data_set: the considered data set
-        parameters: the parameters to consider
-
-    Returns:
-        loss: the loss obtained
-        w: the optimal weights obtained
-    """   
-
-    # Initialization of some parameters
-    """uncomment if you want to print the losses for each steps
-    ws = [parameters.initial_w]
-    losses = []
+        loss: the loss obtained with our method least_squares(y, data_set, parameters) in methods.py
+        w: the optimal weights obtained with our method least_squares(y, data_set, parameters) in methods.py
     """
-    parameters.set_init_w(np.zeros((data_set.shape[1],)))
-    w = parameters.initial_w
-
-    # Loop for the number of iterations defined by parameters
-    for n_iter in range(parameters.max_iter):
-        # Loop for the mini batch
-        for mini_batch_y, mini_batch_tx in batch_iter(y, data_set, parameters.mini_batch_size):
-            
-            # Compute the gradient according to the gradient function of the considered parameters
-            grad = parameters.loss_fct.grad(mini_batch_y, mini_batch_tx,w)
-        
-            # Compute the loss according to the cost function of the considered parameters
-            loss = parameters.loss_fct.cost(mini_batch_y, mini_batch_tx, w)
-        
-            # Update the weight accorging to the value gamma of the considered parameters
-            w = w - (parameters.gamma * grad)
-            
-            """uncomment if you want to print the losses for each steps
-            # store w and loss
-            ws.append(w)
-            losses.append(loss)
-            
-            
-            print("Gradient Descent({bi}/{ti}): loss={l}, w0={w0}, w1={w1}".format(
-                  bi=n_iter, ti=max_iters - 1, l=loss, w0=w[0], w1=w[1]))
-            """
+    #Setting parameters with the arguments' values
+    param = Parameters()
+    param.set_init_w(initial_w)
+    param.set_max_iter(max_iters)
+    param.set_gamma(gamma)
     
-    # Return the final loss and weight
+    # Compute loss and weight with our method logistic_regression(y, data_set, parameters) in methods.py
+    loss, w = logistic_regression_(y, data_set, param)
+    
     return loss, w
 
 # -------------------------------------------------------------------------- #
 
-def logistic_regression_(y, data_set, parameters):
-    """ This function performs logistic regression algorithm. 
+def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
+    """This function compute the regularized logistic regression.
     
     Args:
         y: the considerated output
-        data_set: the considered data set
-        parameters: the parameters to consider
+        tx: the considered data set
+        initial_w: the intial weights
+        lambda_ : parameter for regularization
+        max_iters: numbers of iterations to do for gradient descent
+        gamma: parameter used for updating the weights after each iteration
 
     Returns:
-        loss: the loss obtained
-        w: the optimal weights obtained
-    """ 
-    
-    # Initialization of some parameters
-    parameters.set_init_w(np.zeros((data_set.shape[1],)))
-    w = parameters.initial_w
-    loss = 0
-
-    # Loop for the number of iterations defined by parameters
-    for nb_iter in range(parameters.max_iter):
-        # Compute the gradient according to the gradient function of the considered parameters
-        grad = parameters.loss_fct.grad(y, data_set, w)
-        
-        # Compute the loss according to the cost function of the considered parameters
-        loss = parameters.loss_fct.cost(y, data_set, w)
-        
-        # Update the weight accorging to the value gamma of the considered parameters
-        w = w - (parameters.gamma * grad)
-    
-    # Return the final loss and weight
-    return loss, w
-
-# -------------------------------------------------------------------------- #
-
-def reg_logistic_regression_(y, data_set, parameters):
-    """ This function performs regularized logistic regression algorithm. 
-    
-    Args:
-        y: the considerated output
-        data_set: the considered data set
-        parameters: the parameters to consider
-
-    Returns:
-        loss: the loss obtained
-        w: the optimal weights obtained
+        loss: the loss obtained with our method least_squares(y, data_set, parameters) in methods.py
+        w: the optimal weights obtained with our method least_squares(y, data_set, parameters) in methods.py
     """
+    #Setting parameters with the arguments' values
+    param = Parameters()
+    param.set_init_w(initial_w)
+    param.set_lambda(lambda_)
+    param.set_max_iter(max_iters)
+    param.set_gamma(gamma)
     
-    # Initialization of some parameters
-    losses = []
-    parameters.set_init_w(np.zeros((data_set.shape[1],)))
-    w = parameters.initial_w
-
-    # Loop for the number of iterations defined by parameters
-    for iter in range(parameters.max_iter):
-        
-        # Compute the gradient according to the gradient function of the considered parameters
-        grad = parameters.loss_fct.grad(y, data_set, w) + (2 * parameters.lambda_ * w)
-        
-        # Compute the loss according to the cost function of the considered parameters
-        loss = parameters.loss_fct.cost(y, data_set, w) + (parameters.lambda_ * w.T.dot(w))
-
-        # Update the weight accorging to the value gamma of the considered parameters
-        w = w - (parameters.gamma * grad)
-
-        # log info
-        # print("Current iteration={}, loss={}".format(iter, loss))
-        
-        # Converge criterion
-        losses.append(loss)
-        if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < parameters.threshold:
-            break
+    # Compute loss and weight with our method reg_logistic_regression(y, data_set, parameters) in methods.py
+    loss, w = reg_logistic_regression_(y, data_set, param)
     
-    # Return the final loss and weight
     return loss, w
 
 # -------------------------------------------------------------------------- #
+    

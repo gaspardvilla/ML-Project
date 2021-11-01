@@ -1,9 +1,8 @@
 import numpy as np
-from implementations import *
+from methods import *
 
 
 # File that contains multiple classes used for our Machine Learning tools.
-
 
 # MSE loss
 class MSE():
@@ -93,15 +92,11 @@ class Neg_log():
         return np.exp(t) / (1 + np.exp(t))
     
     def cost(self, y, data_set, w):
-        # Initialization of sigma
-        t = data_set.dot(w)
-        # sigma = self.sigmoid(t)
-
         # Direct computation of the loss
-        # loss = -(y.T.dot(np.log(sigma)) + (1 - y).T.dot(np.log(1 - sigma)))
+        loss = np.sum(np.log(1 + np.exp(data_set@w)) - (y * (data_set@w)))
 
         # Return the loss
-        return np.sum(np.log(1+np.exp(data_set@w))-y*(data_set@w))
+        return loss
     
     def grad(self, y, data_set, w):
         # Initialization of sigma
@@ -145,7 +140,7 @@ class Parameters(object):
         # Visualization
         self.viz = False
         # Method and loss function
-        self.method = least_squares_GD
+        self.method = least_squares_GD_
         self.loss_fct = MSE()
         # Indicator if the loss is logitic regression
         self.logistic = False

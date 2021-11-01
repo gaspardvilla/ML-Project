@@ -27,8 +27,7 @@ def standardize(data_set):
 
 def constant_feature(feature):
     """
-        This function indicates wether this feature is constant.
-
+        This function indicates whether this feature is constant.
 
     Args:
         feature: The considered feature.
@@ -46,9 +45,11 @@ def constant_feature(feature):
             return False
     return True
 
+# -------------------------------------------------------------------------- #
+
 def remove_feature(data_set, idx):
     """
-        This function just removes the feature indicated by the indices in 'idx'
+        This function removes the feature indicated by the indices in 'idx'
         from the considered data set.
 
     Args:
@@ -76,7 +77,7 @@ def clean_constant_features(data_set):
         data_set: The considered data set
 
     Returns:
-        [type]: the upadted data set where all the constant feature were removed
+        data_set_: the upadated data set where all the constant feature were removed
     """
 
     # Initialization of the constant features indices
@@ -98,9 +99,8 @@ def clean_constant_features(data_set):
 def clean_correlated_features(data_set):
     """
         This function removes all the correlated features from the considered 
-        data set. The idea is to keep one feature among three correlated feature, 
-        instead of keeping the three.
-
+        data set. The idea is to keep one feature among two correlated feature, 
+        instead of keeping the two.
 
     Args:
         data_set: the considered data set
@@ -145,7 +145,7 @@ def clean_correlated_features(data_set):
 def indices_classification(data_set):
     """
         This function classifies the data set into 4 distinct data sets given by
-        the value of the feature 23.
+        the value of the feature 22.
 
     Args:
         data_set: The considered data set.
@@ -169,7 +169,7 @@ def indices_classification(data_set):
 def classification(data_set):
     """
         This function splits the considered data set into 4 distinct data given by
-        the four possible values in the feature 23.
+        the four possible values in the feature 22.
 
     Args:
         data_set: The considered data set.
@@ -199,7 +199,7 @@ def y_classification(y, data_set):
         corresponding to the split given by the data set.
 
     Args:
-        y: teh considered observation set
+        y: the considered observation set
         data_set: the considered data set
 
     Returns:
@@ -383,7 +383,14 @@ def clean_set(data_set):
 # -------------------------------------------------------------------------- #
 
 def EDA(data_set):
-    ''' do all the EDA for a specific data set'''
+    """ do all the EDA for a specific data set
+    
+    Args:
+        data_set: the considered data set  
+
+    Returns:
+        data_set: the data set obtained after EDA
+    """
 
     # clean constant features
     data_set = clean_constant_features(data_set)
@@ -405,7 +412,15 @@ def EDA(data_set):
 
 def graph_analysis_removal(class_0, class_1, class_2, class_3):
     '''Remove all the feature we found useless in the classification with the
-    graph analysis done over all the classes.'''
+    graph analysis done over all the classes.
+    
+    Args:
+        class_0, class_1, class_2, class_3: the considered classes  
+
+    Returns:
+        class_0, class_1, class_2, class_3: the updated classes
+    '''
+    
 
     # Class 0
     class_0 = remove_feature(class_0, [2, 5, 7, 8, 9, 10, 11, 13, 14])
@@ -432,7 +447,13 @@ def graph_analysis_removal(class_0, class_1, class_2, class_3):
 
 def log_filter(data_set):
     '''This function applies a 'log(1+|x|) * sgn(x)' transformation to all the 
-    features.'''
+    features.
+    Args:
+        data_set: the considered data set  
+
+    Returns:
+        data_set: the normalized data set
+    '''
 
     # Loop over all the features of the data set
     for idx in range(data_set.shape[1]):
@@ -446,7 +467,13 @@ def log_filter(data_set):
 
 def EDA_class(data_set):
     ''' This function applies everything we need for our Exploratory Data 
-    Analysis (EDA) including the classification of our data set.'''
+    Analysis (EDA) including the classification of our data set.
+    Args:
+        data_set: the considered data set  
+
+    Returns:
+        class_0, class_1, class_2, class_3: the classes obtained after EDA
+    '''
 
     # Split the data set into classes in function of the value of feature 23 but they still have all the 30 features
     class_0, class_1, class_2, class_3 = classification(data_set)

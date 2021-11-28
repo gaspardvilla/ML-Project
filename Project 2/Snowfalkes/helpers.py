@@ -52,29 +52,36 @@ class MASCDB_classes:
         return class_cam
 
 
-    def find_flake_id(self, classifier, cam, cam_data):
+    def get_classified_data_cam(self, classifier, cam, cam_features):
         # Get the classifier cam
         class_cam = self.get_class_cam(classifier, cam)
 
         # Get the sub data frame of cam_data containing flake_id of class_cam
-        sub_cam_data = cam_data[cam_data['flake_id'].isin(class_cam['flake_id'])]
+        sub_cam_features = cam_features[cam_features['flake_id'].isin(class_cam['flake_id'])]
 
         # Return the result
-        return sub_cam_data
+        return sub_cam_features
 
-    def get_input(self, classifier, data):
+    def get_classified_data(self, classifier, data_set):
         # Create the input
         # Add for each cam
         # cam0
-        input = self.find_flake_id(classifier, 0, data.cam0)
+        classified_data = self.get_classified_data_cam(classifier, 0, data_set.cam0)
         
         #cam1
-        input = pd.concat([input, self.find_flake_id(classifier, 1, data.cam1)])
+        classified_data = pd.concat([classified_data, self.get_classified_data_cam(classifier, 1, data_set.cam1)])
         
         #cam2
-        input = pd.concat([input, self.find_flake_id(classifier, 1, data.cam2)])
+        classified_data = pd.concat([classified_data, self.get_classified_data_cam(classifier, 2, data_set.cam2)])
+
+        # Return the concatenated data frame
+        return classified_data
+
+    
+    def get_classses(self, classifier, data):
+        # TODO: finir cette fonction
        
-        return input
+        return 0
 
 
 

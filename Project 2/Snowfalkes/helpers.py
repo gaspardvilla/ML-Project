@@ -28,36 +28,36 @@ class MASCDB_classes:
         self.riming_cam2 = pd.read_pickle(riming_cam2_path)
 
 
-        def get_class_cam(self, classifier, cam):
-            if classifier == "riming":
-                if cam == 0:
-                    class_cam = self.riming_cam0
-                elif cam == 1:
-                    class_cam = self.riming_cam1
-                elif cam == 2:
-                    class_cam = self.riming_cam2
-                else:
-                    raise ValueError("Wrong cam, it should be equal to: 0, 1 or 2.")
-            elif classifier == "hydro":
-                if cam == 0:
-                    class_cam = self.hydro_cam0
-                elif cam == 1:
-                    class_cam = self.hydro_cam1
-                elif cam == 2:
-                    class_cam = self.hydro_cam2
-                else:
-                    raise ValueError("Wrong cam, it should be equal to: 0, 1 or 2.")
+    def get_class_cam(self, classifier, cam):
+        if classifier == "riming":
+            if cam == 0:
+                class_cam = self.riming_cam0
+            elif cam == 1:
+                class_cam = self.riming_cam1
+            elif cam == 2:
+                class_cam = self.riming_cam2
             else:
-                raise ValueError("Wrong classifier, it should be either: 'riming' or 'hydro'.")
-            return class_cam
+                raise ValueError("Wrong cam, it should be equal to: 0, 1 or 2.")
+        elif classifier == "hydro":
+            if cam == 0:
+                class_cam = self.hydro_cam0
+            elif cam == 1:
+                class_cam = self.hydro_cam1
+            elif cam == 2:
+                class_cam = self.hydro_cam2
+            else:
+                raise ValueError("Wrong cam, it should be equal to: 0, 1 or 2.")
+        else:
+            raise ValueError("Wrong classifier, it should be either: 'riming' or 'hydro'.")
+        return class_cam
 
 
-        def find_flake_id(self, classifier, cam, cam_data):
-            # Get the classifier cam
-            class_cam = self.get_class_cam(classifier, cam)
+    def find_flake_id(self, classifier, cam, cam_data):
+        # Get the classifier cam
+        class_cam = self.get_class_cam(classifier, cam)
 
-            # Get the sub data frame of cam_data containing flake_id of class_cam
-            sub_cam_data = cam_data[cam_data['flake_id'].isin(class_cam['flake_id'])]
+        # Get the sub data frame of cam_data containing flake_id of class_cam
+        sub_cam_data = cam_data[cam_data['flake_id'].isin(class_cam['flake_id'])]
 
-            # Return the result
-            return sub_cam_data
+        # Return the result
+        return sub_cam_data

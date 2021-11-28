@@ -61,3 +61,19 @@ class MASCDB_classes:
 
         # Return the result
         return sub_cam_data
+
+
+
+def numpy_helpers(df, cols):
+    """
+        Get a numpy array out of the dataframe df.
+
+    Args:
+        df (DataFrame): Considered data frame.
+        cols (string): The name of the columns that we want in numpy array format.
+
+    Returns:
+        nympay array: numpy array of the columns from our dataframe df.
+    """
+    np_array = df[cols].to_numpy()
+    return np_array

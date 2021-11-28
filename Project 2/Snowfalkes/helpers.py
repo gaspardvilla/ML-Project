@@ -62,6 +62,20 @@ class MASCDB_classes:
         # Return the result
         return sub_cam_data
 
+    def get_input(self, classifier, data):
+        # Create the input
+        # Add for each cam
+        # cam0
+        input = self.find_flake_id(classifier, 0, data.cam0)
+        
+        #cam1
+        input = pd.concat([input, self.find_flake_id(classifier, 1, data.cam1)])
+        
+        #cam2
+        input = pd.concat([input, self.find_flake_id(classifier, 1, data.cam2)])
+       
+        return input
+
 
 
 def numpy_helpers(df, cols):
@@ -77,3 +91,5 @@ def numpy_helpers(df, cols):
     """
     np_array = df[cols].to_numpy()
     return np_array
+
+

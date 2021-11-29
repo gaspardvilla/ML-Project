@@ -53,15 +53,25 @@ class MASCDB_classes:
         return class_cam
 
 
-    def get_classified_data_cam(self, classifier, cam, cam_features):
+    def get_classified_data_cam(self, classifier, cam, cam_data):
         # Get the classifier cam
         class_cam = self.get_class_cam(classifier, cam)
 
         # Get the sub data frame of cam_data containing flake_id of class_cam
-        sub_cam_features = cam_features[cam_features['flake_id'].isin(class_cam['flake_id'])]
+        sub_cam_data = cam_data[cam_data['flake_id'].isin(class_cam['flake_id'])]
 
         # Return the result
-        return sub_cam_features
+        return sub_cam_data
+
+    def get_sub_classes_cam(self, classifier, cam, cam_data):
+        # Get the classifier cam
+        class_cam = self.get_class_cam(classifier, cam)
+
+        # Get the sub classes for this cam that are in cam_features
+        sub_cam_classes = class_cam[class_cam['flake_id'].isin(cam_data['flake_id'])]
+
+        # Return the results
+        return sub_cam_classes
 
     def get_classified_data(self, classifier, data_set):
         # Create the input
@@ -80,9 +90,16 @@ class MASCDB_classes:
 
     
     def get_classses(self, classifier, data):
-        # TODO: finir cette fonction
+        # Get the classes in cam 0
+        classes = self.get_sub_classes_cam(classifier, 0, data.cam0)
+
+        # Append the classes that are in cam 1
+        classes = pd.concat([classes, self.get_sub_classes_cam(classifier, 1, data.cam1)])
+
+        # Append the classes that are in cam 2
+        classes = pd.concat([classes, self.get_sub_classes_cam(classifier, 2, data.cam2)])
        
-        return 0
+        return classes
 
 
 
@@ -99,18 +116,6 @@ def numpy_helpers(df, cols):
     """
     np_array = df[cols].to_numpy()
     return np_array
-
-
-def compute_nb_errors(pred_set, true_set, viz=False):
-    # Count the number of true predictions
-    N = pred_set.shape[0]
-    Nb_errors = np.count_nonzero(pred_set != true_set)
-    percentage_error = (Nb_errors / N) * 100
-    
-    if viz:
-        print("Numbers of errors : ", Nb_errors, " // Error accuracy [%] : %", percentage_error)
-
-    return Nb_errors, percentage_error
 
 
 def cross_validation_method():

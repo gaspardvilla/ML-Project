@@ -1,4 +1,5 @@
 # Import the used libraries
+import numpy as np
 import pandas as pd
 import os
 
@@ -100,3 +101,17 @@ def numpy_helpers(df, cols):
     return np_array
 
 
+def compute_nb_errors(pred_set, true_set, viz=False):
+    # Count the number of true predictions
+    N = pred_set.shape[0]
+    Nb_errors = np.count_nonzero(pred_set != true_set)
+    percentage_error = (Nb_errors / N) * 100
+    
+    if viz:
+        print("Numbers of errors : ", Nb_errors, " // Error accuracy [%] : %", percentage_error)
+
+    return Nb_errors, percentage_error
+
+
+def cross_validation_method():
+    return None

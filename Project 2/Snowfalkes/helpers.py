@@ -4,6 +4,19 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
+# Import sklearn librairies
+from sklearn.feature_selection import *
+from sklearn.model_selection import *
+from sklearn.linear_model import *
+from yellowbrick.model_selection import *
+from sklearn.svm import *
+from sklearn.decomposition import *
+
+
+
+# --------------------------------------------------------------------------------------- #
+
+
 
 class MASCDB_classes:
     
@@ -105,6 +118,10 @@ class MASCDB_classes:
 
 
 
+# --------------------------------------------------------------------------------------- #
+
+
+
 def numpy_helpers(df, cols):
     """
         Get a numpy array out of the dataframe df.
@@ -120,13 +137,32 @@ def numpy_helpers(df, cols):
     return np_array
 
 
+
+# --------------------------------------------------------------------------------------- #
+
+
+
 def cross_validation_method():
     return None
 
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+
+def test_model():
+    return None
+
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+
 def features_selection (X, y, method, param, plot = False):
+
     if method == "lasso":
-        from sklearn.feature_selection import SelectFromModel
-        from sklearn.linear_model import Lasso
         # define and fit the method
         lasso = Lasso(alpha = param).fit(X, y)
         model = SelectFromModel(lasso, prefit = True)
@@ -139,8 +175,6 @@ def features_selection (X, y, method, param, plot = False):
         return model.transform(X)
 
     elif method == "lassoCV":
-        from sklearn.feature_selection import SelectFromModel
-        from sklearn.linear_model import LassoCV
         # define and fit the method
         lassoCV = LassoCV(cv = param).fit(X, y)
         model = SelectFromModel(lassoCV, prefit = True)
@@ -150,7 +184,6 @@ def features_selection (X, y, method, param, plot = False):
         return model.transform(X)
 
     elif method == "PCA":
-        from sklearn.decomposition import PCA
         # define the method
         model = PCA(n_components = param)
         # transform the data
@@ -165,10 +198,8 @@ def features_selection (X, y, method, param, plot = False):
 
     elif method == "recursive":
         # define an estimator
-        from sklearn.svm import SVR
         estimator = SVR(kernel="linear")
         # define and fit the method
-        from sklearn.feature_selection import RFE
         model = RFE(estimator, n_features_to_select=param)
         if plot == True:
             print('TODO')
@@ -177,20 +208,16 @@ def features_selection (X, y, method, param, plot = False):
 
     elif method == "recursiveCV":
         # define an estimator
-        from sklearn.svm import SVR
-        estimator = SVR(kernel="linear")
+        estimator = SVR(kernel = "linear")
         # define and fit the method
-        from sklearn.feature_selection import RFECV
-        model = RFECV(estimator, cv=param).fit(X, y)
+        model = RFECV(estimator, cv = param).fit(X, y)
         if plot == True:
-            from sklearn.model_selection import StratifiedKFold
-            from yellowbrick.model_selection import RFECV
             cv = StratifiedKFold(param)
             visualizer = RFECV(estimator, cv=cv)
             visualizer.fit(X, y)        # Fit the data to the visualizer
             visualizer.show() 
         # transform the data
-        return model.transform(X, y)
-        
+        return model.transform(X)
+
     else:
         raise ValueError("Wrong method, it should be either: 'lasso', 'lassoCV', 'PCA', 'recursive' or 'recursiveCV'.")

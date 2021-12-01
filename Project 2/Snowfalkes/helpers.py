@@ -179,11 +179,18 @@ def features_selection (X, y, method, param, plot = False):
         lassoCV = LassoCV(cv = param).fit(X, y)
         model = SelectFromModel(lassoCV, prefit = True)
         if plot == True:
-            print('TODO')
+            importance = np.abs(lassoCV.coef_)
+            feature_names = np.array(X.columns)
+            plt.bar(height=importance, x=feature_names)
+            plt.title("Feature importances via coefficients")
+            plt.show()
+        return model.transform(X)
         # transform the data
         return model.transform(X)
 
     elif method == "PCA":
+        print('If param > 1 PCA has a number of components equal to param.')
+        print('If param < 1 PCA select the best number of combonent in order to have an explained variance ratio equal to param')
         # define the method
         model = PCA(n_components = param)
         # transform the data

@@ -44,6 +44,7 @@ class MASCDB_classes:
 
 
     def get_class_cam(self, classifier, cam):
+        # Select the data for classifer (i.e. riming or hydro) and camera number cam
         if classifier == "riming":
             if cam == 0:
                 class_cam = self.riming_cam0
@@ -88,15 +89,14 @@ class MASCDB_classes:
         return sub_cam_classes
 
     def get_classified_data(self, classifier, data_set):
-        # Create the input
-        # Add for each cam
+        # For each camera, select the data we are interested in (i.e. the data that was classified)
         # cam0
         classified_data = self.get_sub_data_cam(classifier, 0, data_set.cam0)
         
-        #cam1
+        # cam1
         classified_data = pd.concat([classified_data, self.get_sub_data_cam(classifier, 1, data_set.cam1)])
         
-        #cam2
+        # cam2
         classified_data = pd.concat([classified_data, self.get_sub_data_cam(classifier, 2, data_set.cam2)])
 
         # Return the concatenated data frame that contains all the data point to consider
@@ -209,13 +209,13 @@ def features_selection (X, y, method, param, plot = False):
         # define and fit the method
         model = RFE(estimator, n_features_to_select=param)
         if plot == True:
-            print('TODO')
+            print('Nothing to plot for this method. Try with method = recursiveCV')
         # transform the data
         return model.fit_transform(X, y)
 
     elif method == "recursiveCV":
         # define an estimator
-        estimator = SVR(kernel = "linear")
+        estimator = SVR(kernel = "linear") # we can try with other estimator functions such as GradientBoostingClassifier(), RandomForestClassifier(),...
         # define and fit the method
         model = RFECV(estimator, cv = param).fit(X, y)
         if plot == True:

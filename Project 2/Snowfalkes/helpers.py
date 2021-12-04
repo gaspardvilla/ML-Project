@@ -44,7 +44,7 @@ class MASCDB_classes:
 
 
     def get_class_cam(self, classifier, cam):
-        # Select the data for classifer (i.e. riming or hydro) and camera number cam
+        # Select the data for classifier (i.e. riming or hydro) and camera number cam
         if classifier == "riming":
             if cam == 0:
                 class_cam = self.riming_cam0

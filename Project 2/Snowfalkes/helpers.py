@@ -247,3 +247,20 @@ def classification_accuracy(y_true, y_pred):
 
         print(class_, ' : ',accuracy_score(true_set, pred_set))
     return classes
+
+
+# --------------------------------------------------------------------------------------- #
+
+def split_data(X, y, n_s):
+    skf = StratifiedKFold(n_splits = n_s)
+    for train_idx, test_idx in skf.split(X, y):
+        X_train = X.iloc[train_idx]
+        X_test = X.iloc[test_idx]
+        y_train = y.iloc[train_idx]
+        y_test = y.iloc[test_idx]
+
+        return X_train, y_train, X_test, y_test
+        break
+
+
+# --------------------------------------------------------------------------------------- #

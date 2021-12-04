@@ -254,10 +254,23 @@ def classification_accuracy(y_true, y_pred):
 def split_data(X, y, n_s):
     skf = StratifiedKFold(n_splits = n_s)
     for train_idx, test_idx in skf.split(X, y):
-        X_train = X.iloc[train_idx]
-        X_test = X.iloc[test_idx]
+        X_train = X[train_idx]
+        X_test = X[test_idx]
         y_train = y.iloc[train_idx]
         y_test = y.iloc[test_idx]
+
+        list_train = []
+        list_test = []
+
+        for i in range(1, 7):
+            n_train = len(y_train[y_train['class_id'] == i])
+            n_test = len(y_test[y_test['class_id'] == i])
+
+            list_train.append(n_train)
+            list_test.append(n_test)
+
+        print('Train: ', list_train)
+        print('Test: ', list_test)
 
         return X_train, y_train, X_test, y_test
         break

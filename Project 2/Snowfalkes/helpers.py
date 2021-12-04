@@ -11,6 +11,7 @@ from sklearn.linear_model import *
 from yellowbrick.model_selection import *
 from sklearn.svm import *
 from sklearn.decomposition import *
+from sklearn.metrics import accuracy_score
 
 
 
@@ -44,7 +45,7 @@ class MASCDB_classes:
 
 
     def get_class_cam(self, classifier, cam):
-        # Select the data for classifer (i.e. riming or hydro) and camera number cam
+        # Select the data for classifier (i.e. riming or hydro) and camera number cam
         if classifier == "riming":
             if cam == 0:
                 class_cam = self.riming_cam0
@@ -228,3 +229,21 @@ def features_selection (X, y, method, param, plot = False):
 
     else:
         raise ValueError("Wrong method, it should be either: 'lasso', 'lassoCV', 'PCA', 'recursive' or 'recursiveCV'.")
+
+
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+
+def classification_accuracy(y_true, y_pred):
+    y_true_ = y_true.reset_index(drop = True)
+    classes = y_true_.class_id.unique()
+    for class_ in classes:
+        msk = y_true_.class_id == class_
+        true_set = y_true_[msk]
+        pred_set = y_pred[msk]
+
+        print(class_, ' : ',accuracy_score(true_set, pred_set))
+    return classes

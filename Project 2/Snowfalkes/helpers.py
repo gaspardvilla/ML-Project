@@ -259,6 +259,19 @@ def split_data(X, y, n_s):
         y_train = y.iloc[train_idx]
         y_test = y.iloc[test_idx]
 
+        list_train = []
+        list_test = []
+
+        for i in range(1, 7):
+            n_train = len(y_train[y_train['class_id'] == i])
+            n_test = len(y_test[y_test['class_id'] == i])
+
+            list_train.append(n_train)
+            list_test.append(n_test)
+
+        print('Train: ', list_train)
+        print('Test: ', list_test)
+
         return X_train, y_train, X_test, y_test
         break
 

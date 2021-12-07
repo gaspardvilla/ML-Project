@@ -185,7 +185,6 @@ def features_selection (X, y, method, param, plot = False):
             plt.bar(height=importance, x=feature_names)
             plt.title("Feature importances via coefficients")
             plt.show()
-        return model.transform(X)
         # transform the data
         return model.transform(X)
 
@@ -253,6 +252,7 @@ def classification_accuracy(y_true, y_pred):
 
 def split_data(X, y, n_s):
     skf = StratifiedKFold(n_splits = n_s)
+    
     for train_idx, test_idx in skf.split(X, y):
         X_train = X[train_idx]
         X_test = X[test_idx]

@@ -7,6 +7,10 @@ import os
 # Import sklearn librairies
 from sklearn.feature_selection import *
 from sklearn.model_selection import *
+from sklearn.ensemble import *
+from sklearn.neural_network import MLPClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import *
 from yellowbrick.model_selection import *
 from sklearn.svm import *
@@ -152,8 +156,52 @@ def cross_validation_method():
 
 
 
-def test_model():
-    return None
+def test_model(X_train, y_train, X_test, y_test, method, class_acc = True):
+
+    y_train = np.array(y_train).ravel()
+
+    if method == 'logisitic regression':
+        model = LogisticRegressionCV(cv=5,  penalty='l1', solver='saga', max_iter=100, class_weight='balanced').fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        print('The accuracy for this model is : ', accuracy_score(y_test, y_pred))
+        if class_acc:
+            print(classification_accuracy(y_test, y_pred))
+        return y_pred
+    
+    elif method == 'SVM':
+        model = make_pipeline(StandardScaler(), SVC(gamma='auto')).fit(X_train,y_train)
+        y_pred = model.predict(X_test)
+        print('The accuracy for this model is : ', accuracy_score(y_test, y_pred))
+        if class_acc:
+            print(classification_accuracy(y_test, y_pred))
+        return y_pred
+
+    elif method == 'random forest':
+        model = RandomForestClassifier(n_estimators=100, class_weight = 'balanced').fit(X_train,y_train)
+        y_pred = model.predict(X_test)
+        print('The accuracy for this model is : ', accuracy_score(y_test, y_pred))
+        if class_acc:
+            print(classification_accuracy(y_test, y_pred))
+        return y_pred
+
+    elif method == 'gradient boosting':
+        model = HistGradientBoostingClassifier(max_iter=100).fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        print('The accuracy for this model is : ', accuracy_score(y_test, y_pred))
+        if class_acc:
+            print(classification_accuracy(y_test, y_pred))
+        return y_pred
+
+    elif method == 'feed forward neural network':
+        model =MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1).fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        print('The accuracy for this model is : ', accuracy_score(y_test, y_pred))
+        if class_acc:
+            print(classification_accuracy(y_test, y_pred))
+        return y_pred
+    else:
+        raise ValueError("Wrong method, it should be either: 'logisitic regression', 'SVM', 'random forest', 'gradient boosting' or 'feed forward neural network'.")
+    
 
 
 

@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+from IPython.display import display
 
 # Import sklearn librairies
 from sklearn.feature_selection import *
@@ -16,6 +17,7 @@ from yellowbrick.model_selection import *
 from sklearn.svm import *
 from sklearn.decomposition import *
 from sklearn.metrics import accuracy_score
+from sklearn import preprocessing
 
 
 
@@ -284,7 +286,6 @@ def features_selection (X, y, method, param, plot = False):
 # --------------------------------------------------------------------------------------- #
 
 
-
 def classification_accuracy(y_true, y_pred):
     y_true_ = y_true.reset_index(drop = True)
     classes = y_true_.class_id.unique()
@@ -299,11 +300,14 @@ def classification_accuracy(y_true, y_pred):
 
 # --------------------------------------------------------------------------------------- #
 
+
 def split_data(X, y, n_s):
+    # Split data according to the weight of each classes
     skf = StratifiedKFold(n_splits = n_s)
     for train_idx, test_idx in skf.split(X, y):
-        X_train = X[train_idx]
-        X_test = X[test_idx]
+
+        X_train = X.iloc[train_idx]
+        X_test = X.iloc[test_idx]
         y_train = y.iloc[train_idx]
         y_test = y.iloc[test_idx]
 
@@ -325,3 +329,8 @@ def split_data(X, y, n_s):
 
 
 # --------------------------------------------------------------------------------------- #
+
+
+def classes_transformed(classes):
+    lb = preprocessing.LabelBinarizer()
+    return pd.DataFrame(lb.fit_transform(classes))

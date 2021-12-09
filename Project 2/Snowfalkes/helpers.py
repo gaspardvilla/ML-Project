@@ -266,6 +266,8 @@ def features_selection (X, y, method, param, plot = False):
 
     elif method == "recursiveCV":
         # define an estimator
+
+        # SVM au lieu de SVR
         estimator = SVR(kernel = "linear") # we can try with other estimator functions such as GradientBoostingClassifier(), RandomForestClassifier(),...
         # define and fit the method
         model = RFECV(estimator, cv = param).fit(X, y)

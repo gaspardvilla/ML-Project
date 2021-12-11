@@ -163,7 +163,9 @@ def test_model(X_train, y_train, X_test, y_test, method, class_acc = True):
     if method == 'logisitic regression':
         model = LogisticRegressionCV(cv=5,  penalty='l1', solver='saga', max_iter=100, class_weight='balanced').fit(X_train, y_train)
         y_pred = model.predict(X_test)
-        print('The accuracy for this model is : ', accuracy_score(y_test, y_pred))
+        y_train_pred = model.predict(X_train)
+        print('The accuracy for the train set with  this model is : ', accuracy_score(y_train, y_train_pred))
+        print('The accuracy for the test set with this model is : ', accuracy_score(y_test, y_pred))
         if class_acc:
             print(classification_accuracy(y_test, y_pred))
         return y_pred
@@ -171,23 +173,29 @@ def test_model(X_train, y_train, X_test, y_test, method, class_acc = True):
     elif method == 'SVM':
         model = make_pipeline(StandardScaler(), SVC(gamma='auto')).fit(X_train,y_train)
         y_pred = model.predict(X_test)
-        print('The accuracy for this model is : ', accuracy_score(y_test, y_pred))
+        y_train_pred = model.predict(X_train)
+        print('The accuracy for the train set with  this model is : ', accuracy_score(y_train, y_train_pred))
+        print('The accuracy for the test set with this model is : ', accuracy_score(y_test, y_pred))
         if class_acc:
             print(classification_accuracy(y_test, y_pred))
         return y_pred
 
     elif method == 'random forest':
-        model = RandomForestClassifier(n_estimators=100, class_weight = 'balanced').fit(X_train,y_train)
+        model = RandomForestClassifier(n_estimators=1000, max_depth= 200, min_samples_leaf=5, class_weight = 'balanced').fit(X_train,y_train)
         y_pred = model.predict(X_test)
-        print('The accuracy for this model is : ', accuracy_score(y_test, y_pred))
+        y_train_pred = model.predict(X_train)
+        print('The accuracy for the train set with  this model is : ', accuracy_score(y_train, y_train_pred))
+        print('The accuracy for the test set with  this model is : ', accuracy_score(y_test, y_pred))
         if class_acc:
             print(classification_accuracy(y_test, y_pred))
-        return y_pred
+        return model
 
     elif method == 'gradient boosting':
-        model = HistGradientBoostingClassifier(max_iter=100).fit(X_train, y_train)
+        model = GradientBoostingClassifier(learning_rate=0.1).fit(X_train, y_train)
         y_pred = model.predict(X_test)
-        print('The accuracy for this model is : ', accuracy_score(y_test, y_pred))
+        y_train_pred = model.predict(X_train)
+        print('The accuracy for the train set with  this model is : ', accuracy_score(y_train, y_train_pred))
+        print('The accuracy for the test set with this model is : ', accuracy_score(y_test, y_pred))
         if class_acc:
             print(classification_accuracy(y_test, y_pred))
         return y_pred
@@ -195,7 +203,9 @@ def test_model(X_train, y_train, X_test, y_test, method, class_acc = True):
     elif method == 'feed forward neural network':
         model =MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1).fit(X_train, y_train)
         y_pred = model.predict(X_test)
-        print('The accuracy for this model is : ', accuracy_score(y_test, y_pred))
+        y_train_pred = model.predict(X_train)
+        print('The accuracy for the train set with  this model is : ', accuracy_score(y_train, y_train_pred))
+        print('The accuracy for the test set with this model is : ', accuracy_score(y_test, y_pred))
         if class_acc:
             print(classification_accuracy(y_test, y_pred))
         return y_pred

@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+from IPython.display import display
 
 # Import sklearn librairies
 from sklearn.feature_selection import *
@@ -274,6 +275,8 @@ def features_selection (X, y, method, param, plot = False):
 
     elif method == "recursiveCV":
         # define an estimator
+
+        # SVM au lieu de SVR
         estimator = SVR(kernel = "linear") # we can try with other estimator functions such as GradientBoostingClassifier(), RandomForestClassifier(),...
         # define and fit the method
         model = RFECV(estimator, cv = param).fit(X, y)

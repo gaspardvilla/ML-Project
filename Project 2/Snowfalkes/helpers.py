@@ -16,14 +16,8 @@ from sklearn.linear_model import *
 from yellowbrick.model_selection import *
 from sklearn.svm import *
 from sklearn.decomposition import *
-<<<<<<< HEAD
-from sklearn.metrics import accuracy_score
-from sklearn import preprocessing
-from sklearn.metrics import classification_report
-=======
 from sklearn import *
 from sklearn.metrics import *
->>>>>>> 57a2c588147571dbd874816bb53db472f56ef0cd
 
 
 
@@ -325,19 +319,9 @@ def  classification_accuracy_transformed(y_true, y_pred):
 
 # --------------------------------------------------------------------------------------- #
 
-<<<<<<< HEAD
-
-
-def split_data(X, y, n_s):
-    # Split data according to the weight of each classes
-    skf = StratifiedKFold(n_splits = n_s)
-    for train_idx, test_idx in skf.split(X, y):
-
-=======
 def split_data(X, y, n_s = 5):
     skf = StratifiedKFold(n_splits = n_s)
     for train_idx, test_idx in skf.split(X, y):
->>>>>>> 57a2c588147571dbd874816bb53db472f56ef0cd
         X_train = X.iloc[train_idx]
         X_test = X.iloc[test_idx]
         y_train = y.iloc[train_idx]

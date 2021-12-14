@@ -18,6 +18,7 @@ from sklearn.svm import *
 from sklearn.decomposition import *
 from sklearn.metrics import accuracy_score
 from sklearn import preprocessing
+from sklearn.metrics import classification_report
 
 
 
@@ -223,7 +224,7 @@ def features_selection (X, y, method, param, plot = False):
             plt.bar(height=importance, x=feature_names)
             plt.title("Feature importances via coefficients")
             plt.show()
-        return model.transform(X)
+        return pd.DataFrame(model.transform(X))
 
     elif method == "lassoCV":
         # define and fit the method
@@ -235,9 +236,7 @@ def features_selection (X, y, method, param, plot = False):
             plt.bar(height=importance, x=feature_names)
             plt.title("Feature importances via coefficients")
             plt.show()
-        return model.transform(X)
-        # transform the data
-        return model.transform(X)
+        return pd.DataFrame(model.transform(X))
 
     elif method == "PCA":
         print('If param > 1 PCA has a number of components equal to param.')
@@ -252,7 +251,7 @@ def features_selection (X, y, method, param, plot = False):
             plt.plot(np.cumsum(pca.explained_variance_ratio_))
             plt.xlabel('number of components')
             plt.ylabel('cumulative explained variance')
-        return components
+        return pd.DataFrame(components)
 
     elif method == "recursive":
         # define an estimator
@@ -262,7 +261,7 @@ def features_selection (X, y, method, param, plot = False):
         if plot == True:
             print('Nothing to plot for this method. Try with method = recursiveCV')
         # transform the data
-        return model.fit_transform(X, y)
+        return pd.DataFrame(model.fit_transform(X, y))
 
     elif method == "recursiveCV":
         # define an estimator
@@ -277,7 +276,7 @@ def features_selection (X, y, method, param, plot = False):
             visualizer.fit(X, y)        # Fit the data to the visualizer
             visualizer.show() 
         # transform the data
-        return model.transform(X)
+        return pd.DataFrame(model.transform(X))
 
     else:
         raise ValueError("Wrong method, it should be either: 'lasso', 'lassoCV', 'PCA', 'recursive' or 'recursiveCV'.")
@@ -299,8 +298,18 @@ def classification_accuracy(y_true, y_pred):
         print(class_, ' : ',accuracy_score(true_set, pred_set))
     return classes
 
+# --------------------------------------------------------------------------------------- #
+
+
+def  classification_accuracy_transformed(y_true, y_pred):
+    target_names = ['class 1', 'class 2', 'class 3', 'class 4', 'class 5', 'class 6']
+    report = classification_report(y_true, y_pred, target_names=target_names)
+    print(report)
+    return None
+
 
 # --------------------------------------------------------------------------------------- #
+
 
 
 def split_data(X, y, n_s):
@@ -323,8 +332,8 @@ def split_data(X, y, n_s):
             list_train.append(n_train)
             list_test.append(n_test)
 
-        print('Train: ', list_train)
-        print('Test: ', list_test)
+        #print('Train: ', list_train)
+        #Sprint('Test: ', list_test)
 
         return X_train, y_train, X_test, y_test
         break

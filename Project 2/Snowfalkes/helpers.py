@@ -9,14 +9,15 @@ from IPython.display import display
 from sklearn.feature_selection import *
 from sklearn.model_selection import *
 from sklearn.ensemble import *
-from sklearn.neural_network import MLPClassifier
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import *
+from sklearn.pipeline import *
+from sklearn.preprocessing import *
 from sklearn.linear_model import *
 from yellowbrick.model_selection import *
 from sklearn.svm import *
 from sklearn.decomposition import *
-from sklearn.metrics import accuracy_score
+from sklearn import *
+from sklearn.metrics import *
 
 
 
@@ -306,19 +307,17 @@ def classification_accuracy(y_true, y_pred):
         true_set = y_true_[msk]
         pred_set = y_pred[msk]
 
-        display(true_set)
-
         print(class_, ' : ', accuracy_score(true_set, pred_set))
     return classes
 
 
 # --------------------------------------------------------------------------------------- #
 
-def split_data(X, y, n_s):
+def split_data(X, y, n_s = 5):
     skf = StratifiedKFold(n_splits = n_s)
     for train_idx, test_idx in skf.split(X, y):
-        X_train = X[train_idx]
-        X_test = X[test_idx]
+        X_train = X.iloc[train_idx]
+        X_test = X.iloc[test_idx]
         y_train = y.iloc[train_idx]
         y_test = y.iloc[test_idx]
 
@@ -340,3 +339,8 @@ def split_data(X, y, n_s):
 
 
 # --------------------------------------------------------------------------------------- #
+
+
+def classes_transformed(classes):
+    lb = preprocessing.LabelBinarizer()
+    return pd.DataFrame(lb.fit_transform(classes))

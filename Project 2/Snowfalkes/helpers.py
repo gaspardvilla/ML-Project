@@ -296,7 +296,9 @@ def classification_accuracy(y_true, y_pred):
         true_set = y_true_[msk]
         pred_set = y_pred[msk]
 
-        print(class_, ' : ',accuracy_score(true_set, pred_set))
+        display(true_set)
+
+        print(class_, ' : ', accuracy_score(true_set, pred_set))
     return classes
 
 

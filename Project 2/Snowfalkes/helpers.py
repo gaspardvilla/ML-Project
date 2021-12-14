@@ -9,16 +9,21 @@ from IPython.display import display
 from sklearn.feature_selection import *
 from sklearn.model_selection import *
 from sklearn.ensemble import *
-from sklearn.neural_network import MLPClassifier
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import *
+from sklearn.pipeline import *
+from sklearn.preprocessing import *
 from sklearn.linear_model import *
 from yellowbrick.model_selection import *
 from sklearn.svm import *
 from sklearn.decomposition import *
+<<<<<<< HEAD
 from sklearn.metrics import accuracy_score
 from sklearn import preprocessing
 from sklearn.metrics import classification_report
+=======
+from sklearn import *
+from sklearn.metrics import *
+>>>>>>> 57a2c588147571dbd874816bb53db472f56ef0cd
 
 
 
@@ -305,8 +310,6 @@ def classification_accuracy(y_true, y_pred):
         true_set = y_true_[msk]
         pred_set = y_pred[msk]
 
-        display(true_set)
-
         print(class_, ' : ', accuracy_score(true_set, pred_set))
     return classes
 
@@ -322,6 +325,7 @@ def  classification_accuracy_transformed(y_true, y_pred):
 
 # --------------------------------------------------------------------------------------- #
 
+<<<<<<< HEAD
 
 
 def split_data(X, y, n_s):
@@ -329,6 +333,11 @@ def split_data(X, y, n_s):
     skf = StratifiedKFold(n_splits = n_s)
     for train_idx, test_idx in skf.split(X, y):
 
+=======
+def split_data(X, y, n_s = 5):
+    skf = StratifiedKFold(n_splits = n_s)
+    for train_idx, test_idx in skf.split(X, y):
+>>>>>>> 57a2c588147571dbd874816bb53db472f56ef0cd
         X_train = X.iloc[train_idx]
         X_test = X.iloc[test_idx]
         y_train = y.iloc[train_idx]

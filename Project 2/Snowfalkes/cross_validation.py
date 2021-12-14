@@ -79,3 +79,8 @@ def cross_validation_general(feature_select_method, feature_select_param, train_
 
 
 # --------------------------------------------------------------------------------------- #
+
+
+def cv_method(method, param_to_test):
+    cross_valodation_method = GridSearchCV(method, param_to_test, verbose = 1)
+    return cross_valodation_method

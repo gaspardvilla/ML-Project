@@ -182,7 +182,7 @@ def test_model(X_train, y_train, X_test, y_test, method, class_acc = True):
         return y_pred
 
     elif method == 'random forest':
-        model = RandomForestClassifier(n_estimators=1000, max_depth= 200, min_samples_leaf=5, class_weight = 'balanced').fit(X_train,y_train)
+        model = RandomForestClassifier(n_estimators=650, max_depth= 20, min_samples_leaf=5, random_state= 0, class_weight = 'balanced').fit(X_train,y_train)
         y_pred = model.predict(X_test)
         y_train_pred = model.predict(X_train)
         print('The accuracy for the train set with  this model is : ', accuracy_score(y_train, y_train_pred))

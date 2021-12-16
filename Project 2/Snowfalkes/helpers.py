@@ -233,7 +233,7 @@ def features_selection (X, y, method, param, plot = False):
             plt.bar(height=importance, x=feature_names)
             plt.title("Feature importances via coefficients")
             plt.show()
-        return model.transform(X)
+        return pd.DataFrame(model.transform(X))
 
     elif method == "lassoCV":
         # define and fit the method
@@ -245,9 +245,7 @@ def features_selection (X, y, method, param, plot = False):
             plt.bar(height=importance, x=feature_names)
             plt.title("Feature importances via coefficients")
             plt.show()
-        return model.transform(X)
-        # transform the data
-        return model.transform(X)
+        return pd.DataFrame(model.transform(X))
 
     elif method == "PCA":
         print('If param > 1 PCA has a number of components equal to param.')
@@ -262,7 +260,7 @@ def features_selection (X, y, method, param, plot = False):
             plt.plot(np.cumsum(pca.explained_variance_ratio_))
             plt.xlabel('number of components')
             plt.ylabel('cumulative explained variance')
-        return components
+        return pd.DataFrame(components)
 
     elif method == "recursive":
         # define an estimator
@@ -272,7 +270,7 @@ def features_selection (X, y, method, param, plot = False):
         if plot == True:
             print('Nothing to plot for this method. Try with method = recursiveCV')
         # transform the data
-        return model.fit_transform(X, y)
+        return pd.DataFrame(model.fit_transform(X, y))
 
     elif method == "recursiveCV":
         # define an estimator
@@ -287,16 +285,86 @@ def features_selection (X, y, method, param, plot = False):
             visualizer.fit(X, y)        # Fit the data to the visualizer
             visualizer.show() 
         # transform the data
-        return model.transform(X)
+        return pd.DataFrame(model.transform(X))
 
     else:
         raise ValueError("Wrong method, it should be either: 'lasso', 'lassoCV', 'PCA', 'recursive' or 'recursiveCV'.")
 
 
+# --------------------------------------------------------------------------------------- #
+
+
+def get_model_features_selection (X, y, method, param = None, plot = False):
+
+    if method == "lasso":
+        # define and fit the method
+        lasso = Lasso(alpha = param).fit(X, y)
+        model = SelectFromModel(lasso, prefit = True)
+        if plot == True:
+            importance = np.abs(lasso.coef_)
+            feature_names = np.array(X.columns)
+            plt.bar(height=importance, x=feature_names)
+            plt.title("Feature importances via coefficients")
+            plt.show()
+        return model
+
+    elif method == "lassoCV":
+        # define and fit the method
+        lassoCV = LassoCV(cv = param).fit(X, y)
+        model = SelectFromModel(lassoCV, prefit = True)
+        if plot == True:
+            importance = np.abs(lassoCV.coef_)
+            feature_names = np.array(X.columns)
+            plt.bar(height=importance, x=feature_names)
+            plt.title("Feature importances via coefficients")
+            plt.show()
+        return model
+
+    elif method == "PCA":
+        print('If param > 1 PCA has a number of components equal to param.')
+        print('If param < 1 PCA select the best number of combonent in order to have an explained variance ratio equal to param')
+        # define the method
+        model = PCA(n_components = param)
+        # transform the data
+        components = model.fit(X)
+        if plot == True:
+            pca = PCA()
+            pca.fit(X)
+            plt.plot(np.cumsum(pca.explained_variance_ratio_))
+            plt.xlabel('number of components')
+            plt.ylabel('cumulative explained variance')
+        return components
+
+    elif method == "recursive":
+        # define an estimator
+        estimator = SVR(kernel="linear")
+        # define and fit the method
+        model = RFE(estimator, n_features_to_select=param).fit(X, y)
+        if plot == True:
+            print('Nothing to plot for this method. Try with method = recursiveCV')
+        # return the model
+        return model
+
+    elif method == "recursiveCV":
+        # define an estimator
+
+        # SVM au lieu de SVR
+        estimator = SVR(kernel = "linear") # we can try with other estimator functions such as GradientBoostingClassifier(), RandomForestClassifier(),...
+        # define and fit the method
+        model = RFECV(estimator, cv = param).fit(X, y)
+        if plot == True:
+            cv = StratifiedKFold(param)
+            visualizer = RFECV(estimator, cv=cv)
+            visualizer.fit(X, y)        # Fit the data to the visualizer
+            visualizer.show() 
+        # return the model
+        return model
+
+    else:
+        raise ValueError("Wrong method, it should be either: 'lasso', 'lassoCV', 'PCA', 'recursive' or 'recursiveCV'.")
 
 
 # --------------------------------------------------------------------------------------- #
-
 
 
 def classification_accuracy(y_true, y_pred):
@@ -309,6 +377,16 @@ def classification_accuracy(y_true, y_pred):
 
         print(class_, ' : ', accuracy_score(true_set, pred_set))
     return classes
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+def  classification_accuracy_transformed(y_true, y_pred):
+    target_names = ['class 1', 'class 2', 'class 3', 'class 4', 'class 5', 'class 6']
+    report = classification_report(y_true, y_pred, target_names=target_names)
+    print(report)
+    return None
 
 
 # --------------------------------------------------------------------------------------- #
@@ -331,8 +409,8 @@ def split_data(X, y, n_s = 5):
             list_train.append(n_train)
             list_test.append(n_test)
 
-        print('Train: ', list_train)
-        print('Test: ', list_test)
+        #print('Train: ', list_train)
+        #Sprint('Test: ', list_test)
 
         return X_train, y_train, X_test, y_test
         break

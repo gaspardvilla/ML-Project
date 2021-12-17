@@ -203,6 +203,12 @@ def test_model(X_train, y_train, X_test, y_test, method, class_acc = True):
 # --------------------------------------------------------------------------------------- #
 
 
+def features_selection (X, y, method, param = None, plot = False):
+    return None
+
+# --------------------------------------------------------------------------------------- #
+
+
 def get_model_features_selection (X, y, method, param = None, plot = False):
     """
     Select features according to a specific model

@@ -18,6 +18,7 @@ from sklearn.svm import *
 from sklearn.decomposition import *
 from sklearn import *
 from sklearn.metrics import *
+from sklearn.multiclass import *
 
 
 # --------------------------------------------------------------------------------------- #
@@ -372,7 +373,7 @@ def classes_transformed(classes):
 # --------------------------------------------------------------------------------------- #
 
 
-def get_models_LR(ovr = False):
+def get_model_LR(ovr = False):
     """
     Select Logistic Regression model and parameters you would like to tune by using evaluate_model function
 

@@ -376,21 +376,21 @@ def get_models_LR(ovr = False):
     Return the Logistic Regression model and its parameters to tune
     """
 
-	if ovr == True :
-		model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state=0))
-		param = {'estimator__penalty':['l2'], 
+    if ovr == True :
+        model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state=0))
+        param = {'estimator__penalty':['none', 'l1','l2'], 
 				 'estimator__C':np.linspace(0.1, 0.11, num=10)}
-	else :
-		model = LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state=0)
-		param = {'penalty':['none', 'l1', 'l2'], 'C':np.linspace(0.1, 1, num=10)}
-
-	return model, param
+    else :
+        model = LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state=0)
+        param = {'penalty':['none', 'l1', 'l2'], 'C':np.linspace(0.1, 1, num=10)}
+    
+    return model, param
 
 
 # --------------------------------------------------------------------------------------- #
 
-
 def get_model_SVM(poly = False):
+    
     """
     Select SVM model and parameters you would like to tune by using evaluate_model function
 
@@ -400,13 +400,12 @@ def get_model_SVM(poly = False):
     Return the SVM model and its parameters to tune
     """
 
-	if poly == True:
-		param = {'estimator__C':np.linspace(1, 10, num=10), 'estimator__degree':np.linspace(0, 5, dtype = int)}
-		model = OneVsRestClassifier(estimator=SVC(kernel='poly', decision_function_shape='ovr', class_weight='balanced', random_state=0))
-	else:
-		param = {'estimator__C':np.linspace(1, 10, num=10), 'estimator__kernel':['linear', 'rbf', 'sigmoid']}
-		model = OneVsRestClassifier(estimator=SVC(decision_function_shape='ovr', class_weight='balanced', random_state=0))
-	
+    if poly == True:
+        param = {'estimator__C':np.linspace(1, 10, num=10), 'estimator__degree':np.linspace(0, 5, dtype = int)}
+        model = OneVsRestClassifier(estimator=SVC(kernel='poly', decision_function_shape='ovr', class_weight='balanced', random_state=0))
+    else:
+        param = {'estimator__C':np.linspace(1, 10, num=10), 'estimator__kernel':['linear', 'rbf', 'sigmoid']}
+        model = OneVsRestClassifier(estimator=SVC(decision_function_shape='ovr', class_weight='balanced', random_state=0))
     return model, param
 
 

@@ -72,9 +72,9 @@ def cross_validation_general(feature_select_method, feature_select_param, train_
     train_param = tm_param_update(train_param)
     param_grid.update(train_param)
 
-    cross_valodation_method = GridSearchCV(steps_method, param_grid, verbose = 1)
+    cross_validation_method = GridSearchCV(steps_method, param_grid, verbose = 1)
 
-    return cross_valodation_method
+    return cross_validation_method
 
 
 
@@ -82,5 +82,5 @@ def cross_validation_general(feature_select_method, feature_select_param, train_
 
 
 def cv_method(method, param_to_test):
-    cross_valodation_method = GridSearchCV(method, param_to_test, verbose = 1)
-    return cross_valodation_method
+    cross_validation_method = GridSearchCV(method, param_to_test, verbose = 1)
+    return cross_validation_method

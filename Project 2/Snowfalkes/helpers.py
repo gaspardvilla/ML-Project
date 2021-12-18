@@ -242,3 +242,18 @@ def smote_data_augmentation (X, y):
 
 # --------------------------------------------------------------------------------------- #
 
+
+def save_model(filename, model):
+    # save the model to disk
+    return pickle.dump(model, open(filename, 'wb'))
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+def load_model(filename):
+    # load the model from disk
+    return pickle.load(open(filename, 'rb'))
+
+
+# --------------------------------------------------------------------------------------- #

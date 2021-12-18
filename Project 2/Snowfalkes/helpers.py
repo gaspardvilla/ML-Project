@@ -391,6 +391,7 @@ def get_model_LR(ovr = False):
 
 # --------------------------------------------------------------------------------------- #
 
+
 def get_model_SVM(poly = False):
     
     """
@@ -409,7 +410,6 @@ def get_model_SVM(poly = False):
         param = {'estimator__C':np.linspace(1, 10, num=10), 'estimator__kernel':['linear', 'rbf', 'sigmoid']}
         model = OneVsRestClassifier(estimator=SVC(decision_function_shape='ovr', class_weight='balanced', random_state=0))
     return model, param
-
 
 
 # --------------------------------------------------------------------------------------- #
@@ -471,25 +471,36 @@ def evaluate_model(model, param, X_train, y_train, X_test, y_test):
 
     Return the accuracy score for the tuned model
     """
-    # to avoid warning transform the y_train in y_test using .ravel()
+    #Avoid warning transform the y_train in y_test using .ravel()
     y_train_ravel = np.array(y_train).ravel()
 
     #Grid Search to tune the parameters
     clf = GridSearchCV(model, param, verbose=1).fit(X_train, y_train_ravel)
 
-    #predict using the best fitted model on the test set
+    #Predict using the best fitted model on the train set to verify we avoid overfitting
+    y_pred_train = clf.predict(X_train)
+
+    #Compute the total accuracy on the training set
+    print('Accuracy score on the training set:')
+    print(accuracy_score(y_train, y_pred_train))
+    
+    #Compute the accuracy for each class on the training set
+    print('Accuracy for each class on the training set:')
+    classification_accuracy(y_train, y_pred_train)
+
+    #Predict using the best fitted model on the test set
     y_pred = clf.predict(X_test)
+    print('Best parameters for the fitted model:')
     print(clf.best_params_)
 
-    #predict using the best fitted model on the train set to verify we avoid overfitting
-    y_pred_train = clf.predict(X_train)
-    print(accuracy_score(y_train, y_pred_train))
-
-    #Compute the accuracy for each class
-    classification_accuracy(y_train, y_pred_train)
-    classification_accuracy(y_test, y_pred)
+    #Compute the total accuracy on the testing set
+    print('Accuracy score on the testing set:')
     print(accuracy_score(y_test, y_pred))
-
+    
+    #Compute the accuracy for each class on the testing set
+    print('Accuracy for each class on the testing set:')
+    classification_accuracy(y_test, y_pred)
+    
     return clf
 
 

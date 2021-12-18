@@ -31,57 +31,51 @@ from sklearn.metrics import *
 # --------------------------------------------------------------------------------------- #
 
 
+def evaluate_model(model, param, X_train, y_train, X_test, y_test):
+    """
+    Grid Search for the model to select the best parameters
+    Evaluation of a model 
 
-def fs_param_update(feature_select_param):
+    Args:
+        model : the model used for Grid Search and to evaluate 
+        param : the parameters to tune during Grid Search
+        X_train : data training set
+        y_train : target to reach during the train
+        X_test : data testing set
+        y_test : target to reach during the test 
 
-    feature_select_param_ = feature_select_param.copy()
-    for key in feature_select_param:
-        new_key = 'fs__' + str(key)
-        feature_select_param_[new_key] = feature_select_param_.pop(key)
+    Return the best model
+    """
+    #Avoid warning transform the y_train in y_test using .ravel()
+    y_train_ravel = np.array(y_train).ravel()
 
-    return feature_select_param_
+    #Grid Search to tune the parameters
+    clf = GridSearchCV(model, param, verbose=2).fit(X_train, y_train_ravel)
 
+    #Predict using the best fitted model on the train set to verify we avoid overfitting
+    y_pred_train = clf.predict(X_train)
 
-
-# --------------------------------------------------------------------------------------- #
-
-
-
-def tm_param_update(train_param):
-
-    train_param_ = train_param.copy()
-    for key in train_param:
-        new_key = 'tm__' + str(key)
-        train_param_[new_key] = train_param_.pop(key)
-        
-    return train_param_
-
-
-
-# --------------------------------------------------------------------------------------- #
-
-
-
-def cross_validation_general(feature_select_method, feature_select_param, train_method, train_param):
+    #Compute the total accuracy on the training set
+    print('Accuracy score on the training set:')
+    print(accuracy_score(y_train, y_pred_train))
     
-    # 
-    steps_method = Pipeline([('fs', feature_select_method),
-            ('tm', train_method)])
+    #Compute the accuracy for each class on the training set
+    print('Accuracy for each class on the training set:')
+    classification_accuracy(y_train, y_pred_train)
 
-    # Update the parameters to optimize
-    param_grid = fs_param_update(feature_select_param)
-    train_param = tm_param_update(train_param)
-    param_grid.update(train_param)
+    #Predict using the best fitted model on the test set
+    y_pred = clf.predict(X_test)
+    print('Best parameters for the fitted model:')
+    print(clf.best_params_)
 
-    cross_validation_method = GridSearchCV(steps_method, param_grid, verbose = 1)
-
-    return cross_validation_method
-
-
+    #Compute the total accuracy on the testing set
+    print('Accuracy score on the testing set:')
+    print(accuracy_score(y_test, y_pred))
+    
+    #Compute the accuracy for each class on the testing set
+    print('Accuracy for each class on the testing set:')
+    classification_accuracy(y_test, y_pred)
+    
+    return clf
 
 # --------------------------------------------------------------------------------------- #
-
-
-def cv_method(method, param_to_test):
-    cross_validation_method = GridSearchCV(method, param_to_test, verbose = 1)
-    return cross_validation_method

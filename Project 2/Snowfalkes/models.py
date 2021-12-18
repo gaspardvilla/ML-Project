@@ -169,10 +169,10 @@ def get_model_RF():
     """
     model = RandomForestClassifier(random_state=0, class_weight='balanced')
 
-    param = {"n_estimators": np.linspace(200,2000,10, dtype=int),
-            "min_samples_leaf": np.linspace(1,5,5, dtype=int),
-            "max_depth": np.linspace(1,10,10, dtype=int),
-            "min_samples_split": np.linspace(2,5,4,dtype=int)}
+    param = {"n_estimators": np.linspace(1000,1600,4, dtype=int),
+            "min_samples_leaf": np.linspace(5,5,1, dtype=int),
+            "max_depth": np.linspace(5,15,11, dtype=int),
+            "min_samples_split": np.linspace(5,5,1,dtype=int)}
 			  
     return model, param
 
@@ -199,51 +199,3 @@ def get_model_MLP():
 
 
 # --------------------------------------------------------------------------------------- #
-
-
-def evaluate_model(model, param, X_train, y_train, X_test, y_test):
-    """
-    Grid Search for the model to select the best parameters
-    Evaluation of a model 
-
-    Args:
-        model : the model used for Grid Search and to evaluate 
-        param : the parameters to tune during Grid Search
-        X_train : data training set
-        y_train : target to reach during the train
-        X_test : data testing set
-        y_test : target to reach during the test 
-
-    Return the best model
-    """
-    #Avoid warning transform the y_train in y_test using .ravel()
-    y_train_ravel = np.array(y_train).ravel()
-
-    #Grid Search to tune the parameters
-    clf = GridSearchCV(model, param, verbose=1).fit(X_train, y_train_ravel)
-
-    #Predict using the best fitted model on the train set to verify we avoid overfitting
-    y_pred_train = clf.predict(X_train)
-
-    #Compute the total accuracy on the training set
-    print('Accuracy score on the training set:')
-    print(accuracy_score(y_train, y_pred_train))
-    
-    #Compute the accuracy for each class on the training set
-    print('Accuracy for each class on the training set:')
-    classification_accuracy(y_train, y_pred_train)
-
-    #Predict using the best fitted model on the test set
-    y_pred = clf.predict(X_test)
-    print('Best parameters for the fitted model:')
-    print(clf.best_params_)
-
-    #Compute the total accuracy on the testing set
-    print('Accuracy score on the testing set:')
-    print(accuracy_score(y_test, y_pred))
-    
-    #Compute the accuracy for each class on the testing set
-    print('Accuracy for each class on the testing set:')
-    classification_accuracy(y_test, y_pred)
-    
-    return clf

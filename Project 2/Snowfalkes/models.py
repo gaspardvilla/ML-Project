@@ -169,10 +169,10 @@ def get_model_RF():
     """
     model = RandomForestClassifier(random_state=0, class_weight='balanced')
 
-    param = {"n_estimators": np.linspace(1000,1600,4, dtype=int),
-            "min_samples_leaf": np.linspace(5,5,1, dtype=int),
-            "max_depth": np.linspace(5,15,11, dtype=int),
-            "min_samples_split": np.linspace(5,5,1,dtype=int)}
+    param = {"n_estimators": np.linspace(200,2000,10, dtype=int),
+            "min_samples_leaf": np.linspace(1,4,4, dtype=int),
+            "max_depth": np.linspace(10,100,10, dtype=int),
+            "min_samples_split": np.linspace(2,10,3,dtype=int)}
 			  
     return model, param
 
@@ -187,13 +187,13 @@ def get_model_MLP():
     Returns:
         The MLP model and the dictonnary of the hyperparameters to optimise with their scale
     """
-    model = MLPClassifier(random_state=0)
+    model = MLPClassifier( random_state=0)
 
-    param = {"hidden_layer_sizes": np.linspace(10,20,11, dtype=int),
-            "activation" : ['logistic', 'tanh', 'relu'],
-            "solver": ['lbfgs', 'sgd', 'adam'],
+    param = {"hidden_layer_sizes": [(10,10), (3,5,5,3)],
+            "activation" : ['tanh', 'relu'],
+            "solver": ['lbfgs', 'sgd', 'adam'], #je sais pas si on le met raph dis 'adam' cest top
             "alpha": np.logspace(-1,-7,7),
-            "learning_rate": ['constant', 'invscaling', 'adaptive']}
+            "learning_rate": ['constant', 'adaptive']}
 			  
     return model, param
 

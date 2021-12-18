@@ -50,7 +50,7 @@ def evaluate_model(model, param, X_train, y_train, X_test, y_test):
     y_train_ravel = np.array(y_train).ravel()
 
     #Grid Search to tune the parameters
-    clf = GridSearchCV(model, param, verbose=2).fit(X_train, y_train_ravel)
+    clf = GridSearchCV(model, param, verbose=1).fit(X_train, y_train_ravel)
 
     #Predict using the best fitted model on the train set to verify we avoid overfitting
     y_pred_train = clf.predict(X_train)

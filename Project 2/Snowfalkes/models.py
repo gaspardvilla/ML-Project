@@ -20,7 +20,6 @@ from sklearn.decomposition import *
 from sklearn import *
 from sklearn.metrics import *
 from sklearn.multiclass import *
-from imblearn.over_sampling import SMOTE
 
 
 # --------------------------------------------------------------------------------------- #

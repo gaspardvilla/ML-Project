@@ -200,13 +200,7 @@ def test_model(X_train, y_train, X_test, y_test, method, class_acc = True):
         return y_pred
     else:
         raise ValueError("Wrong method, it should be either: 'logisitic regression', 'SVM', 'random forest', 'gradient boosting' or 'feed forward neural network'.")
-    
 
-# --------------------------------------------------------------------------------------- #
-
-
-def features_selection (X, y, method, param = None, plot = False):
-    return None
 
 # --------------------------------------------------------------------------------------- #
 

@@ -1,5 +1,5 @@
 # Import the used libraries
-from helpers import features_selection
+from helpers import *
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt

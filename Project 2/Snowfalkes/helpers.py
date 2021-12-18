@@ -18,11 +18,11 @@ from sklearn.svm import *
 from sklearn.decomposition import *
 from sklearn import *
 from sklearn.metrics import *
-
+from sklearn.multiclass import *
+from imblearn.over_sampling import SMOTE
 
 
 # --------------------------------------------------------------------------------------- #
-
 
 
 class MASCDB_classes:
@@ -110,7 +110,7 @@ class MASCDB_classes:
         return classified_data
 
     
-    def get_classses(self, classifier, data):
+    def get_classes(self, classifier, data):
         # Get the classes in cam 0
         classes = self.get_sub_classes_cam(classifier, 0, data.cam0)
 
@@ -124,9 +124,7 @@ class MASCDB_classes:
         return classes
 
 
-
 # --------------------------------------------------------------------------------------- #
-
 
 
 def numpy_helpers(df, cols):
@@ -144,18 +142,7 @@ def numpy_helpers(df, cols):
     return np_array
 
 
-
 # --------------------------------------------------------------------------------------- #
-
-
-
-def cross_validation_method():
-    return None
-
-
-
-# --------------------------------------------------------------------------------------- #
-
 
 
 def test_model(X_train, y_train, X_test, y_test, method, class_acc = True):
@@ -183,7 +170,7 @@ def test_model(X_train, y_train, X_test, y_test, method, class_acc = True):
         return y_pred
 
     elif method == 'random forest':
-        model = RandomForestClassifier(n_estimators=1000, max_depth= 200, min_samples_leaf=5, class_weight = 'balanced').fit(X_train,y_train)
+        model = RandomForestClassifier(n_estimators=650, max_depth= 20, min_samples_leaf=5, random_state= 0, class_weight = 'balanced').fit(X_train,y_train)
         y_pred = model.predict(X_test)
         y_train_pred = model.predict(X_train)
         print('The accuracy for the train set with  this model is : ', accuracy_score(y_train, y_train_pred))
@@ -213,15 +200,22 @@ def test_model(X_train, y_train, X_test, y_test, method, class_acc = True):
         return y_pred
     else:
         raise ValueError("Wrong method, it should be either: 'logisitic regression', 'SVM', 'random forest', 'gradient boosting' or 'feed forward neural network'.")
-    
-
 
 
 # --------------------------------------------------------------------------------------- #
 
 
+def get_model_features_selection (X, y, method, param = None, plot = False):
+    """
+    Select features according to a specific model
 
-def features_selection (X, y, method, param, plot = False):
+    Args:
+        X, y : data to use for fitting the model of feature selection
+        param : parameter of the model (depends on the model used for feature selection)
+        plot : True if you want to plot the corresponding graph of your model selected
+
+    Return a model to use for feature selection : either lasso, lassoCV, PCA, recursive or recursiveCV
+    """
 
     if method == "lasso":
         # define and fit the method
@@ -233,9 +227,10 @@ def features_selection (X, y, method, param, plot = False):
             plt.bar(height=importance, x=feature_names)
             plt.title("Feature importances via coefficients")
             plt.show()
-        return model.transform(X)
+        return model
 
     elif method == "lassoCV":
+        print("param = number of folds for cross validation (should be an int)")
         # define and fit the method
         lassoCV = LassoCV(cv = param).fit(X, y)
         model = SelectFromModel(lassoCV, prefit = True)
@@ -245,9 +240,7 @@ def features_selection (X, y, method, param, plot = False):
             plt.bar(height=importance, x=feature_names)
             plt.title("Feature importances via coefficients")
             plt.show()
-        return model.transform(X)
-        # transform the data
-        return model.transform(X)
+        return model
 
     elif method == "PCA":
         print('If param > 1 PCA has a number of components equal to param.')
@@ -255,7 +248,7 @@ def features_selection (X, y, method, param, plot = False):
         # define the method
         model = PCA(n_components = param)
         # transform the data
-        components = model.fit_transform(X)
+        components = model.fit(X)
         if plot == True:
             pca = PCA()
             pca.fit(X)
@@ -265,19 +258,19 @@ def features_selection (X, y, method, param, plot = False):
         return components
 
     elif method == "recursive":
+        print("no param for this method")
         # define an estimator
         estimator = SVR(kernel="linear")
         # define and fit the method
-        model = RFE(estimator, n_features_to_select=param)
+        model = RFE(estimator, n_features_to_select=param).fit(X, y)
         if plot == True:
             print('Nothing to plot for this method. Try with method = recursiveCV')
-        # transform the data
-        return model.fit_transform(X, y)
+        # return the model
+        return model
 
     elif method == "recursiveCV":
+        print("param = number of folds for cross validation (should be an int)")
         # define an estimator
-
-        # SVM au lieu de SVR
         estimator = SVR(kernel = "linear") # we can try with other estimator functions such as GradientBoostingClassifier(), RandomForestClassifier(),...
         # define and fit the method
         model = RFECV(estimator, cv = param).fit(X, y)
@@ -286,20 +279,24 @@ def features_selection (X, y, method, param, plot = False):
             visualizer = RFECV(estimator, cv=cv)
             visualizer.fit(X, y)        # Fit the data to the visualizer
             visualizer.show() 
-        # transform the data
-        return model.transform(X)
+        # return the model
+        return model
 
     else:
         raise ValueError("Wrong method, it should be either: 'lasso', 'lassoCV', 'PCA', 'recursive' or 'recursiveCV'.")
 
 
-
-
 # --------------------------------------------------------------------------------------- #
 
 
-
 def classification_accuracy(y_true, y_pred):
+    """
+    Calculate the accurary for each class
+
+    Args: 
+        y_true : the real target to reach
+        y_pred : the prediction for the target obtained with a model
+    """
     y_true_ = y_true.reset_index(drop = True)
     classes = y_true_.class_id.unique()
     for class_ in classes:
@@ -308,12 +305,34 @@ def classification_accuracy(y_true, y_pred):
         pred_set = y_pred[msk]
 
         print(class_, ' : ', accuracy_score(true_set, pred_set))
+    
     return classes
 
 
 # --------------------------------------------------------------------------------------- #
 
+
+def  classification_accuracy_transformed(y_true, y_pred):
+    target_names = ['class 1', 'class 2', 'class 3', 'class 4', 'class 5', 'class 6']
+    report = classification_report(y_true, y_pred, target_names=target_names)
+    print(report)
+    return None
+
+
+# --------------------------------------------------------------------------------------- #
+
+
 def split_data(X, y, n_s = 5):
+    """
+    Split the data in a balanced way
+
+    Args :
+        X : dataset to split
+        y : target to split
+        n_s : number of splits
+
+    Return the resulting split data in a X_train, y_train, X_test, y_test
+    """
     skf = StratifiedKFold(n_splits = n_s)
     for train_idx, test_idx in skf.split(X, y):
         X_train = X.iloc[train_idx]
@@ -331,8 +350,8 @@ def split_data(X, y, n_s = 5):
             list_train.append(n_train)
             list_test.append(n_test)
 
-        print('Train: ', list_train)
-        print('Test: ', list_test)
+        #print('Train: ', list_train)
+        #Sprint('Test: ', list_test)
 
         return X_train, y_train, X_test, y_test
         break
@@ -344,3 +363,106 @@ def split_data(X, y, n_s = 5):
 def classes_transformed(classes):
     lb = preprocessing.LabelBinarizer()
     return pd.DataFrame(lb.fit_transform(classes))
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+def get_model_LR(ovr = False):
+    """
+    Select Logistic Regression model and parameters you would like to tune by using evaluate_model function
+
+    Args:
+        ovr (One Versus the Rest): True if you want to use the OneVSRestClassifier
+
+    Return the Logistic Regression model and its parameters to tune
+    """
+
+    if ovr == True :
+        model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state=0))
+        param = {'estimator__penalty':['none', 'l1','l2'], 
+				 'estimator__C':np.linspace(0.1, 0.11, num=10)}
+    else :
+        model = LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state=0)
+        param = {'penalty':['none', 'l1', 'l2'], 'C':np.linspace(0.1, 1, num=10)}
+    
+    return model, param
+
+
+# --------------------------------------------------------------------------------------- #
+
+def get_model_SVM(poly = False):
+    
+    """
+    Select SVM model and parameters you would like to tune by using evaluate_model function
+
+    Args:
+        poly: True if you want to use the polynomial kernel in your SVM model
+
+    Return the SVM model and its parameters to tune
+    """
+
+    if poly == True:
+        param = {'estimator__C':np.linspace(1, 10, num=10), 'estimator__degree':np.linspace(0, 5, dtype = int)}
+        model = OneVsRestClassifier(estimator=SVC(kernel='poly', decision_function_shape='ovr', class_weight='balanced', random_state=0))
+    else:
+        param = {'estimator__C':np.linspace(1, 10, num=10), 'estimator__kernel':['linear', 'rbf', 'sigmoid']}
+        model = OneVsRestClassifier(estimator=SVC(decision_function_shape='ovr', class_weight='balanced', random_state=0))
+    return model, param
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+def evaluate_model(model, param, X_train, y_train, X_test, y_test):
+    """
+    Grid Search for the model to select the best parameters
+    Evaluation of a model 
+
+    Args:
+        model : the model used for Grid Search and to evaluate 
+        param : the parameters to tune during Grid Search
+        X_train : data training set
+        y_train : target to reach during the train
+        X_test : data testing set
+        y_test : target to reach during the test 
+
+    Return the accuracy score for the tuned model
+    """
+    # to avoid warning transform the y_train in y_test using .ravel()
+    y_train_ravel = np.array(y_train).ravel()
+
+    #Grid Search to tune the parameters
+    clf = GridSearchCV(model, param, verbose=1).fit(X_train, y_train_ravel)
+
+    #predict using the best fitted model on the test set
+    y_pred = clf.predict(X_test)
+    print(clf.best_params_)
+
+    #predict using the best fitted model on the train set to verify we avoid overfitting
+    y_pred_train = clf.predict(X_train)
+    print(accuracy_score(y_train, y_pred_train))
+
+    #Compute the accuracy for each class
+    classification_accuracy(y_train, y_pred_train)
+    classification_accuracy(y_test, y_pred)
+
+    return accuracy_score(y_test, y_pred)
+
+
+# --------------------------------------------------------------------------------------- #
+
+def smote_data_augmentation (X, y):
+    """
+    data augmentation for imbalanced problem using the SMOTE algorithm
+
+    Args:
+        X, y: dataset to resample
+
+    Return the resampled X and y
+    """
+    sm = SMOTE(sampling_strategy='auto', random_state=0)
+    X_rs, y_rs = sm.fit_resample(X, y)
+
+    return X_rs, y_rs
+

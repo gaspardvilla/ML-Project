@@ -1,5 +1,6 @@
 # Import the used libraries
 from helpers import *
+from models import *
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt

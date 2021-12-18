@@ -411,6 +411,48 @@ def get_model_SVM(poly = False):
     return model, param
 
 
+
+# --------------------------------------------------------------------------------------- #
+
+
+def get_model_RF():
+    """
+    Select RandomForest model and parameters to tune by using evaluate_model function
+
+    Returns:
+        The RandomForest model and the dictonnary of the hyperparameters to optimise with their scale
+    """
+    model = RandomForestClassifier(random_state=0, class_weight='balanced')
+
+    param = {"n_estimators": np.linspace(200,2000,10, dtype=int),
+            "min_samples_leaf": np.linspace(1,5,5, dtype=int),
+            "max_depth": np.linspace(1,10,10, dtype=int),
+            "min_samples_split": np.linspace(2,5,4,dtype=int)}
+			  
+    return model, param
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+def get_model_MLP():
+    """
+    Select a neural network model and parameters to tune by using evaluate_model function
+
+    Returns:
+        The MLP model and the dictonnary of the hyperparameters to optimise with their scale
+    """
+    model = MLPClassifier(random_state=0)
+
+    param = {"hidden_layer_sizes": np.linspace(10,20,11, dtype=int),
+            "activation" : ['logistic', 'tanh', 'relu'],
+            "solver": ['lbfgs', 'sgd', 'adam'],
+            "alpha": np.logspace(-1,-7,7),
+            "learning_rate": ['constant', 'invscaling', 'adaptive']}
+			  
+    return model, param
+
+
 # --------------------------------------------------------------------------------------- #
 
 

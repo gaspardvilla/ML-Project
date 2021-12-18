@@ -246,6 +246,15 @@ def smote_data_augmentation (X, y):
 
 
 def save_model(filename, model):
+    """
+    Save model
+
+    Args:
+        filename: name of the pickel file ('name.pkl')
+        model: tuned model
+
+    Return a pickel file containing the tuned model
+    """
     # save the model to disk
     return pickle.dump(model, open(filename, 'wb'))
 
@@ -254,8 +263,46 @@ def save_model(filename, model):
 
 
 def load_model(filename):
-    # load the model from disk
+    """ 
+    Load the model from disk
+
+    Args: 
+        filename: name of the file to load
+
+    Return the model
+    """
     return pickle.load(open(filename, 'rb'))
 
 
 # --------------------------------------------------------------------------------------- #
+
+
+def save_selected_features(filename, model):
+    """
+    Save features obtained after feature selection
+
+    Args:
+        filename: name of the pickel file ('name.pkl')
+        model: fitted model obtained after feature selection
+
+    Return a pickel file containing an array of the name of the selected features
+    """
+    selected_freatures = model.get_feature_names_out()
+    return pickle.dump(selected_freatures, open(filename, 'wb'))
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+def load_selected_features(filename, X):
+    """ 
+    Load the selected features from disk
+
+    Args: 
+        filename: name of the file to load
+
+    Return the data with the selected features
+    """
+    selected_features = pickle.load(open(filename, 'rb'))
+
+    return X[selected_features]

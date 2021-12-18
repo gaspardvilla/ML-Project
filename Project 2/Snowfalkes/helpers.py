@@ -380,7 +380,7 @@ def get_model_LR(ovr = False):
 
     if ovr == True :
         model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state=0))
-        param = {'estimator__penalty':['none', 'l1','l2'], 
+        param = {'estimator__penalty':['none', 'l1', 'l2'], 
 				 'estimator__C':np.linspace(0.1, 0.11, num=10)}
     else :
         model = LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state=0)

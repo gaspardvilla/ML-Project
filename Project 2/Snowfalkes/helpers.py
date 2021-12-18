@@ -19,6 +19,7 @@ from sklearn.decomposition import *
 from sklearn import *
 from sklearn.metrics import *
 from sklearn.multiclass import *
+from imblearn.over_sampling import SMOTE
 
 
 # --------------------------------------------------------------------------------------- #
@@ -434,12 +435,40 @@ def evaluate_model(model, param, X_train, y_train, X_test, y_test):
 
     Return the accuracy score for the tuned model
     """
-    clf = GridSearchCV(model, param, verbose=1).fit(X_train, y_train)
+    # to avoid warning transform the y_train in y_test using .ravel()
+    y_train_ravel = np.array(y_train).ravel()
+
+    #Grid Search to tune the parameters
+    clf = GridSearchCV(model, param, verbose=1).fit(X_train, y_train_ravel)
+
+    #predict using the best fitted model on the test set
     y_pred = clf.predict(X_test)
     print(clf.best_params_)
 
+    #predict using the best fitted model on the train set to verify we avoid overfitting
+    y_pred_train = clf.predict(X_train)
+    print(accuracy_score(y_train, y_pred_train))
+
+    #Compute the accuracy for each class
+    classification_accuracy(y_train, y_pred_train)
+    classification_accuracy(y_test, y_pred)
 
     return accuracy_score(y_test, y_pred)
 
 
 # --------------------------------------------------------------------------------------- #
+
+def smote_data_augmentation (X, y):
+    """
+    data augmentation for imbalanced problem using the SMOTE algorithm
+
+    Args:
+        X, y: dataset to resample
+
+    Return the resampled X and y
+    """
+    sm = SMOTE(sampling_strategy='auto', random_state=0)
+    X_rs, y_rs = sm.fit_resample(X, y)
+
+    return X_rs, y_rs
+

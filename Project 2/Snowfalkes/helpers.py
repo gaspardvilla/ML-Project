@@ -488,8 +488,9 @@ def evaluate_model(model, param, X_train, y_train, X_test, y_test):
     #Compute the accuracy for each class
     classification_accuracy(y_train, y_pred_train)
     classification_accuracy(y_test, y_pred)
+    print(accuracy_score(y_test, y_pred))
 
-    return accuracy_score(y_test, y_pred)
+    return clf
 
 
 # --------------------------------------------------------------------------------------- #

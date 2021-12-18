@@ -1,3 +1,5 @@
+from helpers import *
+
 # Import the used libraries
 import numpy as np
 import pandas as pd
@@ -20,7 +22,6 @@ from sklearn.decomposition import *
 from sklearn import *
 from sklearn.metrics import *
 from sklearn.multiclass import *
-from imblearn.over_sampling import SMOTE
 
 
 # --------------------------------------------------------------------------------------- #

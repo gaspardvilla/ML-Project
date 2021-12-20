@@ -187,12 +187,11 @@ def get_model_MLP():
     Returns:
         The MLP model and the dictonnary of the hyperparameters to optimise with their scale
     """
-    model = MLPClassifier( random_state=0)
+    model = MLPClassifier(hidden_layer_sizes = (100,50,50,100), random_state=0)
 
-    param = {"hidden_layer_sizes": [(10,10), (3,5,5,3)],
-            "activation" : ['tanh', 'relu'],
-            "solver": ['lbfgs', 'sgd', 'adam'], #je sais pas si on le met raph dis 'adam' cest top
-            "alpha": np.logspace(-1,-7,7),
+    param = {"activation" : ['tanh', 'relu'],
+            "solver": ['sgd', 'adam'],
+            "alpha": np.logspace(-1,-5,10),
             "learning_rate": ['constant', 'adaptive']}
 			  
     return model, param

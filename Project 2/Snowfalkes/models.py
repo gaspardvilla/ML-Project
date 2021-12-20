@@ -187,7 +187,7 @@ def get_model_MLP():
     Returns:
         The MLP model and the dictonnary of the hyperparameters to optimise with their scale
     """
-    model = MLPClassifier( random_state=0)
+    model = MLPClassifier(random_state=0)
 
     param = {"hidden_layer_sizes": [(10,10), (3,5,5,3)],
             "activation" : ['tanh', 'relu'],

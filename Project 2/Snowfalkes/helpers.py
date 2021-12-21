@@ -51,7 +51,7 @@ def classification_accuracy(y_true, y_pred):
 
 def  classification_accuracy_transformed(y_true, y_pred):
     target_names = ['class 1', 'class 2', 'class 3', 'class 4', 'class 5', 'class 6']
-    report = classification_report(y_true, y_pred, target_names=target_names)
+    report = classification_report(y_true, y_pred, target_names = target_names)
     print(report)
     return None
 
@@ -59,7 +59,7 @@ def  classification_accuracy_transformed(y_true, y_pred):
 # --------------------------------------------------------------------------------------- #
 
 
-def split_data(X, y, n_s = 5, seed = 0):
+def split_data(X, y, kfold = 5, seed = 0):
     """
     Split the data in a balanced way
 
@@ -70,7 +70,10 @@ def split_data(X, y, n_s = 5, seed = 0):
 
     Return the resulting split data in a X_train, y_train, X_test, y_test
     """
-    skf = StratifiedKFold(n_splits = n_s, shuffle=True, random_state=seed)
+    skf = StratifiedKFold(n_splits = kfold, 
+                            shuffle = True, 
+                            random_state = seed)
+    
     for train_idx, test_idx in skf.split(X, y):
         X_train = X.iloc[train_idx]
         X_test = X.iloc[test_idx]

@@ -27,7 +27,7 @@ from sklearn.multiclass import *
 # --------------------------------------------------------------------------------------- #
 
 
-def get_model_features_selection (X, y, method, param = None, plot = False):
+def get_model_features_selection(X, y, method, param = None, plot = False):
     """
     Select features according to a specific model
 
@@ -106,8 +106,13 @@ def get_model_features_selection (X, y, method, param = None, plot = False):
         # return the model
         return model
 
+    elif method == 'forward selection':
+        print('param is the number of features that we want to keep in our model.')
+        
+
     else:
-        raise ValueError("Wrong method, it should be either: 'lasso', 'lassoCV', 'PCA', 'recursive' or 'recursiveCV'.")
+        raise ValueError("Wrong method, it should be either: 'lasso', 'lassoCV', 'PCA', \
+                                'recursive', 'recursiveCV' or 'forward selection'.")
 
 
 # --------------------------------------------------------------------------------------- #

@@ -170,19 +170,11 @@ def save_selected_features(path, model, X, method):
     Return a pickel file containing an array of the name of the selected features
     """
     if method == 'PCA':
-<<<<<<< HEAD
-        pickle.dump(model, open(filename, 'wb'))
-    else:
-        feature_idx = model.get_support()
-        selected_features = X.columns[feature_idx]
-        pickle.dump(selected_features, open(filename, 'wb'))
-=======
         pickle.dump(model, open(path, 'wb'))
     else:
         feature_idx = model.get_support()
         selected_features = X.columns[feature_idx]
         pickle.dump(selected_features, open(path, 'wb'))
->>>>>>> c635d647556b81832e8b6b646b330e0070259b71
 
 
 # --------------------------------------------------------------------------------------- #

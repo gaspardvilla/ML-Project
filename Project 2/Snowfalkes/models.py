@@ -23,6 +23,7 @@ from sklearn.decomposition import *
 from sklearn import *
 from sklearn.metrics import *
 from sklearn.multiclass import *
+from sklearn.neighbors import *
 
 
 # --------------------------------------------------------------------------------------- #
@@ -131,9 +132,9 @@ def get_model_features_selection(X, y, method, param = None, plot = False, seed 
 # --------------------------------------------------------------------------------------- #
 
 
-def get_model_LR(ovr = False, seed = 0):
+def get_model_MLR(ovr = False, seed = 0):
     """
-    Select Logistic Regression model and parameters you would like to tune by using evaluate_model function
+    Select Multinomial Logistic Regression model and parameters you would like to tune by using evaluate_model function
 
     Args:
         ovr (One Versus the Rest): True if you want to use the OneVSRestClassifier
@@ -213,6 +214,24 @@ def get_model_MLP(seed = 0):
             "learning_rate_init": np.logspace(-1,-5,10),
             "learning_rate": ['constant', 'adaptive']}
 			  
+    return model, param
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+def get_model_KNN():
+    """
+    Returns:
+        The K-NN model and the dictonnary of the hyperparameters to optimise with their scale
+    """
+    model = KNeighborsClassifier()
+
+    param = {'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],
+            'n_neighbors': np.linspace(4, 10, dtype = int),
+            'weights': ['uniform', 'distance'],
+            'leaf_size': np.linspace(10, 40, 4, dtype = int)}
+    
     return model, param
 
 

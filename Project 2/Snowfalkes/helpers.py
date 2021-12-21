@@ -137,7 +137,7 @@ def save_model(filename, model):
     Return a pickel file containing the tuned model
     """
     # save the model to disk
-    return pickle.dump(model, open(filename, 'wb'))
+    pickle.dump(model, open(filename, 'wb'))
 
 
 # --------------------------------------------------------------------------------------- #
@@ -170,11 +170,11 @@ def save_selected_features(filename, model, X, method):
     Return a pickel file containing an array of the name of the selected features
     """
     if method == 'PCA':
-        return pickle.dump(model, open(filename, 'wb'))
+        pickle.dump(model, open(filename, 'wb'))
     else:
         feature_idx = model.get_support()
         selected_features = X.columns[feature_idx]
-        return pickle.dump(selected_features, open(filename, 'wb'))
+        pickle.dump(selected_features, open(filename, 'wb'))
 
 
 # --------------------------------------------------------------------------------------- #

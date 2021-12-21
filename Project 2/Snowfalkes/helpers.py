@@ -190,7 +190,7 @@ def split_data(X, y, n_s = 5):
 
     Return the resulting split data in a X_train, y_train, X_test, y_test
     """
-    skf = StratifiedKFold(n_splits = n_s)
+    skf = StratifiedKFold(n_splits = n_s, shuffle=True, random_state=0)
     for train_idx, test_idx in skf.split(X, y):
         X_train = X.iloc[train_idx]
         X_test = X.iloc[test_idx]

@@ -26,126 +26,6 @@ from imblearn.over_sampling import SMOTE
 # --------------------------------------------------------------------------------------- #
 
 
-class MASCDB_classes:
-    
-    def __init__(self, dir_path):
-
-        # Get the paths for the hydro training sets
-        hydro_cam0_path = os.path.join(dir_path, "hydro_trainingset/hydro_trainingset_cam0.pkl")
-        hydro_cam1_path = os.path.join(dir_path, "hydro_trainingset/hydro_trainingset_cam1.pkl")
-        hydro_cam2_path = os.path.join(dir_path, "hydro_trainingset/hydro_trainingset_cam2.pkl")
-
-        # Get the paths for the riming training sets
-        riming_cam0_path = os.path.join(dir_path, "riming_trainingset/riming_trainingset_cam0.pkl")
-        riming_cam1_path = os.path.join(dir_path, "riming_trainingset/riming_trainingset_cam1.pkl")
-        riming_cam2_path = os.path.join(dir_path, "riming_trainingset/riming_trainingset_cam2.pkl")
-
-        # Read the dataframes for hydro classes
-        self.hydro_cam0 = pd.read_pickle(hydro_cam0_path)
-        self.hydro_cam1 = pd.read_pickle(hydro_cam1_path)
-        self.hydro_cam2 = pd.read_pickle(hydro_cam2_path)
-
-        # Read the dataframes for riming classes
-        self.riming_cam0 = pd.read_pickle(riming_cam0_path)
-        self.riming_cam1 = pd.read_pickle(riming_cam1_path)
-        self.riming_cam2 = pd.read_pickle(riming_cam2_path)
-
-
-    def get_class_cam(self, classifier, cam):
-        # Select the data for classifier (i.e. riming or hydro) and camera number cam
-        if classifier == "riming":
-            if cam == 0:
-                class_cam = self.riming_cam0
-            elif cam == 1:
-                class_cam = self.riming_cam1
-            elif cam == 2:
-                class_cam = self.riming_cam2
-            else:
-                raise ValueError("Wrong cam, it should be equal to: 0, 1 or 2.")
-        elif classifier == "hydro":
-            if cam == 0:
-                class_cam = self.hydro_cam0
-            elif cam == 1:
-                class_cam = self.hydro_cam1
-            elif cam == 2:
-                class_cam = self.hydro_cam2
-            else:
-                raise ValueError("Wrong cam, it should be equal to: 0, 1 or 2.")
-        else:
-            raise ValueError("Wrong classifier, it should be either: 'riming' or 'hydro'.")
-        return class_cam
-
-
-    def get_sub_data_cam(self, classifier, cam, cam_data):
-        # Get the classifier cam
-        class_cam = self.get_class_cam(classifier, cam)
-
-        # Get the sub data frame of cam_data containing flake_id of class_cam
-        sub_cam_data = cam_data[cam_data['flake_id'].isin(class_cam['flake_id'])]
-
-        # Return the result
-        return sub_cam_data
-
-    def get_sub_classes_cam(self, classifier, cam, cam_data):
-        # Get the classifier cam
-        class_cam = self.get_class_cam(classifier, cam)
-
-        # Get the sub classes for this cam that are in cam_features
-        sub_cam_classes = class_cam[class_cam['flake_id'].isin(cam_data['flake_id'])]
-
-        # Return the classes for a specific camera
-        return sub_cam_classes
-
-    def get_classified_data(self, classifier, data_set):
-        # For each camera, select the data we are interested in (i.e. the data that was classified)
-        # cam0
-        classified_data = self.get_sub_data_cam(classifier, 0, data_set.cam0)
-        
-        # cam1
-        classified_data = pd.concat([classified_data, self.get_sub_data_cam(classifier, 1, data_set.cam1)])
-        
-        # cam2
-        classified_data = pd.concat([classified_data, self.get_sub_data_cam(classifier, 2, data_set.cam2)])
-
-        # Return the concatenated data frame that contains all the data point to consider
-        return classified_data
-
-    
-    def get_classes(self, classifier, data):
-        # Get the classes in cam 0
-        classes = self.get_sub_classes_cam(classifier, 0, data.cam0)
-
-        # Append the classes that are in cam 1
-        classes = pd.concat([classes, self.get_sub_classes_cam(classifier, 1, data.cam1)])
-
-        # Append the classes that are in cam 2
-        classes = pd.concat([classes, self.get_sub_classes_cam(classifier, 2, data.cam2)])
-       
-        # Return all the labels 
-        return classes
-
-
-# --------------------------------------------------------------------------------------- #
-
-
-def numpy_helpers(df, cols):
-    """
-        Get a numpy array out of the dataframe df.
-
-    Args:
-        df (DataFrame): Considered data frame.
-        cols (string): The name of the columns that we want in numpy array format.
-
-    Returns:
-        nympay array: numpy array of the columns from our dataframe df.
-    """
-    np_array = df[cols].to_numpy()
-    return np_array
-
-
-# --------------------------------------------------------------------------------------- #
-
-
 def classification_accuracy(y_true, y_pred):
     """
     Calculate the accurary for each class
@@ -190,7 +70,7 @@ def split_data(X, y, n_s = 5):
 
     Return the resulting split data in a X_train, y_train, X_test, y_test
     """
-    skf = StratifiedKFold(n_splits = n_s)
+    skf = StratifiedKFold(n_splits = n_s, shuffle=True, random_state=0)
     for train_idx, test_idx in skf.split(X, y):
         X_train = X.iloc[train_idx]
         X_test = X.iloc[test_idx]
@@ -275,7 +155,7 @@ def load_model(filename):
 # --------------------------------------------------------------------------------------- #
 
 
-def save_selected_features(filename, model):
+def save_selected_features(filename, model, X):
     """
     Save features obtained after feature selection
 
@@ -285,7 +165,9 @@ def save_selected_features(filename, model):
 
     Return a pickel file containing an array of the name of the selected features
     """
-    selected_freatures = model.get_feature_names_out()
+    feature_idx = model.get_support()
+    selected_freatures = X.columns[feature_idx]
+    #selected_freatures = model.get_feature_names_out()
     return pickle.dump(selected_freatures, open(filename, 'wb'))
 
 

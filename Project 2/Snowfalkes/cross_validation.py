@@ -49,8 +49,8 @@ def evaluate_model(model, param, X_train, y_train, X_test, y_test):
     y_train_ravel = np.array(y_train).ravel()
 
     #Grid Search to tune the parameters
-    scoring = {"Accuracy": make_scorer(accuracy_score)}
-    clf = GridSearchCV(model, param, scoring=scoring, refit="Accuracy", return_train_score=True, verbose=1).fit(X_train, y_train_ravel)
+    scoring = {'Accuracy': make_scorer(accuracy_score)}
+    clf = GridSearchCV(model, param, scoring=scoring, refit='Accuracy', return_train_score=True, verbose=1).fit(X_train, y_train_ravel)
 
     #Predict using the best fitted model on the train set to verify we avoid overfitting
     y_pred_train = clf.predict(X_train)
@@ -80,41 +80,49 @@ def evaluate_model(model, param, X_train, y_train, X_test, y_test):
 
 # --------------------------------------------------------------------------------------- #
 
-def plot_cv_results(cv):
+def plot_cv_results(cv, hyperparam, x_max):
+    """
+    Plot the accuracy score of both test and train set as a function of the hyperpar
+    
+    Args:
+        cv: the returned cross-validation model after its evaluation by evaluate_model
+        hyperparam: hyperparameter that was tuned by cross-validation and that we want to plot (a string) 
+        x_max: the maximum value the hyperparameter can take
+    """
     plt.figure(figsize=(13, 13))
-    plt.title("GridSearchCV evaluating using accuracy scorers", fontsize=16)
+    plt.title('GridSearchCV evaluating using accuracy scoring', fontsize=16)
 
-    plt.xlabel('estimator_C')
-    plt.ylabel("Score")
+    plt.xlabel('%s' % hyperparam)
+    plt.ylabel('Score')
 
     ax = plt.gca()
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0.73, 1)
+    ax.set_xlim(0, x_max)
+    ax.set_ylim(0.8, 1)
 
     # Get the regular numpy array from the MaskedArray
     results = cv.cv_results_
     scoring = 'Accuracy'
-    X_axis = np.array(results['param_estimator__C'].data, dtype=float)
+    X_axis = np.array(results['param_%s' % hyperparam].data, dtype=float)
 
-    for sample, style in (("train", "--"), ("test", "-")):
-        sample_score_mean = results["mean_%s_%s" % (sample, scoring)]
-        sample_score_std = results["std_%s_%s" % (sample, scoring)]
+    for sample, style in (('train', '--'), ('test', '-')):
+        sample_score_mean = results['mean_%s_%s' % (sample, scoring)]
+        sample_score_std = results['std_%s_%s' % (sample, scoring)]
         ax.fill_between(
             X_axis,
             sample_score_mean - sample_score_std,
             sample_score_mean + sample_score_std,
-            alpha=0.1 if sample == "test" else 0,
+            alpha=0.1 if sample == 'test' else 0,
             )
         ax.plot(
             X_axis,
             sample_score_mean,
             style,
-            alpha=1 if sample == "test" else 0.7,
-            label="%s (%s)" % (scoring, sample),
+            alpha=1 if sample == 'test' else 0.7,
+            label='%s (%s)' % (scoring, sample),
             )
 
-    best_index = np.nonzero(results["rank_test_%s" % scoring] == 1)[0][0]
-    best_score = results["mean_test_%s" % scoring][best_index]
+    best_index = np.nonzero(results['rank_test_%s' % scoring] == 1)[0][0]
+    best_score = results['mean_test_%s' % scoring][best_index]
 
     # Plot a dotted vertical line at the best score for that scorer marked by x
     ax.plot(
@@ -123,15 +131,15 @@ def plot_cv_results(cv):
         ]
         * 2,
         [0, best_score],
-        linestyle="-.",
-        marker="x",
+        linestyle='-.',
+        marker='x',
         markeredgewidth=3,
         ms=8,
     )
 
     # Annotate the best score for that scorer
-    ax.annotate("%0.2f" % best_score, (X_axis[best_index], best_score + 0.005))
+    ax.annotate('%0.2f' % best_score, (X_axis[best_index], best_score + 0.005))
 
-    plt.legend(loc="best")
+    plt.legend(loc='best')
     plt.grid(False)
     plt.show()

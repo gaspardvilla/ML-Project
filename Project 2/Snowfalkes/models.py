@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import os
 import pickle
 from IPython.display import display
+import warnings
 
 # Import sklearn librairies
 from sklearn.feature_selection import *
@@ -27,7 +28,7 @@ from sklearn.multiclass import *
 # --------------------------------------------------------------------------------------- #
 
 
-def get_model_features_selection(X, y, method, param = None, plot = False):
+def get_model_features_selection(X, y, method, param = None, plot = False, seed = 0):
     """
     Select features according to a specific model
 
@@ -45,7 +46,7 @@ def get_model_features_selection(X, y, method, param = None, plot = False):
         # define and fit the method
         lasso = Lasso(alpha = param).fit(X, y_ravel)
         model = SelectFromModel(lasso, prefit = True)
-        if plot == True:
+        if plot:
             importance = np.abs(lasso.coef_)
             feature_names = np.array(X.columns)
             plt.bar(height=importance, x=feature_names)
@@ -58,7 +59,7 @@ def get_model_features_selection(X, y, method, param = None, plot = False):
         # define and fit the method
         lassoCV = LassoCV(cv = param).fit(X, y_ravel)
         model = SelectFromModel(lassoCV, prefit = True)
-        if plot == True:
+        if plot:
             importance = np.abs(lassoCV.coef_)
             feature_names = np.array(X.columns)
             plt.bar(height=importance, x=feature_names)
@@ -73,7 +74,7 @@ def get_model_features_selection(X, y, method, param = None, plot = False):
         pca = PCA(n_components = param, feature_names_in_ = X.columns).fit(X)
         # transform the data
         model = SelectFromModel(pca, prefit = True)
-        if plot == True:
+        if plot:
             pca = PCA()
             pca.fit(X)
             plt.plot(np.cumsum(pca.explained_variance_ratio_))
@@ -87,7 +88,7 @@ def get_model_features_selection(X, y, method, param = None, plot = False):
         estimator = SVR(kernel="linear")
         # define and fit the method
         model = RFE(estimator, n_features_to_select=param).fit(X, y_ravel)
-        if plot == True:
+        if plot:
             print('Nothing to plot for this method. Try with method = recursiveCV')
         # return the model
         return model
@@ -98,17 +99,29 @@ def get_model_features_selection(X, y, method, param = None, plot = False):
         estimator = SVR(kernel = "linear") # we can try with other estimator functions such as GradientBoostingClassifier(), RandomForestClassifier(),...
         # define and fit the method
         model = RFECV(estimator, cv = param).fit(X, y_ravel)
-        if plot == True:
+        if plot:
             cv = StratifiedKFold(param)
-            visualizer = RFECV(estimator, cv=cv)
+            visualizer = RFECV(estimator, cv = cv)
             visualizer.fit(X, y)        # Fit the data to the visualizer
             visualizer.show() 
         # return the model
         return model
 
     elif method == 'forward selection':
-        print('param is the number of features that we want to keep in our model.')
-        
+        print('MEESSAGE: param is the number of features that we want to keep in our model.')
+        estimator = OneVsRestClassifier(LogisticRegression(max_iter = 1000, 
+                                                class_weight = 'balanced', 
+                                                multi_class='multinomial', 
+                                                random_state=seed))
+        if param != None:
+            model = SequentialFeatureSelector(estimator, n_features_to_select = param).fit(X, y)
+        else:
+            raise ValueError("No value was given for the variable 'param' for \
+                                the forward selection method")
+
+        if plot:
+            warnings.warn("No plot for the froward selection.")
+        return model
 
     else:
         raise ValueError("Wrong method, it should be either: 'lasso', 'lassoCV', 'PCA', \
@@ -118,7 +131,7 @@ def get_model_features_selection(X, y, method, param = None, plot = False):
 # --------------------------------------------------------------------------------------- #
 
 
-def get_model_LR(ovr = False):
+def get_model_LR(ovr = False, seed = 0):
     """
     Select Logistic Regression model and parameters you would like to tune by using evaluate_model function
 
@@ -128,12 +141,12 @@ def get_model_LR(ovr = False):
     Return the Logistic Regression model and its parameters to tune
     """
 
-    if ovr == True :
-        model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state=0))
+    if ovr:
+        model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state = seed))
         param = {'estimator__penalty':['none', 'l1','l2'], 
 				 'estimator__C':np.linspace(0.1, 0.11, num=10)}
     else :
-        model = LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state=0)
+        model = LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state = seed)
         param = {'penalty':['none', 'l1', 'l2'], 'C':np.linspace(0.1, 1, num=10)}
     
     return model, param
@@ -142,7 +155,7 @@ def get_model_LR(ovr = False):
 # --------------------------------------------------------------------------------------- #
 
 
-def get_model_SVM(poly = False):
+def get_model_SVM(poly = False, seed = 0):
     
     """
     Select SVM model and parameters you would like to tune by using evaluate_model function
@@ -153,26 +166,26 @@ def get_model_SVM(poly = False):
     Return the SVM model and its parameters to tune
     """
 
-    if poly == True:
+    if poly:
         param = {'estimator__C':np.linspace(1, 10, num=10), 'estimator__degree':np.linspace(0, 5, dtype = int)}
-        model = OneVsRestClassifier(estimator=SVC(kernel='poly', decision_function_shape='ovr', class_weight='balanced', random_state=0))
+        model = OneVsRestClassifier(estimator=SVC(kernel='poly', decision_function_shape='ovr', class_weight='balanced', random_state = seed))
     else:
         param = {'estimator__C':np.linspace(1, 10, num=10), 'estimator__kernel':['linear', 'rbf', 'sigmoid']}
-        model = OneVsRestClassifier(estimator=SVC(decision_function_shape='ovr', class_weight='balanced', random_state=0))
+        model = OneVsRestClassifier(estimator=SVC(decision_function_shape='ovr', class_weight='balanced', random_state = seed))
     return model, param
 
 
 # --------------------------------------------------------------------------------------- #
 
 
-def get_model_RF():
+def get_model_RF(seed = 0):
     """
     Select RandomForest model and parameters to tune by using evaluate_model function
 
     Returns:
         The RandomForest model and the dictonnary of the hyperparameters to optimise with their scale
     """
-    model = RandomForestClassifier(random_state=0, class_weight='balanced')
+    model = RandomForestClassifier(random_state = seed, class_weight='balanced')
 
     param = {"n_estimators": np.linspace(200,2000,10, dtype=int),
             "min_samples_leaf": np.linspace(1,4,4, dtype=int),
@@ -185,14 +198,14 @@ def get_model_RF():
 # --------------------------------------------------------------------------------------- #
 
 
-def get_model_MLP():
+def get_model_MLP(seed = 0):
     """
     Select a neural network model and parameters to tune by using evaluate_model function
 
     Returns:
         The MLP model and the dictonnary of the hyperparameters to optimise with their scale
     """
-    model = MLPClassifier(hidden_layer_sizes = (100,50,50,100), random_state=0)
+    model = MLPClassifier(hidden_layer_sizes = (100,50,50,100), random_state = seed)
 
     param = {"activation" : ['tanh', 'relu'],
             "solver": ['sgd', 'adam'],

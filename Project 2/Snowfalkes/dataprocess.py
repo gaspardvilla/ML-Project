@@ -2,6 +2,8 @@ import pandas as pd
 import os
 from tqdm import tqdm
 
+from sklearn.preprocessing import *
+
 from dataloader import load_data_sets
 
 tqdm.pandas()
@@ -18,6 +20,13 @@ def get_processed_data(classifier = 'hydro'):
     # Remove all the columns that are not interesting for us
     data_set, classes = column_remover(data_set, classes)
 
+    data_set['cam_id'] = data_set.cam
+    data_set = data_set.set_index('flake_id').drop('cam', axis = 1)
+    data_set['flake_id'] = data_set.index
+    classes = classes.drop('cam', axis = 1)
+    display(data_set)
+    display(classes)
+
     # Be sure that all teh falke id class are consistent
     data_set, classes = clean(data_set, classes, classifier)
 
@@ -26,8 +35,64 @@ def get_processed_data(classifier = 'hydro'):
 
 # ------------------------------------------------------------------ #
 
-
 def clean(data_set, classes, classifier):
+
+    # Get all the wrong duplicates flakes
+    mascdb_classes_copy = classes.copy()
+
+    mascdb_classes_copy_1 = mascdb_classes_copy[mascdb_classes_copy.duplicated(subset = None, keep = False)]
+    mascdb_classes_copy_2 = mascdb_classes_copy[mascdb_classes_copy.duplicated(subset=['flake_id'], keep = False)]
+
+    mascdb_classes_wrong_duplicates = pd.concat([mascdb_classes_copy_1, mascdb_classes_copy_2]).drop_duplicates(keep = False)
+
+
+
+    # Get the flake id of the wrong duplicates
+    mascdb_classes_wrong_duplicates_unique = mascdb_classes_wrong_duplicates.drop_duplicates(subset = ['flake_id'], keep = 'first')
+
+    # Get all the flake id with classes
+    flake_id_classes = mascdb_classes_copy.drop_duplicates(subset=['flake_id'], keep = 'first')
+
+    # Remove the wrong flake id from all the flake id
+    mascdb_classes_modified = pd.concat([flake_id_classes, mascdb_classes_wrong_duplicates_unique]).drop_duplicates(subset=['flake_id'], keep = False)
+
+
+
+    # Now, we want to be sure to have one class for each snowflakes
+    mascdb_data_modified = data_set[data_set.flake_id.isin(mascdb_classes_modified.flake_id)]
+
+
+
+    # Transform the data
+    mascdb_data_modified_copy = mascdb_data_modified.copy()
+    power_transformer = PowerTransformer(method = 'yeo-johnson', standardize = True)
+    mascdb_data_modified_std = power_transformer.fit(mascdb_data_modified_copy.drop(['flake_id'], axis=1))
+    mascdb_data_modified_std = power_transformer.transform(mascdb_data_modified_copy.drop(['flake_id'], axis=1))
+
+    # Set the transformed data
+    mascdb_data_modified[mascdb_data_modified.columns.difference(['flake_id'])]  = mascdb_data_modified_std
+
+
+    # Split into a data set X_ and a response set y_
+    X_ = mascdb_data_modified[mascdb_data_modified.columns.difference(['flake_id'])]
+    y_ = mascdb_classes_modified.copy().set_index('flake_id')
+
+    # Get a column as flake_id
+    X_['flake_id'] = X_.index
+
+    # Supress all the duplicates flake_id and get the correponding class
+    X_ = X_.drop_duplicates(subset = 'flake_id', keep = 'first').join(y_)
+
+
+
+    # Split into a data set X and a response set y
+    y = pd.DataFrame(X_['class_id'])
+    X = X_[X_.columns.difference(['flake_id', 'class_id'])]
+
+    return X, y
+
+
+def clean_perso(data_set, classes, classifier):
 
     # Remove miss classification
     classes = remove_wrong_classifications(classes, classifier)
@@ -116,7 +181,7 @@ def remove_wrong_classifications(classes, classifier):
                                                     keep = 'first')
 
     # Remove the wrong flake id from all the flake id
-    cleaned_classes_id = pd.concat([classes_id, wrong_classification_id]).drop_duplicates(subset = ['flake_id', 'class_id'], 
+    cleaned_classes_id = pd.concat([classes_id, wrong_classification_id]).drop_duplicates(subset = ['flake_id'], 
                                                                             keep = False)
     classes = classes[classes.flake_id.isin(cleaned_classes_id.flake_id)]
 

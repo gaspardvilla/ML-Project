@@ -192,6 +192,7 @@ def get_model_MLP():
     param = {"activation" : ['tanh', 'relu'],
             "solver": ['sgd', 'adam'],
             "alpha": np.logspace(0,-4,5),
+            "learning_rate_init": np.logspace(-1,-5,10),
             "learning_rate": ['constant', 'adaptive']}
 			  
     return model, param

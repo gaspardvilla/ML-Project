@@ -71,9 +71,9 @@ def get_model_features_selection(X, y, method, param = None, plot = False, seed 
         print('If param > 1 PCA has a number of components equal to param.')
         print('If param < 1 PCA select the best number of combonent in order to have an explained variance ratio equal to param')
         # define the method
-        PCA = PCA(n_components = param, feature_names_in_ = X.columns).fit(X)
+        pca = PCA(n_components = param, feature_names_in_ = X.columns).fit(X)
         # transform the data
-        model = SelectFromModel(PCA, prefit = True)
+        model = SelectFromModel(pca, prefit = True)
         if plot:
             pca = PCA()
             pca.fit(X)

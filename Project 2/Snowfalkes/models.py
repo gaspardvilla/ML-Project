@@ -80,7 +80,7 @@ def get_model_features_selection(X, y, method, param = None, plot = False, seed 
             plt.plot(np.cumsum(pca.explained_variance_ratio_))
             plt.xlabel('number of components')
             plt.ylabel('cumulative explained variance')
-        return components
+        return model
 
     elif method == "recursive":
         print("no param for this method")

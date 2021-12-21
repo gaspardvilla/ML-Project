@@ -59,7 +59,7 @@ def  classification_accuracy_transformed(y_true, y_pred):
 # --------------------------------------------------------------------------------------- #
 
 
-def split_data(X, y, n_s = 5):
+def split_data(X, y, n_s = 5, seed = 0):
     """
     Split the data in a balanced way
 
@@ -70,7 +70,7 @@ def split_data(X, y, n_s = 5):
 
     Return the resulting split data in a X_train, y_train, X_test, y_test
     """
-    skf = StratifiedKFold(n_splits = n_s, shuffle=True, random_state=0)
+    skf = StratifiedKFold(n_splits = n_s, shuffle=True, random_state=seed)
     for train_idx, test_idx in skf.split(X, y):
         X_train = X.iloc[train_idx]
         X_test = X.iloc[test_idx]
@@ -105,7 +105,7 @@ def classes_transformed(classes):
 # --------------------------------------------------------------------------------------- #
 
 
-def smote_data_augmentation (X, y):
+def smote_data_augmentation (X, y, seed=0):
     """
     data augmentation for imbalanced problem using the SMOTE algorithm
 
@@ -114,7 +114,7 @@ def smote_data_augmentation (X, y):
 
     Return the resampled X and y
     """
-    sm = SMOTE(sampling_strategy='auto', random_state=0)
+    sm = SMOTE(sampling_strategy='auto', random_state=seed)
     X_rs, y_rs = sm.fit_resample(X, y)
 
     return X_rs, y_rs

@@ -166,9 +166,8 @@ def save_selected_features(filename, model, X):
     Return a pickel file containing an array of the name of the selected features
     """
     feature_idx = model.get_support()
-    selected_freatures = X.columns[feature_idx]
-    #selected_freatures = model.get_feature_names_out()
-    return pickle.dump(selected_freatures, open(filename, 'wb'))
+    selected_features = X.columns[feature_idx]
+    return pickle.dump(selected_features, open(filename, 'wb'))
 
 
 # --------------------------------------------------------------------------------------- #
@@ -184,5 +183,15 @@ def load_selected_features(filename, X):
     Return the data with the selected features
     """
     selected_features = pickle.load(open(filename, 'rb'))
+
+    return X[selected_features]
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+def feature_transform(model, X):
+    feature_idx = model.get_support()
+    selected_features = X.columns[feature_idx]
 
     return X[selected_features]

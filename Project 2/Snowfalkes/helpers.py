@@ -158,42 +158,42 @@ def load_model(filename):
 # --------------------------------------------------------------------------------------- #
 
 
-def save_selected_features(filename, model, X, method):
+def save_selected_features(path, model, X, method):
     """
     Save features obtained after feature selection
 
     Args:
-        filename: name of the pickel file ('name.pkl')
+        path: name of the pickel file ('name.pkl')
         model: fitted model obtained after feature selection
         model_name: name of the model to save (string)
 
     Return a pickel file containing an array of the name of the selected features
     """
     if method == 'PCA':
-        return pickle.dump(model, open(filename, 'wb'))
+        pickle.dump(model, open(path, 'wb'))
     else:
         feature_idx = model.get_support()
         selected_features = X.columns[feature_idx]
-        return pickle.dump(selected_features, open(filename, 'wb'))
+        pickle.dump(selected_features, open(path, 'wb'))
 
 
 # --------------------------------------------------------------------------------------- #
 
 
-def load_selected_features(filename, X, method):
+def load_selected_features(path, X, method):
     """ 
     Load the selected features from disk
 
     Args: 
-        filename: name of the file to load
+        path: name of the file to load
 
     Return the data with the selected features
     """
     if method == 'PCA':
-        components = pickle.load(open(filename, 'rb'))
+        components = pickle.load(open(path, 'rb'))
         return components.transform(X)
     else:
-        selected_features = pickle.load(open(filename, 'rb'))
+        selected_features = pickle.load(open(path, 'rb'))
         return X[selected_features]
 
 

@@ -89,6 +89,14 @@ def plot_cv_results(cv, hyperparam, x_max):
         hyperparam: hyperparameter that was tuned by cross-validation and that we want to plot (a string) 
         x_max: the maximum value the hyperparameter can take
     """
+
+    # Get the regular numpy array from the MaskedArray
+    results = cv.cv_results_
+    scoring = 'Accuracy'
+    X_axis = np.array(results['param_%s' % hyperparam].data, dtype=float)
+    best_index = np.nonzero(results['rank_test_%s' % scoring] == 1)[0][0]
+    best_score = results['mean_test_%s' % scoring][best_index]
+
     plt.figure(figsize=(13, 13))
     plt.title('GridSearchCV evaluating using accuracy scoring', fontsize=16)
 
@@ -97,12 +105,7 @@ def plot_cv_results(cv, hyperparam, x_max):
 
     ax = plt.gca()
     ax.set_xlim(0, x_max)
-    ax.set_ylim(0.8, 1)
-
-    # Get the regular numpy array from the MaskedArray
-    results = cv.cv_results_
-    scoring = 'Accuracy'
-    X_axis = np.array(results['param_%s' % hyperparam].data, dtype=float)
+    ax.set_ylim(best_score-0.05, best_score+0.05)
 
     for sample, style in (('train', '--'), ('test', '-')):
         sample_score_mean = results['mean_%s_%s' % (sample, scoring)]
@@ -120,9 +123,6 @@ def plot_cv_results(cv, hyperparam, x_max):
             alpha=1 if sample == 'test' else 0.7,
             label='%s (%s)' % (scoring, sample),
             )
-
-    best_index = np.nonzero(results['rank_test_%s' % scoring] == 1)[0][0]
-    best_score = results['mean_test_%s' % scoring][best_index]
 
     # Plot a dotted vertical line at the best score for that scorer marked by x
     ax.plot(

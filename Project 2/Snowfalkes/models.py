@@ -71,16 +71,16 @@ def get_model_features_selection(X, y, method, param = None, plot = False, seed 
         print('If param > 1 PCA has a number of components equal to param.')
         print('If param < 1 PCA select the best number of combonent in order to have an explained variance ratio equal to param')
         # define the method
-        pca = PCA(n_components = param, feature_names_in_ = X.columns).fit(X)
+        pca = PCA(n_components = param).fit(X)
         # transform the data
-        model = SelectFromModel(pca, prefit = True)
+        #model = SelectFromModel(pca, prefit = True)
         if plot:
             pca = PCA()
             pca.fit(X)
             plt.plot(np.cumsum(pca.explained_variance_ratio_))
             plt.xlabel('number of components')
             plt.ylabel('cumulative explained variance')
-        return model
+        return pca
 
     elif method == "recursive":
         print("no param for this method")

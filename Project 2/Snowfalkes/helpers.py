@@ -155,25 +155,29 @@ def load_model(filename):
 # --------------------------------------------------------------------------------------- #
 
 
-def save_selected_features(filename, model, X):
+def save_selected_features(filename, model, X, method):
     """
     Save features obtained after feature selection
 
     Args:
         filename: name of the pickel file ('name.pkl')
         model: fitted model obtained after feature selection
+        model_name: name of the model to save (string)
 
     Return a pickel file containing an array of the name of the selected features
     """
-    feature_idx = model.get_support()
-    selected_features = X.columns[feature_idx]
-    return pickle.dump(selected_features, open(filename, 'wb'))
+    if method == 'PCA':
+        return pickle.dump(model, open(filename, 'wb'))
+    else:
+        feature_idx = model.get_support()
+        selected_features = X.columns[feature_idx]
+        return pickle.dump(selected_features, open(filename, 'wb'))
 
 
 # --------------------------------------------------------------------------------------- #
 
 
-def load_selected_features(filename, X):
+def load_selected_features(filename, X, method):
     """ 
     Load the selected features from disk
 
@@ -182,16 +186,21 @@ def load_selected_features(filename, X):
 
     Return the data with the selected features
     """
-    selected_features = pickle.load(open(filename, 'rb'))
-
-    return X[selected_features]
+    if method == 'PCA':
+        components = pickle.load(open(filename, 'rb'))
+        return components.transform(X)
+    else:
+        selected_features = pickle.load(open(filename, 'rb'))
+        return X[selected_features]
 
 
 # --------------------------------------------------------------------------------------- #
 
 
-def feature_transform(model, X):
-    feature_idx = model.get_support()
-    selected_features = X.columns[feature_idx]
-
-    return X[selected_features]
+def feature_transform(model, X, method):
+    if method == 'PCA':
+        return model.transform(X)
+    else:
+        feature_idx = model.get_support()
+        selected_features = X.columns[feature_idx]
+        return X[selected_features]

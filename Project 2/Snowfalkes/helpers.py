@@ -1,26 +1,14 @@
 # Import the used libraries
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import os
 import pickle
 from IPython.display import display
 
 # Import sklearn librairies
-from sklearn.feature_selection import *
-from sklearn.model_selection import *
-from sklearn.ensemble import *
-from sklearn.neural_network import *
-from sklearn.pipeline import *
-from sklearn.preprocessing import *
-from sklearn.linear_model import *
-from yellowbrick.model_selection import *
-from sklearn.svm import *
-from sklearn.decomposition import *
 from sklearn import *
 from sklearn.metrics import *
-from sklearn.multiclass import *
 from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import *
 
 
 # --------------------------------------------------------------------------------------- #
@@ -30,11 +18,11 @@ def classification_accuracy(y_true, y_pred):
     """
     Calculate the accurary for each class
 
-    Args: 
+    Args : 
         y_true : the real target to reach
         y_pred : the prediction for the target obtained with a model
 
-    Returns:
+    Returns :
         Classes of the true set
     """
     y_true_ = y_true.reset_index(drop = True)
@@ -62,7 +50,7 @@ def split_data(X, y, kfold = 5, seed = 0):
         kfold : number of splits (default = 5)
         seed: seed to use for the random state of the split (default = 0)
 
-    Returns:
+    Returns :
         Resulting split data in a X_train, y_train, X_test, y_test
     """
     skf = StratifiedKFold(n_splits = kfold, 
@@ -94,16 +82,16 @@ def split_data(X, y, kfold = 5, seed = 0):
 
 def smote_data_augmentation (X, y, seed = 0):
     """
-    data augmentation for imbalanced problem using the SMOTE algorithm
+    Data augmentation for imbalanced problem using the SMOTE algorithm
 
-    Args:
-        X, y: dataset to resample
-        seed: seed to use for the random state for SMOTE algorithm (default = 0)
+    Args :
+        X, y : dataset to resample
+        seed : seed to use for the random state for SMOTE algorithm (default = 0)
 
-    Returns:
+    Returns :
         Resampled X and y
     """
-    sm = SMOTE(sampling_strategy='auto', random_state = seed)
+    sm = SMOTE(sampling_strategy = 'auto', random_state = seed)
     X_rs, y_rs = sm.fit_resample(X, y)
 
     return X_rs, y_rs
@@ -116,11 +104,11 @@ def save_model(path, model):
     """
     Save model
 
-    Args:
+    Args :
         path: path of the pickel file (.pkl)
         model: tuned model to save
 
-    Returns:
+    Returns :
         Pickel file containing the tuned model
     """
     # save the model to disk
@@ -134,10 +122,10 @@ def load_model(path):
     """ 
     Load the model from disk
 
-    Args: 
-        path: path of the file to load
+    Args : 
+        path : path of the file to load
 
-    Returns:
+    Returns :
         Loaded model
     """
     return pickle.load(open(path, 'rb'))
@@ -150,12 +138,12 @@ def save_selected_features(path, model, X, method):
     """
     Save features obtained after feature selection
 
-    Args:
-        path: path of the pickel file (.pkl)
-        model: fitted model obtained after feature selection
-        model_name: name of the model to save (string)
+    Args :
+        path : path of the pickel file (.pkl)
+        model : fitted model obtained after feature selection
+        model_name : name of the model to save (string)
 
-    Returns:
+    Returns :
         Pickel file containing an array of the name of the selected features
     """
     if method == 'PCA':
@@ -173,12 +161,12 @@ def load_selected_features(path, X, method):
     """ 
     Load the selected features from disk
 
-    Args: 
-        path: path of the file to load
-        X: initial dataset on which feature selection will be applied
-        method: method used for feature selection (string)
+    Args : 
+        path : path of the file to load
+        X : initial dataset on which feature selection will be applied
+        method : method used for feature selection (string)
 
-    Returns:
+    Returns :
         Data with the selected features
     """
     if method == 'PCA':
@@ -196,12 +184,12 @@ def feature_transform(model, X, method):
     """
     Transform the dataset in order to keep only features selected by method
 
-    Args:
-        model: model containing the features selected using the method
-        X: initial dataset to reduce
-        method: method used for feature selection
+    Args :
+        model : model containing the features selected using the method
+        X : initial dataset to reduce
+        method : method used for feature selection
 
-    Returns:
+    Returns :
         Dataset reduced containing the features selected by method
     """
 

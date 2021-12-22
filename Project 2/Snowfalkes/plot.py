@@ -6,6 +6,9 @@ import seaborn as sns
 from IPython.display import display
 import warnings
 
+# Import sklearn librairies
+from sklearn.metrics import *
+
 
 # --------------------------------------------------------------------------------------- #
 

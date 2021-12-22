@@ -42,33 +42,31 @@ def plot_feature_importance (model, threshold = 0.5):
     Args:
         model : model for which feature importance will be plot
         threshold : if the importance of feature is below the thrashod the feature will be removed
-    
-    Return a dataframe with feature id assigned to the name of the feature
-
     """
 
+    # get the feature importance coefficient for the model
     importance = np.abs(model.coef_[0])
     feature_names = model.feature_names_in_
 
-    #create a dataframe that assign to each importance value its corresponding feature name
+    # create a dataframe that assign to each importance value its corresponding feature name
     importance = pd.DataFrame(importance, feature_names)
 
-    #sort importance in decreasing order
+    # sort importance in decreasing order
     importance = importance.sort_values(by=0,ascending=False)
 
-    #add a column to the sorted_importance dataframe to assign the color of the feature according to its type (geometric or texture)
+    # add a column to the sorted_importance dataframe to assign the color of the feature according to its type (geometric or texture)
     colors = np.empty(importance.shape[0], dtype=str)
     importance['color'] = colors
 
-    #select features present in the datasset
+    # select features present in the datasset
     geometry_list = list(set(importance.T.columns).intersection(geometry))
     texture_list = list(set(importance.T.columns).intersection(texture))
 
-    #assign color in function of the type of the feature
+    # assign color in function of the type of the feature
     importance['color'][geometry_list] = 'orange'
     importance['color'][texture_list] = 'green'
 
-    #remove feature with importance less than threshold
+    # remove feature with importance less than threshold
     importance = importance.where(importance[0] > threshold, np.nan)
     importance = importance.dropna()
 
@@ -84,7 +82,7 @@ def plot_feature_importance (model, threshold = 0.5):
     plt.legend(handles, labels)
     plt.show()
 
-    #assign name of the feature to its corresponding id
+    # assign name of the feature to its corresponding id
     print('Feature ID')
     print(pd.DataFrame(np.linspace(0, len(importance), num = len(importance), dtype=int), importance.T.columns, columns=['FeatureID']))
 
@@ -102,8 +100,13 @@ def plot_conf_matrix(model, X_test, y_test):
         y_test : true target  
     """
 
+    # predict the target using the model and the test set
     y_pred = model.predict(X_test)
+
+    # generate the confusion matrix
     cm = confusion_matrix(y_test, y_pred, normalize='true')
+
+    # plot the confusion matrix
     sns.heatmap(cm, annot=True, cmap = 'hot',
                 xticklabels=['none', 'rimed', 'densily rimed', 'graupel-like', 'graupel'], 
                 yticklabels=['none', 'rimed', 'densily rimed', 'graupel-like', 'graupel'])
@@ -123,7 +126,7 @@ def plot_cv_results(cv, hyperparam, x_max):
         x_max: the maximum value the hyperparameter can take
     """
 
-    # Get the regular numpy array from the MaskedArray
+    # get the regular numpy array from the MaskedArray
     results = cv.cv_results_
     scoring = 'Accuracy'
     X_axis = np.array(results['param_%s' % hyperparam].data, dtype=float)
@@ -157,7 +160,7 @@ def plot_cv_results(cv, hyperparam, x_max):
             label='%s (%s)' % (scoring, sample),
             )
 
-    # Plot a dotted vertical line at the best score for that scorer marked by x
+    # plot a dotted vertical line at the best score for that scorer marked by x
     ax.plot(
         [
             X_axis[best_index],
@@ -170,7 +173,7 @@ def plot_cv_results(cv, hyperparam, x_max):
         ms=8,
     )
 
-    # Annotate the best score for that scorer
+    # annotate the best score for that scorer
     ax.annotate('%0.2f' % best_score, (X_axis[best_index], best_score + 0.005))
 
     plt.legend(loc='best')

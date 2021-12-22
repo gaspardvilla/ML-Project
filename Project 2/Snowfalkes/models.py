@@ -109,7 +109,7 @@ def get_model_features_selection(X, y, method, param = None, plot = False, seed 
         return model
 
     elif method == 'forward selection':
-        print('MEESSAGE: param is the number of features that we want to keep in our model.')
+        print('MESSAGE: param is the number of features that we want to keep in our model.')
         estimator = OneVsRestClassifier(LogisticRegression(max_iter = 1000, 
                                                 class_weight = 'balanced', 
                                                 multi_class='multinomial', 
@@ -132,7 +132,7 @@ def get_model_features_selection(X, y, method, param = None, plot = False, seed 
 # --------------------------------------------------------------------------------------- #
 
 
-def get_model_MLR(ovr = False, seed = 0):
+def get_model_MLR(seed = 0):
     """
     Select Multinomial Logistic Regression model and parameters you would like to tune by using evaluate_model function
 
@@ -142,13 +142,8 @@ def get_model_MLR(ovr = False, seed = 0):
     Return the Logistic Regression model and its parameters to tune
     """
 
-    if ovr:
-        model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state = seed))
-        param = {'estimator__penalty':['none', 'l1','l2'], 
-				 'estimator__C':np.linspace(0.1, 0.11, num=10)}
-    else :
-        model = LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='none', random_state = seed)
-        param = {'penalty':['none', 'l1', 'l2'], 'C':np.linspace(0.1, 1, num=10)}
+    model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='l2', random_state = seed))
+    param = {'estimator__C':np.linspace(0, 10, num=100)}
     
     return model, param
 
@@ -168,10 +163,10 @@ def get_model_SVM(poly = False, seed = 0):
     """
 
     if poly:
-        param = {'estimator__C':np.linspace(1, 10, num=10), 'estimator__degree':np.linspace(0, 5, dtype = int)}
+        param = {'estimator__C':np.linspace(1, 10, num=100), 'estimator__degree':np.linspace(2, 5, dtype = int)}
         model = OneVsRestClassifier(estimator=SVC(kernel='poly', decision_function_shape='ovr', class_weight='balanced', random_state = seed))
     else:
-        param = {'estimator__C':np.linspace(1, 10, num=10), 'estimator__kernel':['linear', 'rbf', 'sigmoid']}
+        param = {'estimator__C':np.linspace(1, 10, num=100), 'estimator__kernel':['linear', 'rbf', 'sigmoid']}
         model = OneVsRestClassifier(estimator=SVC(decision_function_shape='ovr', class_weight='balanced', random_state = seed))
     return model, param
 

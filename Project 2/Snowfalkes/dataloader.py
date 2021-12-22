@@ -52,10 +52,34 @@ def get_classes(classifier):
 
             classes = pd.concat([classes, classes_cam])
     
+    elif classifier == 'riming':
+        for cam in range(3):
+            path_cam = os.path.join(path, str(classifier)+'_trainingset/riming_trainingset_cam'+str(cam)+ '.pkl')
+
+            if not os.path.isfile(path_cam):
+                download(path, classifier)
+            
+            classes_cam = pd.read_pickle(path_cam).reset_index(drop = True)
+
+            classes_cam['cam'] = cam
+
+            classes = pd.concat([classes, classes_cam])
+        classes = riming_pre_process_classes(classes)
+        
+
     else:
         raise ValueError("The string classifier must be 'hydro' or \
                                             'riming'.")
 
+    return classes
+
+
+# ------------------------------------------------------------------ #
+
+
+def riming_pre_process_classes(classes):
+    classes['class_id'] = classes.riming_id
+    classes = classes.drop('riming_id', axis = 1)
     return classes
 
 

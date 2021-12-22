@@ -29,6 +29,7 @@ from sklearn.neighbors import *
 
 # --------------------------------------------------------------------------------------- #
 
+#list of features giving geometric or textural information
 geometry = ['D90_r', 'Dmax', 'Dmax_90', 'Dmax_ori', 'Dmean', 'area', 'area_porous',
        'area_porous_r', 'bbox_len', 'bbox_width', 'compactness',
        'convexity', 'ell_fit_A', 'ell_fit_B', 'ell_fit_a_r',
@@ -45,6 +46,10 @@ geometry = ['D90_r', 'Dmax', 'Dmax_90', 'Dmax_ori', 'Dmean', 'area', 'area_porou
        'sym_std_mean_ratio']
 texture = ['intensity_max', 'intensity_mean','intensity_std', 'local_intens',
             'contrast', 'hist_entropy', 'complexity','wavs', 'local_std', 'lap_energy']
+
+
+# --------------------------------------------------------------------------------------- #
+
 
 def plot_feature_importance (model, threshold = 0.5):
     """

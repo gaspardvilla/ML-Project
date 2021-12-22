@@ -34,16 +34,20 @@ def get_model_features_selection(X, y, method, param = None, plot = False, seed 
     Select features according to a specific model
 
     Args:
-        X, y : data to use for fitting the model of feature selection
-        param : parameter of the model (depends on the model used for feature selection)
-        plot : True if you want to plot the corresponding graph of your model selected
+        X, y : data to use for fitting the method of feature selection
+        method : method to apply for feature selection ('lasso', 'lassoCV', 'PCA', 'recursive', 'recursiveCV')
+        param : parameter of the method (depends on the model used for feature selection) (default=None)
+        plot : True if you want to plot the corresponding graph for the method (default=False)
+        seed : 
 
-    Return a model to use for feature selection : either lasso, lassoCV, PCA, recursive or recursiveCV
+    Returns:
+        Model to use for feature selection : either lasso, lassoCV, PCA, recursive or recursiveCV
     """
-    #Avoid warning transform the y_train in y_test using .ravel()
+    # avoid warning transform the y_train in y_test using .ravel()
     y_ravel = np.array(y).ravel()
 
     if method == "lasso":
+        print("MESSAGE: param is the coefficient for regularization (positive float)")
         # define and fit the method
         lasso = Lasso(alpha = param).fit(X, y_ravel)
         model = SelectFromModel(lasso, prefit = True)
@@ -53,10 +57,11 @@ def get_model_features_selection(X, y, method, param = None, plot = False, seed 
             plt.bar(height=importance, x=feature_names)
             plt.title("Feature importances via coefficients")
             plt.show()
+        # retrun the model
         return model
 
     elif method == "lassoCV":
-        print("param = number of folds for cross validation (should be an int)")
+        print("MESSAGE: param is the number of folds for cross validation (should be an int)")
         # define and fit the method
         lassoCV = LassoCV(cv = param).fit(X, y_ravel)
         model = SelectFromModel(lassoCV, prefit = True)
@@ -66,25 +71,25 @@ def get_model_features_selection(X, y, method, param = None, plot = False, seed 
             plt.bar(height=importance, x=feature_names)
             plt.title("Feature importances via coefficients")
             plt.show()
+        # return the model
         return model
 
     elif method == "PCA":
-        print('If param > 1 PCA has a number of components equal to param.')
-        print('If param < 1 PCA select the best number of combonent in order to have an explained variance ratio equal to param')
+        print('MESSAGE: If param > 1 PCA has a number of components equal to param.')
+        print('MESSAGE: If param < 1 PCA select the best number of combonent in order to have an explained variance ratio equal to param')
         # define the method
         pca = PCA(n_components = param).fit(X)
-        # transform the data
-        #model = SelectFromModel(pca, prefit = True)
         if plot:
             pca = PCA()
             pca.fit(X)
             plt.plot(np.cumsum(pca.explained_variance_ratio_))
             plt.xlabel('number of components')
             plt.ylabel('cumulative explained variance')
+        # return the components
         return pca
 
     elif method == "recursive":
-        print("no param for this method")
+        print("MESSAGE: no param for this method")
         # define an estimator
         estimator = SVR(kernel="linear")
         # define and fit the method
@@ -95,15 +100,16 @@ def get_model_features_selection(X, y, method, param = None, plot = False, seed 
         return model
 
     elif method == "recursiveCV":
-        print("param = number of folds for cross validation (should be an int)")
+        print("MESSAGE: param is the number of folds for cross validation (should be an int)")
         # define an estimator
-        estimator = SVR(kernel = "linear") # we can try with other estimator functions such as GradientBoostingClassifier(), RandomForestClassifier(),...
+        estimator = SVR(kernel = "linear") 
         # define and fit the method
         model = RFECV(estimator, cv = param).fit(X, y_ravel)
         if plot:
             cv = StratifiedKFold(param)
             visualizer = RFECV(estimator, cv = cv)
-            visualizer.fit(X, y)        # Fit the data to the visualizer
+            # fit the data to the visualizer
+            visualizer.fit(X, y)       
             visualizer.show() 
         # return the model
         return model
@@ -139,7 +145,8 @@ def get_model_MLR(seed = 0):
     Args:
         ovr (One Versus the Rest): True if you want to use the OneVSRestClassifier
 
-    Return the Logistic Regression model and its parameters to tune
+    Returns:
+        Logistic Regression model and its parameters to tune
     """
 
     model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='l2', random_state = seed))
@@ -159,7 +166,8 @@ def get_model_SVM(poly = False, seed = 0):
     Args:
         poly: True if you want to use the polynomial kernel in your SVM model
 
-    Return the SVM model and its parameters to tune
+    Returns:
+        SVM model and its parameters to tune
     """
 
     if poly:
@@ -179,7 +187,7 @@ def get_model_RF(seed = 0):
     Select RandomForest model and parameters to tune by using evaluate_model function
 
     Returns:
-        The RandomForest model and the dictonnary of the hyperparameters to optimise with their scale
+        RandomForest model and the dictonnary of the hyperparameters to optimise with their scale
     """
     model = RandomForestClassifier(random_state = seed, class_weight='balanced')
 
@@ -199,7 +207,7 @@ def get_model_MLP(seed = 0):
     Select a neural network model and parameters to tune by using evaluate_model function
 
     Returns:
-        The MLP model and the dictonnary of the hyperparameters to optimise with their scale
+        MLP model and the dictonnary of the hyperparameters to optimise with their scale
     """
     model = MLPClassifier(hidden_layer_sizes = (100,50,50,100), random_state = seed)
 
@@ -218,7 +226,7 @@ def get_model_MLP(seed = 0):
 def get_model_KNN():
     """
     Returns:
-        The K-NN model and the dictonnary of the hyperparameters to optimise with their scale
+        K-NN model and the dictonnary of the hyperparameters to optimise with their scale
     """
     model = KNeighborsClassifier()
 

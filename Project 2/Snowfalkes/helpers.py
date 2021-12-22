@@ -33,6 +33,9 @@ def classification_accuracy(y_true, y_pred):
     Args: 
         y_true : the real target to reach
         y_pred : the prediction for the target obtained with a model
+
+    Returns:
+        Classes of the true set
     """
     y_true_ = y_true.reset_index(drop = True)
     classes = y_true_.class_id.unique()
@@ -49,16 +52,6 @@ def classification_accuracy(y_true, y_pred):
 # --------------------------------------------------------------------------------------- #
 
 
-def  classification_accuracy_transformed(y_true, y_pred):
-    target_names = ['class 1', 'class 2', 'class 3', 'class 4', 'class 5', 'class 6']
-    report = classification_report(y_true, y_pred, target_names = target_names)
-    print(report)
-    return None
-
-
-# --------------------------------------------------------------------------------------- #
-
-
 def split_data(X, y, kfold = 5, seed = 0):
     """
     Split the data in a balanced way
@@ -66,9 +59,11 @@ def split_data(X, y, kfold = 5, seed = 0):
     Args :
         X : dataset to split
         y : target to split
-        n_s : number of splits
+        kfold : number of splits (default = 5)
+        seed: seed to use for the random state of the split (default = 0)
 
-    Return the resulting split data in a X_train, y_train, X_test, y_test
+    Returns:
+        Resulting split data in a X_train, y_train, X_test, y_test
     """
     skf = StratifiedKFold(n_splits = kfold, 
                             shuffle = True, 
@@ -90,9 +85,6 @@ def split_data(X, y, kfold = 5, seed = 0):
             list_train.append(n_train)
             list_test.append(n_test)
 
-        #print('Train: ', list_train)
-        #Sprint('Test: ', list_test)
-
         return X_train, y_train, X_test, y_test
         break
 
@@ -100,24 +92,18 @@ def split_data(X, y, kfold = 5, seed = 0):
 # --------------------------------------------------------------------------------------- #
 
 
-def classes_transformed(classes):
-    lb = preprocessing.LabelBinarizer()
-    return pd.DataFrame(lb.fit_transform(classes))
-
-
-# --------------------------------------------------------------------------------------- #
-
-
-def smote_data_augmentation (X, y, seed=0):
+def smote_data_augmentation (X, y, seed = 0):
     """
     data augmentation for imbalanced problem using the SMOTE algorithm
 
     Args:
         X, y: dataset to resample
+        seed: seed to use for the random state for SMOTE algorithm (default = 0)
 
-    Return the resampled X and y
+    Returns:
+        Resampled X and y
     """
-    sm = SMOTE(sampling_strategy='auto', random_state=seed)
+    sm = SMOTE(sampling_strategy='auto', random_state = seed)
     X_rs, y_rs = sm.fit_resample(X, y)
 
     return X_rs, y_rs
@@ -126,33 +112,35 @@ def smote_data_augmentation (X, y, seed=0):
 # --------------------------------------------------------------------------------------- #
 
 
-def save_model(filename, model):
+def save_model(path, model):
     """
     Save model
 
     Args:
-        filename: name of the pickel file ('name.pkl')
-        model: tuned model
+        path: path of the pickel file (.pkl)
+        model: tuned model to save
 
-    Return a pickel file containing the tuned model
+    Returns:
+        Pickel file containing the tuned model
     """
     # save the model to disk
-    pickle.dump(model, open(filename, 'wb'))
+    pickle.dump(model, open(path, 'wb'))
 
 
 # --------------------------------------------------------------------------------------- #
 
 
-def load_model(filename):
+def load_model(path):
     """ 
     Load the model from disk
 
     Args: 
-        filename: name of the file to load
+        path: path of the file to load
 
-    Return the model
+    Returns:
+        Loaded model
     """
-    return pickle.load(open(filename, 'rb'))
+    return pickle.load(open(path, 'rb'))
 
 
 # --------------------------------------------------------------------------------------- #
@@ -163,11 +151,12 @@ def save_selected_features(path, model, X, method):
     Save features obtained after feature selection
 
     Args:
-        path: name of the pickel file ('name.pkl')
+        path: path of the pickel file (.pkl)
         model: fitted model obtained after feature selection
         model_name: name of the model to save (string)
 
-    Return a pickel file containing an array of the name of the selected features
+    Returns:
+        Pickel file containing an array of the name of the selected features
     """
     if method == 'PCA':
         pickle.dump(model, open(path, 'wb'))
@@ -185,9 +174,12 @@ def load_selected_features(path, X, method):
     Load the selected features from disk
 
     Args: 
-        path: name of the file to load
+        path: path of the file to load
+        X: initial dataset on which feature selection will be applied
+        method: method used for feature selection (string)
 
-    Return the data with the selected features
+    Returns:
+        Data with the selected features
     """
     if method == 'PCA':
         components = pickle.load(open(path, 'rb'))
@@ -201,9 +193,26 @@ def load_selected_features(path, X, method):
 
 
 def feature_transform(model, X, method):
+    """
+    Transform the dataset in order to keep only features selected by method
+
+    Args:
+        model: model containing the features selected using the method
+        X: initial dataset to reduce
+        method: method used for feature selection
+
+    Returns:
+        Dataset reduced containing the features selected by method
+    """
+
     if method == 'PCA':
+        # return the new dataset projected on the principal components
         return model.transform(X)
     else:
         feature_idx = model.get_support()
         selected_features = X.columns[feature_idx]
+        # return the reduced dataset
         return X[selected_features]
+
+
+# --------------------------------------------------------------------------------------- #

@@ -10,22 +10,6 @@ import pickle
 from IPython.display import display
 import warnings
 
-# Import sklearn librairies
-from sklearn.feature_selection import *
-from sklearn.model_selection import *
-from sklearn.ensemble import *
-from sklearn.neural_network import *
-from sklearn.pipeline import *
-from sklearn.preprocessing import *
-from sklearn.linear_model import *
-from yellowbrick.model_selection import *
-from sklearn.svm import *
-from sklearn.decomposition import *
-from sklearn import *
-from sklearn.metrics import *
-from sklearn.multiclass import *
-from sklearn.neighbors import *
-
 
 # --------------------------------------------------------------------------------------- #
 
@@ -101,8 +85,8 @@ def plot_feature_importance (model, threshold = 0.5):
     plt.show()
 
     #assign name of the feature to its corresponding id
-    feature_id = pd.DataFrame(np.linspace(0, len(importance), num = len(importance), dtype=int), importance.T.columns)
-    return feature_id
+    print('Feature ID')
+    print(pd.DataFrame(np.linspace(0, len(importance), num = len(importance), dtype=int), importance.T.columns, columns=['FeatureID']))
 
 
 # --------------------------------------------------------------------------------------- #
@@ -192,3 +176,6 @@ def plot_cv_results(cv, hyperparam, x_max):
     plt.legend(loc='best')
     plt.grid(False)
     plt.show()
+
+
+# --------------------------------------------------------------------------------------- #

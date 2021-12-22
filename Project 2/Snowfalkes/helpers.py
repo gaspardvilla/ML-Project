@@ -137,7 +137,7 @@ def save_model(filename, model):
     Return a pickel file containing the tuned model
     """
     # save the model to disk
-    return pickle.dump(model, open(filename, 'wb'))
+    pickle.dump(model, open(filename, 'wb'))
 
 
 # --------------------------------------------------------------------------------------- #

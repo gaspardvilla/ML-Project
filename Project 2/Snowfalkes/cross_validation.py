@@ -30,7 +30,7 @@ from sklearn.metrics import *
 # --------------------------------------------------------------------------------------- #
 
 
-def evaluate_model(model, param, X_train, y_train, X_test, y_test):
+def evaluate_model(model, param, X_train, y_train, X_test, y_test, verbosity = 0):
     """
     Grid Search for the model to select the best parameters
     Evaluation of a model 
@@ -50,7 +50,7 @@ def evaluate_model(model, param, X_train, y_train, X_test, y_test):
 
     #Grid Search to tune the parameters
     scoring = {'Accuracy': make_scorer(accuracy_score)}
-    clf = GridSearchCV(model, param, scoring=scoring, refit='Accuracy', return_train_score=True, verbose=1).fit(X_train, y_train_ravel)
+    clf = GridSearchCV(model, param, scoring=scoring, refit='Accuracy', return_train_score=True, verbose=verbosity).fit(X_train, y_train_ravel)
 
     #Predict using the best fitted model on the train set to verify we avoid overfitting
     y_pred_train = clf.predict(X_train)

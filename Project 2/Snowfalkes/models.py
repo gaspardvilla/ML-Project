@@ -143,7 +143,7 @@ def get_model_MLR(seed = 0):
     """
 
     model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='l2', random_state = seed))
-    param = {'estimator__C':np.linspace(0, 10, num=100)}
+    param = {'estimator__C':np.linspace(0, 20, num = 100)}
     
     return model, param
 
@@ -163,7 +163,7 @@ def get_model_SVM(poly = False, seed = 0):
     """
 
     if poly:
-        param = {'estimator__C':np.linspace(1, 10, num=100), 'estimator__degree':np.linspace(2, 5, dtype = int)}
+        param = {'estimator__C':np.linspace(1, 10, num=50), 'estimator__degree':np.linspace(2, 5, dtype = int)}
         model = OneVsRestClassifier(estimator=SVC(kernel='poly', decision_function_shape='ovr', class_weight='balanced', random_state = seed))
     else:
         param = {'estimator__C':np.linspace(1, 10, num=100), 'estimator__kernel':['linear', 'rbf', 'sigmoid']}
@@ -183,10 +183,10 @@ def get_model_RF(seed = 0):
     """
     model = RandomForestClassifier(random_state = seed, class_weight='balanced')
 
-    param = {"n_estimators": np.linspace(200,2000,10, dtype=int),
-            "min_samples_leaf": np.linspace(1,4,4, dtype=int),
-            "max_depth": np.linspace(10,100,10, dtype=int),
-            "min_samples_split": np.linspace(2,10,3,dtype=int)}
+    param = {"n_estimators": np.linspace(200, 1000, 5, dtype = int),
+            "min_samples_leaf": np.linspace(1, 4, 4, dtype = int),
+            "max_depth": np.linspace(10, 50, 5, dtype = int),
+            "min_samples_split": np.linspace(2, 10, 3, dtype = int)}
 			  
     return model, param
 
@@ -201,13 +201,14 @@ def get_model_MLP(seed = 0):
     Returns:
         The MLP model and the dictonnary of the hyperparameters to optimise with their scale
     """
-    model = MLPClassifier(hidden_layer_sizes = (100,50,50,100), random_state = seed)
+    model = MLPClassifier(hidden_layer_sizes = (100, 50, 50, 100), 
+                            solver = 'sgd',
+                            learning_rate = 'constant',
+                            random_state = seed)
 
     param = {"activation" : ['tanh', 'relu'],
-            "solver": ['sgd', 'adam'],
-            "alpha": np.logspace(0,-4,5),
-            "learning_rate_init": np.logspace(-1,-5,10),
-            "learning_rate": ['constant', 'adaptive']}
+            "alpha": np.logspace(0, -4, 5),
+            "learning_rate_init": np.logspace(-1, -5, 15)}
 			  
     return model, param
 

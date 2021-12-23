@@ -174,7 +174,7 @@ def get_model_SVM(poly = False, seed = 0):
     """
 
     if poly:
-        param = {'estimator__C':np.linspace(1, 10, num=50), 'estimator__degree':np.linspace(2, 5, dtype = int)}
+        param = {'estimator__C':np.linspace(1, 10, 50), 'estimator__degree':np.linspace(2, 5, 4, dtype = int)}
         model = OneVsRestClassifier(estimator=SVC(kernel='poly', decision_function_shape='ovr', class_weight='balanced', random_state = seed))
     else:
         param = {'estimator__C':np.linspace(1, 10, num=100), 'estimator__kernel':['linear', 'rbf', 'sigmoid']}

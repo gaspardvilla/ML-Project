@@ -151,7 +151,12 @@ def get_model_MLR(seed = 0):
         Logistic Regression model and its parameters to tune
     """
 
-    model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, class_weight = 'balanced', multi_class='multinomial', solver='lbfgs', penalty='l2', random_state = seed))
+    model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, 
+                                                    class_weight = 'balanced', 
+                                                    multi_class='multinomial', 
+                                                    solver='lbfgs', 
+                                                    penalty='l2', 
+                                                    random_state = seed))
     param = {'estimator__C':np.linspace(0, 20, num = 100)}
     
     return model, param
@@ -175,10 +180,15 @@ def get_model_SVM(poly = False, seed = 0):
 
     if poly:
         param = {'estimator__C':np.linspace(1, 10, 50), 'estimator__degree':np.linspace(2, 5, 4, dtype = int)}
-        model = OneVsRestClassifier(estimator=SVC(kernel='poly', decision_function_shape='ovr', class_weight='balanced', random_state = seed))
+        model = OneVsRestClassifier(estimator=SVC(kernel='poly', 
+                                                    decision_function_shape='ovr', 
+                                                    class_weight='balanced', 
+                                                    random_state = seed))
     else:
         param = {'estimator__C':np.linspace(1, 10, num=100), 'estimator__kernel':['linear', 'rbf', 'sigmoid']}
-        model = OneVsRestClassifier(estimator=SVC(decision_function_shape='ovr', class_weight='balanced', random_state = seed))
+        model = OneVsRestClassifier(estimator=SVC(decision_function_shape='ovr', 
+                                                        class_weight='balanced', 
+                                                        random_state = seed))
     
     return model, param
 
@@ -196,7 +206,8 @@ def get_model_RF(seed = 0):
     Returns:
         RandomForest model and the dictonnary of the hyperparameters to optimise with their scale
     """
-    model = RandomForestClassifier(random_state = seed, class_weight='balanced')
+    model = RandomForestClassifier(random_state = seed, 
+                                    class_weight='balanced')
 
     param = {"n_estimators": np.linspace(200, 1000, 5, dtype = int),
             "min_samples_leaf": np.linspace(1, 4, 4, dtype = int),
@@ -250,3 +261,95 @@ def get_model_KNN():
 
 
 # --------------------------------------------------------------------------------------- #
+
+
+def get_list_models():
+    """
+    Return just the list of pre-trained models
+    """
+    return ['MLP', 'MLR', 'SVM', 'SVM_poly', 'RF']
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+def best_model(name, seed = 0):
+    """
+    Return the best trained model
+    """
+    if name == 'hydro_MLP':
+        model = MLPClassifier(hidden_layer_sizes = (100, 50, 50, 100), 
+                                solver = 'sgd',
+                                learning_rate = 'constant',
+                                random_state = seed, #
+                                activation = 'relu',
+                                alpha = 0.001,
+                                learning_rate_init = 0.0072)
+    elif name == 'hydro_MLR':
+        model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, 
+                                                        class_weight = 'balanced', 
+                                                        multi_class='multinomial', 
+                                                        solver='lbfgs', 
+                                                        penalty='l2', 
+                                                        random_state = seed, #
+                                                        C = 3.43))
+    elif name == 'hydro_SVM':
+        model = OneVsRestClassifier(estimator=SVC(decision_function_shape='ovr', 
+                                                            class_weight='balanced', 
+                                                            random_state = seed, #
+                                                            C = 10,
+                                                            kernel = 'rbf'))
+    elif name == 'hydro_SVM_poly':
+        model = OneVsRestClassifier(estimator=SVC(kernel='poly', 
+                                                    decision_function_shape='ovr', 
+                                                    class_weight='balanced', 
+                                                    random_state = seed, #
+                                                    C = 9.63, 
+                                                    degree = 3))
+    elif name == 'hydro_RF':
+        model = RandomForestClassifier(random_state = seed, 
+                                        class_weight='balanced', #
+                                        max_depth = 20,
+                                        min_samples_leaf = 1,
+                                        min_samples_split = 2,
+                                        n_estimators = 400)
+    elif name == 'riming_MLP':
+        model = MLPClassifier(hidden_layer_sizes = (100, 50, 50, 100), 
+                                solver = 'sgd',
+                                learning_rate = 'constant',
+                                random_state = seed, #
+                                activation = 'tanh',
+                                alpha = 0.01,
+                                learning_rate_init = 0.0518)
+    elif name == 'riming_MLR':
+        model = OneVsRestClassifier(LogisticRegression(max_iter = 1000, 
+                                                        class_weight = 'balanced', 
+                                                        multi_class='multinomial', 
+                                                        solver='lbfgs', 
+                                                        penalty='l2', 
+                                                        random_state = seed, #
+                                                        C = 16.36))
+    elif name == 'riming_SVM':
+        model = OneVsRestClassifier(estimator=SVC(decision_function_shape='ovr', 
+                                                        class_weight='balanced', 
+                                                        random_state = seed, #
+                                                        C = 9.09,
+                                                        kernel = 'rbf'))
+    elif name == 'riming_SVM_poly':
+        model = OneVsRestClassifier(estimator=SVC(kernel='poly', 
+                                                    decision_function_shape='ovr', 
+                                                    class_weight='balanced', 
+                                                    random_state = seed, #
+                                                    C = 10, 
+                                                    degree = 3))
+    elif name == 'riming_RF':
+        model = RandomForestClassifier(random_state = seed, 
+                                        class_weight='balanced', #
+                                        max_depth = 30,
+                                        min_samples_leaf = 1,
+                                        min_samples_split = 2,
+                                        n_estimators = 400)
+    else:
+        raise ValueError('Wrong name')
+    return model
+

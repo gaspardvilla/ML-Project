@@ -34,13 +34,15 @@ texture = ['intensity_max', 'intensity_mean','intensity_std', 'local_intens',
 # --------------------------------------------------------------------------------------- #
 
 
-def plot_feature_importance (model, threshold = 0.5):
+def plot_feature_importance (model, path, title, threshold = 0.5):
     """
     Plot the importance of the feature
 
     Args:
         model : model for which feature importance will be plot
+        path : path of the plot to save
         threshold : if the importance of feature is below the thrashod the feature will be removed
+        
     """
 
     # get the feature importance coefficient for the model
@@ -61,9 +63,13 @@ def plot_feature_importance (model, threshold = 0.5):
     geometry_list = list(set(importance.T.columns).intersection(geometry))
     texture_list = list(set(importance.T.columns).intersection(texture))
 
+    # Assign colors
+    geom_color = 'orange'
+    text_color = 'green'
+
     # assign color in function of the type of the feature
-    importance['color'][geometry_list] = 'orange'
-    importance['color'][texture_list] = 'green'
+    importance['color'][geometry_list] = geom_color
+    importance['color'][texture_list] = text_color
 
     # remove feature with importance less than threshold
     importance = importance.where(importance[0] > threshold, np.nan)
@@ -71,32 +77,54 @@ def plot_feature_importance (model, threshold = 0.5):
 
     # plot feature importance       
     labels = list(['Geometry', 'Texture'])
-    colors = {'Geometry':'orange', 'Texture':'green'}
+    colors = {'Geometry': geom_color, 'Texture': text_color}
     handles = [plt.Rectangle((0,0),1,1, color = colors[label]) for label in labels]
     plt.bar([x for x in range(len(importance))], 
             importance[0], 
-            color=importance['color'])
-    plt.title('Riming degree')
+            color = importance['color'])
+    plt.title(title)
     plt.xlabel('Feature ID'), plt.ylabel('Feature importance')
     plt.legend(handles, labels)
+    # save the figure to file 
+    plt.savefig(path)
     plt.show()
 
     # assign name of the feature to its corresponding id
     print('Feature ID')
-    print(pd.DataFrame(np.linspace(0, len(importance), num = len(importance), dtype = int), importance.T.columns, columns = ['FeatureID']))
+    print(pd.DataFrame(np.linspace(0, len(importance), num = len(importance), dtype = int), 
+                      importance.T.columns, 
+                      columns = ['FeatureID']))
+
+      
+
+# --------------------------------------------------------------------------------------- #
+
+
+def plot_conf_matrix(classifier, model, X_test, y_test, path, title):
+    """
+    Plot the confusion matrix for the model
+    """
+    
+    if classifier == 'riming':
+        plot_conf_matrix_riming(model, X_test, y_test, path, title)
+    elif classifier == 'hydro':
+        plot_conf_matrix_hydro(model, X_test, y_test, path, title)
+    else:
+        raise ValueError('Wrong classifier')
 
 
 # --------------------------------------------------------------------------------------- #
 
 
-def plot_conf_matrix(model, X_test, y_test):
+def plot_conf_matrix_riming(model, X_test, y_test, path, title):
     """
     Plot the confusion matrix for the model
 
     Args :
         model : model for which the confusion will be plot
         X_test : dataset used for predicting the target using the model
-        y_test : true target  
+        y_test : true target 
+        path : path of the plot to save 
     """
 
     # predict the target using the model and the test set
@@ -106,16 +134,51 @@ def plot_conf_matrix(model, X_test, y_test):
     cm = confusion_matrix(y_test, y_pred, normalize = 'true')
 
     # plot the confusion matrix
-    sns.heatmap(cm, annot = True, cmap = 'hot',
+    cmap = plt.cm.get_cmap('YlGnBu').reversed()
+    sns.heatmap(cm, annot = True, cmap = cmap,
                 xticklabels = ['none', 'rimed', 'densily rimed', 'graupel-like', 'graupel'], 
                 yticklabels = ['none', 'rimed', 'densily rimed', 'graupel-like', 'graupel'])
-    plt.title('Confusion Matrix')
+    plt.title(title)
+
+    # save the figure to file 
+    plt.savefig(path)
 
 
 # --------------------------------------------------------------------------------------- #
 
 
-def plot_cv_results(cv, hyperparam, x_max):
+def plot_conf_matrix_hydro(model, X_test, y_test, path, title):
+    """
+    Plot the confusion matrix for the model
+
+    Args :
+        model : model for which the confusion will be plot
+        X_test : dataset used for predicting the target using the model
+        y_test : true target 
+        path : path of the plot to save 
+    """
+
+    # predict the target using the model and the test set
+    y_pred = model.predict(X_test)
+
+    # generate the confusion matrix
+    cm = confusion_matrix(y_test, y_pred, normalize = 'true')
+
+    # plot the confusion matrix
+    cmap = plt.cm.get_cmap('YlGnBu').reversed()
+    sns.heatmap(cm, annot = True, cmap = cmap,
+                xticklabels = ['SP', 'CC', 'PC', 'CPC', 'AG', 'GR'], 
+                yticklabels = ['SP', 'CC', 'PC', 'CPC', 'AG', 'GR'])
+    plt.title(title)
+
+    # save the figure to file 
+    plt.savefig(path)
+
+
+# --------------------------------------------------------------------------------------- #
+
+
+def plot_cv_results(cv, hyperparam, x_max, path):
     """
     Plot the accuracy score of both test and train set as a function of the hyperpar
     
@@ -123,6 +186,7 @@ def plot_cv_results(cv, hyperparam, x_max):
         cv : the returned cross-validation model after its evaluation by evaluate_model
         hyperparam : hyperparameter that was tuned by cross-validation and that we want to plot (a string) 
         x_max : the maximum value the hyperparameter can take
+        path : path of the plot to save
     """
 
     # get the regular numpy array from the MaskedArray
@@ -177,6 +241,10 @@ def plot_cv_results(cv, hyperparam, x_max):
 
     plt.legend(loc = 'best')
     plt.grid(False)
+
+    # save the figure to file 
+    plt.savefig(path)
+
     plt.show()
 
 

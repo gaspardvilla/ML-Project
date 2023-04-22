@@ -63,19 +63,8 @@ def split_data(X, y, kfold = 5, seed = 0):
         y_train = y.iloc[train_idx]
         y_test = y.iloc[test_idx]
 
-        list_train = []
-        list_test = []
-
-        for i in range(1, 7):
-            n_train = len(y_train[y_train['class_id'] == i])
-            n_test = len(y_test[y_test['class_id'] == i])
-
-            list_train.append(n_train)
-            list_test.append(n_test)
-
         return X_train, y_train, X_test, y_test
-        break
-
+        
 
 # --------------------------------------------------------------------------------------- #
 
@@ -118,22 +107,6 @@ def save_model(path, model):
 # --------------------------------------------------------------------------------------- #
 
 
-def load_model(path):
-    """ 
-    Load the model from disk
-
-    Args : 
-        path : path of the file to load
-
-    Returns :
-        Loaded model
-    """
-    return pickle.load(open(path, 'rb'))
-
-
-# --------------------------------------------------------------------------------------- #
-
-
 def save_selected_features(path, model, X, method):
     """
     Save features obtained after feature selection
@@ -152,29 +125,6 @@ def save_selected_features(path, model, X, method):
         feature_idx = model.get_support()
         selected_features = X.columns[feature_idx]
         pickle.dump(selected_features, open(path, 'wb'))
-
-
-# --------------------------------------------------------------------------------------- #
-
-
-def load_selected_features(path, X, method):
-    """ 
-    Load the selected features from disk
-
-    Args : 
-        path : path of the file to load
-        X : initial dataset on which feature selection will be applied
-        method : method used for feature selection (string)
-
-    Returns :
-        Data with the selected features
-    """
-    if method == 'PCA':
-        components = pickle.load(open(path, 'rb'))
-        return components.transform(X)
-    else:
-        selected_features = pickle.load(open(path, 'rb'))
-        return X[selected_features]
 
 
 # --------------------------------------------------------------------------------------- #
